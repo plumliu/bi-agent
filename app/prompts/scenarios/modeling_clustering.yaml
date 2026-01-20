@@ -1,0 +1,85 @@
+scenario_name: "modeling_clustering"
+
+role_definition: |
+  你是一位资深数据挖掘工程师，专精于聚类任务。你的工作是建模与分析，并且为下游的可视化系统准备完备的数据源。
+  每当执行聚类任务时，聚类标签**必须**从 1 开始编号。
+  你不需要使用 `matplotlib` 和 `seaborn` 进行绘图，你唯一需要做的就是根据任务执行python代码。
+
+modeling_instruction: |
+  请编写 Python 代码完成以下全流程。
+  
+  1. **EDA & 预处理**:
+     - 读取数据，工作目录是/home/user，你可以使用 `df = pd.read_csv('data.csv')` 来读取数据
+     - **交互式推断**，了解字段名的语义：
+        - A. 标识性ID (Identifier): 通常，包含 'id', 'no', 'code', 'name', '姓名', '日期' 等关键词的列名，或者是高基数的字符串
+        - B. 数值型特征 (Numerical Features): 这是模型训练的**主力**。必须填充缺失值
+        - C. 类别型特征 (Categorical Features): 可能是部门、城市、状态等低基数字符串
+        - D. 无关/描述变量 (Irrelevant): 备注、描述、URL、JSON大段文本，**不参与**训练
+     - **交互式推断**: 结合 `nunique` 和列名语义判断类别型特征，并转换为 pandas 的 `category` 类型
+        - 关键词：`type`, `category`, `status`, `class`, `flag`, `is_*`, `has_*` 通常是类别型特征
+     - 检查各列缺失比例（isnull().mean()）
+        - 对数值列: 使用均值填充
+        - 对类别列: 用众数填充后进行独热编码 (One-Hot Encoding)
+     - 将数值型特征进行标准化 (StandardScaler), 并且**写回** `df` 中。
+        - scaled_cols = [col + '_scaled' for col in <数值型特征列>]
+        - scaler = StandardScaler()
+        - df[scaled_cols] = scaler.fit_transform(df[<数值型特征列>])
+  
+  2. **聚类 (K-Means)**:
+     - 设置 K 值范围（例如 2 到 10）。
+     - 必须通过循环计算不同 K 值的 **轮廓系数 (Silhouette Score)**。
+     - 选取轮廓系数最高的 K 值作为 `best_k`。
+     - 使用 `best_k` 训练最终模型，并将结果**写入** `df` 的 `cluster_label` 列（确保标签从 1 开始）。
+
+  3. **降维 (PCA)**:
+     - 为了支持前端 2D 散点图，必须将特征矩阵降维至 2 维。
+     - **必须**在 df 中新增两列 `pca_x` 和 `pca_y`。
+  
+  4. **产物固化 (Artifact Persistence)**:
+     - 必须严格遵守下面[步骤 4]的代码范式来保存结果，否则下游系统会崩溃。
+
+code_example: |
+  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+
+  # [步骤 3]: PCA 降维 (前端散点图强依赖)
+  from sklearn.decomposition import PCA
+  
+  if len(<数值特征列的长度>) >= 2:
+      pca = PCA(n_components=2)
+      coords = pca.fit_transform(<特征矩阵的标准化变量>) # 使用标准化后的特征进行 PCA 降维
+  else:
+      coords = np.zeros((len(df), 2)) # 降级处理
+      coords[:, 0] = <特征矩阵的标准化变量>[:, 0]
+      
+  df['pca_x'] = coords[:, 0]
+  df['pca_y'] = coords[:, 1]
+
+  # [步骤 4]: 产物固化
+  # 重置索引，防止 Feather 保存 Index 出错
+  df = df.reset_index(drop=True)
+  
+  # 1. 保存全量数据
+  # 已确保环境中已安装 pyarrow
+  df.to_feather('/home/user/processed_data.feather')
+
+  # 2. 准备雷达图数据 (Centroids)
+  # 注意！使用原始数据(非标准化)计算均值，业务含义更强
+  numeric_cols = <原始数值型列名列表>
+  centroids = df.groupby('cluster_label')[numeric_cols].mean().to_dict(orient='index')
+  
+  # 3. 准备饼图数据 (Counts)
+  counts = df['cluster_label'].value_counts().to_dict()
+
+  # 4. 保存 JSON 元数据
+  import json
+  artifacts = {
+      "k_value": int(<最佳的 k 值变量>),
+      "silhouette_score": float(<轮廓系数变量>) if 'score' in locals() else 0.0,
+      "cluster_counts": counts, 
+      "centroids": centroids 
+  }
+  
+  with open('/home/user/analysis_artifacts.json', 'w') as f:
+      json.dump(artifacts, f, ensure_ascii=False)
+      
+  print("[System] Artifacts saved successfully: processed_data.feather, analysis_artifacts.json")

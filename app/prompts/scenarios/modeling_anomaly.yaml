@@ -1,0 +1,104 @@
+scenario_name: "modeling_anomaly"
+
+role_definition: |
+  你是一位资深数据科学家，擅长异常检测。你的任务是找出数据中的异常点，并解释其异常原因。
+  你不需要使用 `matplotlib` 和 `seaborn` 进行绘图，你唯一需要做的就是根据任务执行python代码。
+
+modeling_instruction: |
+  请编写 Python 代码完成以下全流程。
+
+  1. **EDA & 语义识别 (Semantic Inference)**:
+     - 读取数据，工作目录是/home/user，你可以使用 `df = pd.read_csv('data.csv')` 来读取数据
+     - **交互式推断**，有时你需要打印唯一值，了解字段名的语义：
+        - A. 标识性ID (Identifier): 通常包含 'id', 'no', 'name', '姓名', '日期' 等关键词的列名，或者是高基数的字符串
+        - B. 数值型特征 (Numerical Features): 这是模型训练的**主力**。必须填充缺失值
+        - C. 类别型特征 (Categorical Features): 可能是部门、城市、状态等低基数字符串
+        - D. 无关/描述变量 (Irrelevant): 通查是备注、描述、URL、JSON大段文本，**不参与**训练
+     - **交互式推断**: 结合 `nunique` 和列名语义判断类别型特征，并转换为 pandas 的 `category` 类型
+        - 关键词：`type`, `category`, `status`, `class`, `flag`, `is_*`, `has_*` 通常是类别型特征，但是请注意不要与“无关/描述变量 (Irrelevant)”产生混淆
+     - 检查各列缺失比例（isnull().mean()）
+        - 对数值列: 使用均值填充
+        - 对类别列: 用众数填充后进行独热编码 (One-Hot Encoding)
+     - 将数值型特征进行标准化 (RobustScaler), 并且**写回** `df` 中。
+        - scaled_cols = [col + '_scaled' for col in <数值型特征列>]
+        - scaler = RobustScaler()
+        - df[scaled_cols] = scaler.fit_transform(df[<数值型特征列>])
+
+  2. **异常检测 (Isolation Forest)**:
+     - 使用随机森林 `IsolationForest` 对**标准化后的数值型特征**进行拟合。
+     - 计算异常分：统一标准为 **分数越高越异常** (通常需要对 decision_function 取反)。
+     - 计算 IQR 阈值 (`Q3 + 1.5 * IQR`)，生成布尔列 `is_anomaly`。
+     - 将 `anomaly_score` 和 `is_anomaly` 写回 `df`。
+
+  3. **降维 (PCA)**:
+     - 为了支持前端 2D 散点图，必须将特征矩阵降维至 2 维。
+     - **必须**在 df 中新增两列 `pca_x` 和 `pca_y`。
+
+  4. **产物固化 (Artifact Persistence)**:
+     - 必须严格遵守下面[步骤 4]的代码范式来保存结果。
+     - 箱线图统计值 (`box_stats`) 必须基于 **Scaled (标准化)** 后的数据计算。
+
+code_example: |
+  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+
+  # [步骤 3]: PCA 降维 (前端散点图强依赖)
+  if len(<数值特征列的长度>) >= 2:
+      pca = PCA(n_components=2)
+      coords = pca.fit_transform(<特征矩阵的标准化变量>) # 使用标准化后的特征进行 PCA 降维
+  else:
+      coords = np.zeros((len(df), 2)) # 降级处理
+      coords[:, 0] = <特征矩阵的标准化变量>[:, 0]
+      
+  df['pca_x'] = coords[:, 0]
+  df['pca_y'] = coords[:, 1]
+
+  # [步骤 4]: 产物固化
+  # 重置索引，防止 Feather 保存 Index 出错
+  df = df.reset_index(drop=True)
+  
+  # 1. 保存全量数据
+  # 已确保环境中已安装 pyarrow
+  df.to_feather('/home/user/processed_data.feather')
+
+  # 2. 准备箱线图统计值 (基于 Scaled 数据)
+  box_stats = {}
+  for col in <原始数值型特征列名列表>:
+    s_col = col + '_scaled'  # 某个特征列对应的标准化特征列应该为 `列名 + '_scaled'` 的形式，在前文已给出此要求
+    desc = df[s_col].describe()
+    
+    Q1 = desc['25%']
+    Q3 = desc['75%']
+    IQR = Q3 - Q1
+    
+    # 计算内围栏（fences）
+    lower_fence = Q1 - 1.5 * IQR
+    upper_fence = Q3 + 1.5 * IQR
+    
+    # 箱线图的下须 = 数据中 ≥ lower_fence 的最小值
+    filtered_lower = df[s_col][df[s_col] >= lower_fence]
+    lower_whisker = filtered_lower.min() if not filtered_lower.empty else lower_fence
+    # 箱线图的上须 = 数据中 ≤ upper_fence 的最大值
+    filtered_upper = df[s_col][df[s_col] <= upper_fence]
+    upper_whisker = filtered_upper.max() if not filtered_upper.empty else upper_fence
+    
+    # 计算箱线图 5 点: [箱线图下须, Q1, median, Q3, 箱线图上须]
+    box_stats[col] = [lower_whisker, Q1, desc['50%'], Q3, upper_whisker]
+
+  # 准备异常点数据 (包含所有列的 Rich Object)
+  outliers = df[df['is_anomaly']].to_dict(orient='records')
+  
+  # 3. 准备柱状图数据 (Top 10 异常数据对象)
+  top_anomalies = df.nlargest(10, 'anomaly_score').to_dict(orient='records')
+
+  artifacts = {
+      "n_anomalies": len(outliers) # 异常点数目
+      "box_stats": box_stats,      # 用于画箱子背景
+      "outliers": outliers,        # 用于画散点前景
+      "top_anomalies": top_anomalies, # 用于画排行榜
+      "anomaly_count": int(df['is_anomaly'].sum())
+  }
+  
+  with open('/home/user/analysis_artifacts.json', 'w') as f:
+      json.dump(artifacts, f, ensure_ascii=False)
+      
+  print("[System] Artifacts saved: processed_data.feather, analysis_artifacts.json")
