@@ -12,7 +12,7 @@ from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE
 ScenarioType = Literal[
     "clustering",  # 聚类
     "anomaly",  # 异常分析
-    "trend",  # 趋势分解
+    "decomposition",  # 趋势分解
     "forecast",  # 时序预测
     "classification",  # 分类
     "association",  # 关联分析

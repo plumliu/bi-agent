@@ -22,6 +22,22 @@ def _clean_value(val: Any) -> Any:
     return val
 
 
+import pandas as pd
+
+
+def _clean_series(series: pd.Series) -> list:
+
+    if series.isna().all():
+        return [0] * len(series)
+
+    cleaned = series.interpolate(method='linear', limit_direction='both')
+    cleaned = cleaned.bfill().ffill()
+
+    if cleaned.isna().any():
+        cleaned = cleaned.fillna(0)
+    return cleaned.tolist()
+
+
 def _clean_record(record: Dict[str, Any]) -> Dict[str, Any]:
     """清洗整行数据"""
     return {k: _clean_value(v) for k, v in record.items()}
@@ -34,107 +50,143 @@ def _clean_record(record: Dict[str, Any]) -> Dict[str, Any]:
 def _handle_scatter(df: pd.DataFrame, config: dict, artifacts: dict = None) -> dict:
     """
     Scatter Handler
-    逻辑：扁平化映射，只强制注入 value 坐标，其余字段原样透传。
+    支持两种模式：
+    1. Artifacts Mode: (预留接口)
+    2. DataFrame Mode: 标准列映射
     """
-    x_col = config.get("x_axis")
-    y_col = config.get("y_axis")
-    cat_col = config.get("category_col")
-
-    # 1. 强校验 (Dead Logic: 找不到列就报错，不瞎猜)
-    if x_col not in df.columns or y_col not in df.columns:
-        # 即使这里，也建议直接报错，强迫 Agent 修正配置，而不是由代码去猜前两列
-        raise ValueError(f"Scatter columns missing: {x_col} or {y_col} not in {df.columns.tolist()}")
-
+    title = config.get("title")
     series_data = []
 
-    # 2. 分组逻辑
-    if cat_col and cat_col in df.columns:
-        groups = df.groupby(cat_col)
+    # =================================================
+    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        # 暂时留空，未来可用于直接绘制 PCA 降维后的数组等场景
+        pass
+
+    # =================================================
+    # 模式 B: DataFrame Mode (从列读取)
+    # =================================================
     else:
-        groups = [("All", df)]
+        x_col = config.get("x_axis")
+        y_col = config.get("y_axis")
+        cat_col = config.get("category_col")
 
-    for group_id, group in groups:
-        data_points = []
-        records = group.to_dict(orient='records')
+        # 1. 强校验 (Dead Logic: 找不到列就报错，不瞎猜)
+        # 增加对 None 的检查，防止 x_col 为 None 时 df.columns 报错或逻辑混乱
+        if not x_col or not y_col:
+             raise ValueError("Scatter Chart (DataFrame Mode) requires 'x_axis' and 'y_axis'.")
 
-        for record in records:
-            # A. 数据清洗
-            clean_rec = _clean_record(record)
+        if x_col not in df.columns or y_col not in df.columns:
+            raise ValueError(f"Scatter columns missing: {x_col} or {y_col} not in {df.columns.tolist()}")
 
-            # B. 构造对象
-            point = clean_rec.copy()
+        # 2. 分组逻辑
+        if cat_col and cat_col in df.columns:
+            groups = df.groupby(cat_col)
+        else:
+            groups = [("All", df)]
 
-            # C. 注入核心坐标 (这是 Scatter 图唯一必须的契约)
-            point['value'] = [clean_rec.get(x_col), clean_rec.get(y_col)]
+        for group_id, group in groups:
+            data_points = []
+            records = group.to_dict(orient='records')
 
-            # [已删除] 强制注入 point['name'] 的逻辑
+            for record in records:
+                clean_rec = _clean_record(record)
+                point = clean_rec.copy()
+                point['value'] = [clean_rec.get(x_col), clean_rec.get(y_col)]
 
-            data_points.append(point)
+                data_points.append(point)
 
-        series_data.append({
-            "name": f"分组 {group_id}",  # 这里的 group_id 就是 cluster_label (0, 1, 2)
-            "data": data_points
-        })
+            if cat_col:
+                s_name = f"分组 {group_id}" # 或者直接 str(group_id)
+            else:
+                s_name = config.get("series_name", "Series 1")
+
+            series_data.append({
+                "name": s_name,
+                "data": data_points,
+                "type": "scatter"
+            })
 
     return {
-        "title": config.get("title", "Scatter Chart"),
+        "title": title,
         "series": series_data
     }
 
 
 def _handle_radar(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
     """
-    Radar Handler
-    目标格式: Series Data 为对象数组
-    Item Data: [ { "value": 80, "name": "维度A" }, { "value": 90, "name": "维度B" } ]
+    Radar Handler (Unified Architecture)
+    支持两种模式：
+    1. Artifacts Mode: 从统计结果(如聚类中心)读取，自动计算 max 值。
+    2. DataFrame Mode: (预留)
     """
-    dimensions = config.get("dimensions", [])
-
-    # 1. 数据绑定 (Data Binding)
-    # 根据 Config 中的 data_key 去 Artifacts 里找数据
-    data_key = config.get("data_key", "centroids")
-    raw_data = artifacts.get(data_key, {})
-
-    if not raw_data:
-        # 容错：如果找不到 centroids，看看有没有同名的 key
-        if "centroids" in artifacts:
-            raw_data = artifacts["centroids"]
-        else:
-            raise ValueError(f"Radar data source '{data_key}' is empty or missing in artifacts")
-
-    # 2. 构造 Indicator (自动计算 Max)
-    indicators = []
-    for dim in dimensions:
-        max_val = 100
-        if dim in df.columns:
-            # 取该列最大值 * 1.2，并转为 float 避免 numpy 类型错误
-            col_max = df[dim].max()
-            if pd.notna(col_max) and not np.isinf(col_max):
-                max_val = float(col_max) * 1.2
-        indicators.append({"name": dim, "max": int(max_val)})
-
-    # 3. 构造 Series
+    title = config.get("title")
+    dimensions = config.get("dimensions")
     series_list = []
+    indicators = []
 
-    # raw_data 结构预期: { "0": {"维度A": 10, ...}, "1": {...} }
-    for label, metrics in raw_data.items():
+    # =================================================
+    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        data_key = config.get("data_key")
+        raw_data = artifacts.get(data_key)  # Expecting Dict {label: {dim: val}}
 
-        # 构造特殊的对象数组结构
-        item_data_array = []
+        if not raw_data or not isinstance(raw_data, dict):
+            raise ValueError(f"Radar Chart artifact source '{data_key}' is missing or not a dictionary.")
+
+        # --- 1. 动态计算每个维度的 Max 值 (基于 Artifacts 数据) ---
+        # 遍历所有分组，找出每个维度的最大值
+        dim_max_map = {dim: 0.0 for dim in dimensions}
+
+        for group_metrics in raw_data.values():
+            for dim in dimensions:
+                val = group_metrics.get(dim, 0)
+                if val > dim_max_map.get(dim, 0):
+                    dim_max_map[dim] = float(val)
+
+        # 构建 Indicator 配置 (Max * 1.2 留出视觉余量)
         for dim in dimensions:
-            val = metrics.get(dim, 0)
-            item_data_array.append({
+            current_max = dim_max_map.get(dim, 100.0)
+            # 防止最大值为0导致图表压扁，给个默认底限
+            final_max = current_max * 1.2 if current_max > 0 else 100.0
+            indicators.append({
                 "name": dim,
-                "value": _clean_value(val)  # 确保是 PyFloat
+                "max": int(final_max)
             })
 
-        series_list.append({
-            "name": f"Group {label}",
-            "data": item_data_array
-        })
+        # --- 2. 构造 Series ---
+        # 支持自定义命名模板，例如 "Cluster {}"
+        name_template = config.get("name_template", "分组 {}")
+
+        # 排序 Key 保证颜色稳定性
+        for label in sorted(raw_data.keys()):
+            metrics = raw_data[label]
+
+            # 构造 ECharts 雷达图所需的对象数组结构
+            item_data_array = []
+            for dim in dimensions:
+                val = metrics.get(dim, 0)
+                item_data_array.append({
+                    "name": dim,
+                    "value": _clean_value(val)
+                })
+
+            series_list.append({
+                "name": name_template.format(label),
+                "data": item_data_array
+            })
+
+    # =================================================
+    # 模式 B: DataFrame Mode (从列读取)
+    # =================================================
+    else:
+        # 这里暂时留空，或者未来实现 "按某列分组取均值后画雷达图" 的逻辑
+        pass
 
     return {
-        "title": config.get("title", "Radar Chart"),
+        "title": title,
         "indicator": indicators,
         "series": series_list
     }
@@ -142,91 +194,148 @@ def _handle_radar(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
 
 def _handle_bar(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
     """
-    Bar Handler (智能适配器模式)
-    兼容两种数据协议：
-    1. List Mode (Vega-Lite Style): 数据是对象数组，需通过 config 指定 x_axis/y_axis 映射。
-    2. Dict Mode (Legacy Style): 数据是字典，保留原有的 '分组 {k}' 格式化逻辑。
+    Bar Handler (智能适配器模式 - 统一架构版)
+    逻辑分流：
+    1. Artifacts Mode:
+       - Sub-Case A (List): 对象数组 (如 Top Anomalies)，需显式指定 x/y 键。
+       - Sub-Case B (Dict): 字典映射 (如 Clustering Counts)，自动解析 Key/Value。
+    2. DataFrame Mode:
+       - Standard: 从 df 列中读取 x/y。
     """
-    # Data Binding
-    data_key = config.get("data_key")
-    raw_data = artifacts.get(data_key)
-
-    if raw_data is None:
-        raise ValueError(f"Bar data source '{data_key}' missing")
-
+    title = config.get("title", "Bar Chart")
     categories = []
     values = []
-    series_name = "数量"  # 默认系列名
+    series_name = config.get("series_name", "数量")  # 默认系列名
 
-    # ============================================================
-    # 模式 A: List of Records (显式映射 - 异常分析使用)
-    # 判定依据: Config 中明确指定了 x_axis 和 y_axis
-    # ============================================================
-    if config.get("x_axis") and config.get("y_axis"):
-        x_col = config["x_axis"]
-        y_col = config["y_axis"]
-        series_name = y_col  # 使用 Y 轴列名作为系列名
+    # =================================================
+    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        data_key = config.get("data_key")
+        raw_data = artifacts.get(data_key)
 
-        # 强校验：数据必须是列表
-        if not isinstance(raw_data, list):
-            raise ValueError(f"Config specified axes (List Mode) but data is {type(raw_data)}. Expected List[dict].")
+        if raw_data is None:
+            raise ValueError(f"Bar Chart data source '{data_key}' missing in artifacts.")
 
-        for record in raw_data:
-            clean_rec = _clean_record(record)
-            # 提取并转字符串
-            categories.append(str(clean_rec.get(x_col, "Unknown")))
-            values.append(clean_rec.get(y_col, 0))
+        # --- Sub-Case A: List of Records (显式映射 - 例如 Top 10 异常) ---
+        if isinstance(raw_data, list):
+            x_key = config.get("x_axis")
+            y_key = config.get("y_axis")
 
-    # ============================================================
-    # 模式 B: Dict Mode (隐式聚合 - 聚类分析使用)
-    # 判定依据: Config 没给轴，且数据是 Dict
-    # ============================================================
-    elif isinstance(raw_data, dict):
+            if not x_key or not y_key:
+                raise ValueError("Bar Chart (Artifacts List Mode) requires 'x_axis' and 'y_axis' keys.")
 
-        # 排序保证顺序一致
-        sorted_keys = sorted(list(raw_data.keys()))
+            series_name = config.get("series_name", y_key)  # 如果没指定系列名，用字段名
 
-        # 提取值
-        values = [int(raw_data[k]) for k in sorted_keys]
+            for record in raw_data:
+                # 假设 _clean_record 是个辅助函数，处理 NaN 等
+                clean_rec = _clean_record(record) if '_clean_record' in globals() else record
+                categories.append(str(clean_rec.get(x_key, "Unknown")))
+                values.append(clean_rec.get(y_key, 0))
 
-        # 格式化 X 轴 Label
-        categories = [f"分组 {k}" for k in sorted_keys]
+        # --- Sub-Case B: Dict Mode (隐式聚合 - 例如聚类统计) ---
+        elif isinstance(raw_data, dict):
+            # 兼容旧逻辑：Clustering 产出的 counts 是 {"0": 50, "1": 30}
+            sorted_keys = sorted(list(raw_data.keys()))
 
+            values = [int(raw_data[k]) for k in sorted_keys]
+            # 保留原有的 "分组 {k}" 格式化逻辑，或者由 Config 决定
+            categories = [f"分组 {k}" for k in sorted_keys]
+
+        else:
+            raise ValueError(f"Unsupported data format for Bar Chart artifacts: {type(raw_data)}")
+
+    # =================================================
+    # 模式 B: DataFrame Mode (从列读取)
+    # =================================================
     else:
-        raise ValueError(f"Unsupported data format for Bar Chart: {type(raw_data)}")
+        x_col = config.get("x_axis")
+        y_col = config.get("y_axis")
+
+        if not x_col or not y_col:
+            raise ValueError("Bar Chart (DataFrame Mode) requires 'x_axis' and 'y_axis'.")
+
+        if x_col not in df.columns or y_col not in df.columns:
+            raise ValueError(f"Bar columns missing: {x_col} or {y_col} not found.")
+
+        # 提取数据
+        categories = df[x_col].astype(str).tolist()
+        # 简单清洗数据，防止 NaN 传给前端炸裂
+        values = df[y_col].fillna(0).tolist()
+
+        # 使用 Y 轴列名作为系列名
+        series_name = config.get("series_name", y_col)
 
     return {
-        "title": config.get("title", "Bar Chart"),
+        "title": title,
         "categories": categories,
         "series": [{
             "name": series_name,
+            "type": "bar",
             "data": values
         }]
     }
 
 def _handle_pie(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
-    """Pie Handler"""
-    # Data Binding
-    data_key = config.get("data_key", "cluster_counts")
-    counts_map = artifacts.get(data_key, {})
-
-    if not counts_map:
-        raise ValueError(f"Pie data source '{data_key}' missing")
-
+    """
+    Pie Handler (Unified Architecture)
+    支持两种模式：
+    1. Artifacts Mode: 读取字典 {label: count} (如聚类结果)。
+    2. DataFrame Mode: 指定一列，自动执行 value_counts() 进行聚合统计。
+    """
+    title = config.get("title", "Pie Chart")
     pie_data = []
-    for label, count in counts_map.items():
-        pie_data.append({
-            "name": f"分组 {label}",
-            "value": int(count)
-        })
+
+    # =================================================
+    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        data_key = config.get("data_key")
+        raw_data = artifacts.get(data_key)
+
+        if not raw_data or not isinstance(raw_data, dict):
+            raise ValueError(f"Pie Chart artifact source '{data_key}' is missing or not a dictionary.")
+
+        # 如果是聚类场景，Viz Config 可以传入 name_template: "分组 {}"
+        name_template = config.get("name_template", "分组 {}")
+
+        # 排序 Key 以保证颜色分配稳定性
+        for label in sorted(raw_data.keys()):
+            count = raw_data[label]
+            pie_data.append({
+                "name": name_template.format(label),
+                "value": int(count)
+            })
+
+    # =================================================
+    # 模式 B: DataFrame Mode (自动聚合)
+    # =================================================
+    else:
+        # 用户指定一个分类列，我们统计该列中各值的出现次数
+        cat_col = config.get("category_col")
+
+        if not cat_col:
+            raise ValueError("Pie Chart (DataFrame Mode) requires 'category_col' to aggregate.")
+
+        if cat_col not in df.columns:
+            raise ValueError(f"Pie Chart column '{cat_col}' not found in DataFrame.")
+
+        # 执行聚合统计
+        counts = df[cat_col].value_counts().sort_index()
+
+        for label, count in counts.items():
+            pie_data.append({
+                "name": str(label),
+                "value": int(count)
+            })
 
     return {
-        "title": config.get("title", "Pie Chart"),
+        "title": title,
         "series": [{
+            "type": "pie",
             "data": pie_data
         }]
     }
-
 
 def _handle_boxplot(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
     # 1. 解析 Config & Data Binding
@@ -260,7 +369,6 @@ def _handle_boxplot(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
             box_data.append(stat_values)
             valid_dimensions.append(dim)
         else:
-            # 记录日志或忽略，不要让整个图挂掉
             print(f"[Viz Warning] Dimension '{dim}' 在 config 中找到，但是并不在 box_stats.")
 
     # 4. 构造 Series.outliers (Layer 2: 异常点前景)
@@ -321,6 +429,223 @@ def _handle_boxplot(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
         ]
     }
 
+def _handle_decomposition(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
+    """
+    Decomposition Handler (专用于 STL 分解结果展示)
+    结构: Trend, Seasonal, Residual, Observed
+    """
+    x_col = config.get("x_axis")
+    # 获取时间轴
+    categories = df[x_col].astype(str).tolist() if x_col in df.columns else list(df.index.astype(str))
+
+    # 定义固定的四个组件，Agent 只需要告诉我们将哪一列映射到这四个组件上
+    # 映射关系: { 组件名: 列名 }
+    component_map = {
+        "Trend": config.get("trend_col"),
+        "Seasonal": config.get("seasonal_col"),
+        "Residual": config.get("residual_col"),
+        "Observed": config.get("observed_col")
+    }
+
+    series_data = []
+
+    # 按照特定顺序生成 (符合人类阅读习惯：Trend -> Seasonal -> Resid -> Raw)
+    # 或者按照你要求的顺序：Trend, Seasonal, Resid, Observed
+    order = ["Trend", "Seasonal", "Residual", "Observed"]
+
+    for comp_name in order:
+        col_name = component_map.get(comp_name)
+
+        if col_name and col_name in df.columns:
+            data_vals = df[col_name].fillna(0).tolist()
+            cleaned_vals = [_clean_value(v) for v in data_vals]
+
+            series_data.append({
+                "name": comp_name,
+                "data": cleaned_vals
+            })
+
+    return {
+        "title": config.get("title", "Decomposition"),
+        "categories": categories,
+        "series": series_data
+    }
+
+def _handle_line_error(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
+    """
+    LineWithError Handler (通用误差棒折线图)
+    支持两种模式：
+    1. Artifacts Mode: (预留)
+    2. DataFrame Mode: 根据 series_mapping 遍历生成多条带有 errors 的折线。
+    """
+    title = config.get("title", "Error Chart")
+    categories = []
+    series_data = []
+
+    # =================================================
+    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        # 暂时留空，保持架构一致性
+        pass
+
+    # =================================================
+    # 模式 B: DataFrame Mode (从列读取)
+    # =================================================
+    else:
+        # 1. 通用 X 轴处理
+        x_col = config.get("x_axis")
+        if x_col not in df.columns:
+            # 容错：如果没有指定 X 轴，使用索引
+            categories = list(df.index.astype(str))
+        else:
+            categories = df[x_col].astype(str).tolist()
+
+        # 2. 解析 Series Mapping
+        series_mapping = config.get("series_mapping", [])
+        if not series_mapping:
+            raise ValueError("Config 'series_mapping' is empty for line_error chart.")
+
+        for mapping in series_mapping:
+            name = mapping.get("name")
+            y_col = mapping.get("y_col")
+            error_col = mapping.get("error_col")  # 可为 None
+
+            # 获取 Y 轴数据 (Main Data)
+            if y_col not in df.columns:
+                # 记录警告或跳过，这里选择填充 0 以防崩坏
+                main_data = [0] * len(df)
+            else:
+                main_data = df[y_col].fillna(0).tolist()
+                # 清洗一下 (假设外部定义了 _clean_value)
+                main_data = [_clean_value(v) for v in main_data]
+
+            # 获取 Error 数据
+            if error_col and error_col in df.columns:
+                errors_data = df[error_col].fillna(0).tolist()
+                errors_data = [_clean_value(v) for v in errors_data]
+            else:
+                # 如果没指定 error_col，或者列不存在，则误差为 0
+                errors_data = [0] * len(df)
+
+            # 组装 Series 对象
+            series_data.append({
+                "name": name,
+                "data": main_data,
+                "errors": errors_data
+            })
+
+    return {
+        "title": title,
+        "categories": categories,
+        "series": series_data
+    }
+
+def _handle_line(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
+    title = config.get("title")
+    series_list = []
+    categories = []
+
+    # =================================================
+    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        data_key = config.get("data_key")
+        raw_data = artifacts.get(data_key)  # [1,2,3] 或 [[1,2], [3,4]]
+
+        if not raw_data or not isinstance(raw_data, list):
+            raise ValueError(f"数据源 '{data_key}' 本身不存在，无法绘制")
+
+        # --- [1. 处理 X 轴 Categories] ---
+        # 路径 A: Config 直接给定
+        if "categories" in config and isinstance(config["categories"], list):
+            categories = [str(x) for x in config["categories"]]
+        # 路径 B: Config 指定 Key (推荐)
+        elif "categories_key" in config:
+            cat_key = config["categories_key"]
+            cat_data = artifacts.get(cat_key)
+            if isinstance(cat_data, list):
+                categories = [str(x) for x in cat_data]
+            else:
+                raise ValueError(f"指定了 'categories_key'='{cat_key}'，但 artifacts 中不是列表。")
+
+        if not categories:
+            raise ValueError(f"LineChart (Artifacts Mode) 缺少 Category 数据，无法绘制 X 轴！")
+
+        # --- [2. 处理 Series] ---
+        is_multi_series = len(raw_data) > 0 and isinstance(raw_data[0], list)
+
+        if is_multi_series:
+            # === Case A1: 二维数组 (多系列) ===
+            series_names = []
+            if "series_names_key" in config:
+                sn_key = config["series_names_key"]
+                sn_data = artifacts.get(sn_key)
+                if not isinstance(sn_data, list):
+                    raise ValueError(f"在 artifacts 中通过 series_names_key='{sn_key}' 指定的系列名称数据不是列表类型")
+                series_names = sn_data
+
+            if len(series_names) != len(raw_data):
+                raise ValueError( f"系列名称数量不匹配：共 {len(raw_data)} 个系列，但提供了 {len(series_names)} 个名称")
+
+            for i, cycle_data in enumerate(raw_data):
+                if len(cycle_data) != len(categories):
+                    raise ValueError(f"系列 {i} 的长度（{len(cycle_data)}）与类别长度（{len(categories)}）不相等")
+
+                series_list.append({
+                    "name": series_names[i],
+                    "data": cycle_data
+                })
+
+        else:
+            # === Case A2: 一维数组 (单线) ===
+            # 单线模式下，系列名通常由 Config 直接指定 (例如 "平均周期")
+            series_name = config.get("series_name", "曲线")
+
+            if len(raw_data) != len(categories):
+                raise ValueError(f"系列长度（{len(raw_data)}）与类别长度（{len(categories)}）不相等")
+
+            series_list.append({
+                "name": series_name,
+                "data": raw_data
+            })
+
+    # =================================================
+    # 模式 B: DataFrame Mode (从列读取)
+    # =================================================
+    else:
+        # (这部分逻辑保持不变，它非常稳定)
+        x_col = config.get("x_axis")
+        if not x_col:
+            raise ValueError("DataFrame Mode 必须指定 'x_axis'")
+
+        if x_col in df.columns:
+            categories = df[x_col].astype(str).tolist()
+        else:
+            raise ValueError(f"x_axis column '{x_col}' not found")
+
+        y_input = config.get("y_axis")
+        y_cols = [y_input] if isinstance(y_input, str) else y_input
+
+        if not y_cols:
+            raise ValueError("DataFrame Mode 必须指定 'y_axis'")
+
+        for col in y_cols:
+            if col in df.columns:
+                series_list.append({
+                    "name": col,  # 使用列名
+                    "data": _clean_series(df[col])
+                })
+            else:
+                raise ValueError(f"y_axis column '{col}' not found")
+
+    return {
+        "title": title,
+        "categories": categories,
+        "series": series_list
+    }
+
+
 # ==========================================
 # 2. 注册表 (Registry)
 # ==========================================
@@ -328,8 +653,11 @@ CHART_HANDLERS = {
     "scatter": _handle_scatter,
     "radar": _handle_radar,
     "bar": _handle_bar,
+    "line": _handle_line,
     "pie": _handle_pie,
     "boxplot": _handle_boxplot,
+    "decomposition": _handle_decomposition,
+    "lineWithErrorBars": _handle_line_error
 }
 
 
@@ -373,7 +701,8 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
 
     for chart_key, config in charts_config.items():
         # 获取对应的处理函数
-        handler = CHART_HANDLERS.get(chart_key)
+        chart_type = config.get("type")
+        handler = CHART_HANDLERS.get(chart_type)
 
         if not handler:
             errors[chart_key] = f"No handler registered for chart type: {chart_key}"
@@ -388,7 +717,7 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
             # [修改点 2] 构造对象并添加到数组
             # 结构: { "type": "bar", "data": { ... } }
             chart_item = {
-                "type": chart_key,  # 例如 "bar", "boxplot"
+                "type": chart_type,  # 例如 "bar", "boxplot"
                 "data": chart_data
             }
             echarts_list.append(chart_item)

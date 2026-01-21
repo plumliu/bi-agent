@@ -84,12 +84,15 @@ viz_instruction: |
   {{
     "charts": {{
       "scatter": {{
+        "type": "scatter"
+        "data_source": "dataframe",
         "title": "<请根据用户意图生成业务标题 (如: '员工绩效分群分布')>",
         "x_axis": "pca_x",
         "y_axis": "pca_y",
         "category_col": "cluster_label"
       }},
       "radar": {{
+        "type": "radar"
         "title": "<请根据用户意图生成业务标题 (如: '各群组能力画像')>",
         "dimensions": ["特征A", "特征B", ...], 
         "data_source": "artifacts",

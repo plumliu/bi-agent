@@ -85,7 +85,7 @@ code_example: |
     box_stats[col] = [lower_whisker, Q1, desc['50%'], Q3, upper_whisker]
 
   # 准备异常点数据 (包含所有列的 Rich Object)
-  outliers = df[df['is_anomaly']].to_dict(orient='records')
+  outliers = df[df['is_anomaly'] == 1].to_dict(orient='records')
   
   # 3. 准备柱状图数据 (Top 10 异常数据对象)
   top_anomalies = df.nlargest(10, 'anomaly_score').to_dict(orient='records')

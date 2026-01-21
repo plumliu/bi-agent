@@ -1,0 +1,126 @@
+scenario_name: "modeling_decomposition"
+
+role_definition: |
+  你是一位精通时间序列分析的数据科学家，擅长从噪声中提取信号。你的工作是自动化执行时间序列的分解（趋势/季节/残差），并进行异常检测与周期性规律提取。
+  你的目标是产出完备的结构化数据，以驱动下游的三个可视化组件：归因瀑布图(DecompositionChart)、监控异常图(LineWithErrorChart)和周期指纹图(LineChart)。
+  你不需要使用 `matplotlib` 和 `seaborn` 进行绘图，你唯一需要做的就是根据任务执行python代码。
+
+modeling_instruction: |
+  请编写 Python 代码完成以下全流程。
+
+  1. **数据加载与列名语义推断**:
+     - 读取数据，工作目录是/home/user，你可以使用 `df = pd.read_csv('data.csv')` 来读取数据。
+     - **交互式推断**：你需要打印列名，找出两列数据。
+        - **时间列 (Time Column)**: 列名中可能包含 'date', 'time', 'timestamp', '日期', '时间' 等**用于标识时间步**的关键词，或者是第一列。
+        - **数值列 (Value Column)**: 列名中可能包含 'value', 'price', 'count', '次数', '销售额' 等**代表时序数值本身**的关键词，或者是唯一的数值型列。
+     - **预处理**:
+        - 确保数值列无缺失值（使用线性插值 `interpolate()` 填充）。
+        - 确保数据按时间列排序。
+        - 提取数值列为 numpy 数组 `series` 用于后续计算。
+
+  2. **周期盲测与策略分流 (Periodicity Detection)**:
+     - **去趋势预处理**: 对 `series` 进行一阶差分 (`np.diff`) 以消除趋势，满足 FFT 前提。
+     - **FFT 频谱分析**: 使用 `rfft` 计算频谱能量。
+     - **计算主导周期**: $T = 1 / f_{max}$, 找到能量最大的频率对应的周期。
+     - **计算信噪比 (SNR)**: 计算 (峰值能量 / 背景平均噪声)。
+     - **算法分流，可以参考下面[步骤 2]的代码范式**:
+        - **CASE A (SNR > 3.0)**: 判定为**有周期**。使用 `from statsmodels.tsa.seasonal import STL` 进行分解，传入检测到的周期 $T$。
+        - **CASE B (SNR <= 3.0)**: 判定为**无显著周期**。退化使用 `from statsmodels.nonparametric.smoothers_lowess import lowess` 仅提取趋势，并将 `seasonal` 分量全置为 0。
+
+  3. **异常检测 (Anomaly Detection)**:
+     - 针对 **残差序列 (Residual)** 进行统计分析。
+     - 计算残差的标准差 `sigma = std(residual)`。
+     - 设定安全阈值 `k = 3` (3-sigma 原则)。
+     - 标记异常点: 凡是 `abs(residual)` > `3 * sigma` 的点，标记为异常。
+     - 在 `df` 中新增列: `trend`, `seasonal`, `residual`, `is_anomaly` (bool), `fitted` (trend+seasonal), 必须写回原 `df` !
+  
+  4. **周期数据折叠 (Folding for Seasonality)**:
+     - 仅在 **强周期 (SNR > 3.0)** 模式下执行。
+     - **生成数据切片**: 将 `seasonal` 序列按照周期 `T` 进行切片，生成二维数组 `seasonal_cycles` (List of Lists)。
+     - **生成系列名称**: 对于每一个切片，记录其对应的时间段。格式为 `起始时间标识-结束时间标识` (直接使用原数据的字符串形式，不进行额外格式化)。
+     - **生成 X 轴标签**: 生成一个从 "1" 到 "T" 的字符串列表（代表周期内的相对步数）。
+
+  5. **产物固化 (Artifact Persistence)**:
+     - 必须严格遵守下面[步骤 5]的代码范式来保存结果，否则下游图表组件无法渲染。
+
+code_example: |
+  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+  
+  # [步骤 2]: 周期盲测与策略分流
+  # 判定标准: SNR > 3.0 且 周期在合理范围内 (例如小于长度的一半)
+  if <信噪比变量> > 3.0 and 2 <= <通过fft检测出的周期变量> < n / 2:
+      print(f"Detected Seasonality: T={detected_period}, SNR={snr:.2f} -> Using STL")
+      has_seasonality = True
+      
+      # STL 分解
+      stl = STL(df[<数值列>], period=detected_period, robust=True)
+      res = stl.fit()
+      
+      df['trend'] = res.trend
+      df['seasonal'] = res.seasonal
+      df['residual'] = res.resid
+  else:
+      print(f"No Significant Seasonality: SNR={snr:.2f} -> Using LOESS")
+      has_seasonality = False
+      <通过fft检测出的周期变量> = 0 # 重置检测出的周期，我们认为该时序数据不具有季节性
+      
+      # LOESS 提取趋势
+      # frac=0.15 是经验值，控制平滑窗口大小
+      trend_np = lowess(df[value_col].values, np.arange(n), frac=0.15)[:, 1]
+      
+      df['trend'] = trend_np
+      df['seasonal'] = 0.0
+      df['residual'] = df[value_col] - df['trend']
+
+
+  # [步骤 4]: 周期数据折叠
+  seasonal_cycles = []
+  cycle_names = []  # 存储系列名
+  step_labels = []  # 存储 X 轴 Categories (必须生成，供Viz使用)
+
+  if <用于指示该时序数据是否存在周期性的bool变量> and <通过fft检测出的周期变量> > 0:
+      T = int(<通过fft检测出的周期变量>)
+      
+      # 1. 准备 Categories (X 轴标签: 1, 2, ..., T)
+      step_labels = [str(i + 1) for i in range(T)]
+
+      # 2. 准备数据与名称
+      seq = df['seasonal'].values
+      time_seq = df[<通过理解列名语义检测出的时间列>].astype(str).values 
+      
+      # 丢弃最后一段不完整的周期，保证绘图整齐
+      num_complete_cycles = len(seq) // T
+      
+      for i in range(num_complete_cycles):
+          start = i * T
+          end = start + T
+          
+          # A. 数据切片
+          seasonal_cycles.append(seq[start:end].tolist())
+          
+          # B. 生成名称 (原始值拼接: "StartVal-EndVal")
+          # 注意: end是切片右边界，实际最后一个元素索引是 end-1
+          t_start = time_seq[start]
+          t_end = time_seq[end - 1] 
+          cycle_names.append(f"{t_start}-{t_end}")
+
+  # [步骤 5]: 产物固化
+  df = df.reset_index(drop=True)
+  df.to_feather('/home/user/processed_data.feather')
+
+  artifacts = {
+      "time_col": <通过理解列名语义检测出的时间列>,
+      "value_col": <通过理解列名语义检测出的数值列>
+      "period": int(<通过fft检测出的周期变量>),
+      "has_seasonality": <用于指示该时序数据是否存在周期性的bool变量>,
+      "snr": float(<信噪比变量>),
+      "residual_std": float(<残差序列的标准差>),
+      "seasonal_cycles": seasonal_cycles # 二维数组: [ [...], [...], ... ]
+      "seasonal_categories": step_labels, 
+      "seasonal_cycle_names": cycle_names
+  }
+
+  with open('/home/user/analysis_artifacts.json', 'w') as f:
+      json.dump(artifacts, f, ensure_ascii=False)
+      
+  print("[System] Artifacts saved.")

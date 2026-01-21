@@ -29,7 +29,7 @@ llm = ChatOpenAI(
 def summary_node(state: AgentState):
     print("--- [Step 4] Summary Node: Generating Final Report ---")
 
-    scenario = state.get("scenario", "clustering")
+    scenario = state.get("scenario")
     config = load_summary_config(scenario)
 
     if not config:

@@ -4,8 +4,10 @@ import json
 import shutil
 import uvicorn
 import asyncio
+from typing import Any
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import StreamingResponse  # [新增]
 from fastapi.middleware.cors import CORSMiddleware
 
 # ==========================================
@@ -47,7 +49,7 @@ async def lifespan(app: FastAPI):
         GLOBAL_SANDBOX = Sandbox.create(api_key=settings.E2B_API_KEY, timeout=3600)
 
         print("--- [Lifespan] Pre-warming: Installing Dependencies... ---")
-        GLOBAL_SANDBOX.run_code("!pip install pyarrow scikit-learn pandas numpy")
+        GLOBAL_SANDBOX.run_code("!pip install pyarrow scikit-learn pandas numpy statsmodels")
         print("--- [Lifespan] Sandbox Ready! ---")
 
         yield  # 服务运行中
@@ -81,69 +83,53 @@ LOCAL_VIZ_DATA_PATH = os.path.join(TEMP_DIR, "viz_data.json")
 
 
 # ==========================================
-# 3. 核心接口逻辑
+# 3. 辅助函数
 # ==========================================
 
-@app.post("/query_agents")
-async def query_agents(
-        file: UploadFile = File(...),
-        request_data: str = Form(...)
-):
+def format_sse(event_type: str, data: Any = None) -> str:
     """
-    接收 CSV 文件和用户 Query，运行 BI Multi-Agent Workflow。
+    构造 SSE 格式的消息。
+    格式: data: {"type": "...", "data": ...}\n\n
+    """
+    payload = {
+        "type": event_type,
+        "data": data
+    }
+    return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+# ==========================================
+# 4. 核心逻辑：流式生成器
+# ==========================================
+
+async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
+    """
+    异步生成器，用于 SSE 流式输出
     """
     if GLOBAL_SANDBOX is None:
-        raise HTTPException(status_code=503, detail="Sandbox is not initialized")
+        yield format_sse("error", "Sandbox not initialized")
+        return
 
-    print(f"--- [API Request] Received request. Filename: {file.filename} ---")
-
-    # 1. 解析请求参数
-    try:
-        data = json.loads(request_data)
-        user_query = data.get("query", "")
-        scenario = data.get("scenario", None)
-        print(f"--- [API Request] Query: {user_query} ---")
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON in request_data")
-
-    # 2. 保存上传的 CSV 到本地
-    try:
-        with open(LOCAL_CSV_PATH, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        print(f"--- [System] CSV saved to {LOCAL_CSV_PATH} ---")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
-
-    # 3. 读取 Schema
-    try:
-        schema = get_csv_schema(LOCAL_CSV_PATH)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to read CSV schema: {str(e)}")
-
-    # ==========================================
-    # 4. 运行 Agent Workflow (使用全局沙箱)
-    # ==========================================
-
-    # 使用 Lock 确保同一时间只有一个请求在使用沙箱，防止文件覆盖或变量污染
+    # [关键] 获取锁，确保本流程独占沙箱
     async with SANDBOX_LOCK:
-        print("--- [System] Acquired Sandbox Lock ---")
-
         try:
-            print("--- [System] Cleaning Sandbox Memory & Files... ---")
+            yield format_sse("log", "正在初始化计算环境...")
+
+            # 1. 清理沙箱
             GLOBAL_SANDBOX.run_code("%reset -f")
             GLOBAL_SANDBOX.commands.run("rm -f /home/user/*.csv /home/user/*.json /home/user/*.feather")
 
-            # B. 上传新数据
+            # 2. 上传数据
+            yield format_sse("log", "正在上传数据...")
             remote_path = "/home/user/data.csv"
-            print(f"--- [System] Uploading Data to Sandbox... ---")
             with open(LOCAL_CSV_PATH, "rb") as f:
                 GLOBAL_SANDBOX.files.write(remote_path, f)
 
-            # C. 构建图 (注入全局 Sandbox)
+            # 3. 构建图
             code_tool = create_code_interpreter_tool(GLOBAL_SANDBOX)
             workflow_app = build_graph(tools=[code_tool], sandbox=GLOBAL_SANDBOX)
 
-            # D. 初始化状态
+            # 4. 初始化状态
             initial_state = AgentState(
                 messages=[],
                 user_input=user_query,
@@ -155,28 +141,152 @@ async def query_agents(
                 viz_success=False
             )
 
-            print("================ WORKFLOW START ================")
-            final_state = workflow_app.invoke(initial_state)
-            print("================ WORKFLOW FINISHED ================")
+            yield format_sse("log", "开始执行多智能体工作流...")
 
-            # E. 提取结果
+            # [新增] 用于暂存最终结果的变量
+            final_viz_data_cache = []
+            final_summary_cache = ""
 
-            # 1. 提取自然语言总结
+            # 5. 监听 LangGraph 执行过程 (使用 astream 异步流)
+            last_msg_id = None
+
+            async for event in workflow_app.astream(initial_state, stream_mode="values"):
+
+                # A. 捕获最新的 Log 消息
+                if "messages" in event and event["messages"]:
+                    last_msg = event["messages"][-1]
+                    current_id = id(last_msg)
+
+                    if current_id != last_msg_id:
+                        content = str(last_msg.content)
+                        if len(content) < 2000:
+                            yield format_sse("log", content)
+                        else:
+                            yield format_sse("log", "正在生成复杂配置...")
+                        last_msg_id = current_id
+
+                # B. 捕获可视化数据 (当 Viz 成功生成文件后)
+                if event.get("viz_success") is True:
+                    if os.path.exists(LOCAL_VIZ_DATA_PATH):
+                        try:
+                            with open(LOCAL_VIZ_DATA_PATH, "r", encoding="utf-8") as f:
+                                data_content = json.load(f)
+                                if "echarts" in data_content:
+                                    echarts_data = data_content["echarts"]
+
+                                    # [修改] 1. 存入缓存
+                                    final_viz_data_cache = echarts_data
+
+                                    # [修改] 2. 发送独立事件 (可选，如果前端需要实时渲染)
+                                    yield format_sse("viz_data", echarts_data)
+                                    yield format_sse("log", "图表数据已生成完毕。")
+                        except Exception as e:
+                            print(f"Error reading viz data: {e}")
+
+                # C. 捕获最终总结
+                if "final_summary" in event and event["final_summary"]:
+                    summary_text = event["final_summary"]
+
+                    # [修改] 1. 存入缓存
+                    final_summary_cache = summary_text
+
+                    # [修改] 2. 发送独立事件
+                    yield format_sse("summary", summary_text)
+
+            # 6. 工作流结束，组装并发送完整的 done 对象
+            full_result = {
+                "success": True,
+                "message": final_summary_cache,  # 使用缓存的总结
+                "echarts": final_viz_data_cache  # 使用缓存的图表数据
+            }
+
+            # 发送最终的大对象
+            yield format_sse("done", full_result)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            yield format_sse("error", f"Internal Workflow Error: {str(e)}")
+
+
+# ==========================================
+# 5. 接口定义
+# ==========================================
+
+@app.post("/query_agents")
+async def query_agents(
+        file: UploadFile = File(...),
+        request_data: str = Form(...)
+):
+    """
+    【同步接口】等待所有步骤完成后一次性返回结果
+    """
+    if GLOBAL_SANDBOX is None:
+        raise HTTPException(status_code=503, detail="Sandbox is not initialized")
+
+    # 1. 解析请求
+    try:
+        data = json.loads(request_data)
+        user_query = data.get("query", "")
+        scenario = data.get("scenario", None)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    # 2. 保存文件
+    try:
+        with open(LOCAL_CSV_PATH, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+
+    # 3. 读取 Schema
+    try:
+        schema = get_csv_schema(LOCAL_CSV_PATH)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read CSV schema: {str(e)}")
+
+    # 4. 执行工作流 (同步模式)
+    async with SANDBOX_LOCK:
+        try:
+            # 清理
+            GLOBAL_SANDBOX.run_code("%reset -f")
+            GLOBAL_SANDBOX.commands.run("rm -f /home/user/*.csv /home/user/*.json /home/user/*.feather")
+
+            # 上传
+            remote_path = "/home/user/data.csv"
+            with open(LOCAL_CSV_PATH, "rb") as f:
+                GLOBAL_SANDBOX.files.write(remote_path, f)
+
+            # 构建
+            code_tool = create_code_interpreter_tool(GLOBAL_SANDBOX)
+            workflow_app = build_graph(tools=[code_tool], sandbox=GLOBAL_SANDBOX)
+
+            initial_state = AgentState(
+                messages=[],
+                user_input=user_query,
+                data_schema=schema,
+                remote_file_path=remote_path,
+                scenario=scenario,
+                modeling_artifacts=None,
+                viz_config=None,
+                viz_success=False
+            )
+
+            # 执行
+            final_state = await workflow_app.ainvoke(initial_state)
+
+            # 提取结果
             summary = final_state.get("final_summary", "分析完成，但未生成总结。")
-
-            # 2. 提取可视化数据 (从本地文件读取)
             viz_data = []
             if os.path.exists(LOCAL_VIZ_DATA_PATH) and final_state.get("viz_success"):
                 try:
                     with open(LOCAL_VIZ_DATA_PATH, "r", encoding="utf-8") as f:
                         data_content = json.load(f)
-                        # 确保只返回 echarts 数组
                         if "echarts" in data_content:
                             viz_data = data_content["echarts"]
                 except Exception as e:
-                    print(f"[Warning] Failed to read viz_data.json: {e}")
+                    print(f"Error reading viz data: {e}")
 
-            # F. 构造最终响应 (符合你的要求)
             return {
                 "success": True,
                 "message": summary,
@@ -186,12 +296,47 @@ async def query_agents(
         except Exception as e:
             import traceback
             traceback.print_exc()
-            raise HTTPException(status_code=500, detail=f"Workflow execution failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
 
 
-# ==========================================
-# 3. 启动入口
-# ==========================================
+@app.post("/query_agents_stream")
+async def query_agents_stream(
+        file: UploadFile = File(...),
+        request_data: str = Form(...)
+):
+    """
+    【流式接口】Server-Sent Events (SSE)
+    """
+    print(f"--- [Stream API] Received request ---")
+
+    # 1. 解析参数
+    try:
+        data = json.loads(request_data)
+        user_query = data.get("query", "")
+        scenario = data.get("scenario", None)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    # 2. 保存文件
+    try:
+        with open(LOCAL_CSV_PATH, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Save file failed: {e}")
+
+    # 3. 读取 Schema
+    try:
+        schema = get_csv_schema(LOCAL_CSV_PATH)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Schema parsing failed: {e}")
+
+    # 4. 返回流式响应
+    return StreamingResponse(
+        run_workflow_stream(user_query, scenario, schema),
+        media_type="text/event-stream"
+    )
+
+
 if __name__ == "__main__":
-    print("--- Starting BI Agent Server on Port 8011 ---")
-    uvicorn.run("main:app", host="0.0.0.0", port=8011, reload=True)
+    print("--- Starting BI Agent Server on Port 8009 ---")
+    uvicorn.run("main:app", host="0.0.0.0", port=8009, reload=True)
