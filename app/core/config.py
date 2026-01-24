@@ -11,5 +11,6 @@ class Settings:
 
     # E2B_API_KEY = os.getenv("E2B_API_KEY")
     PPIO_API_KEY = os.getenv("PPIO_API_KEY")
+    PPIO_TEMPLATE = os.getenv("PPIO_TEMPLATE")
 
 settings = Settings()

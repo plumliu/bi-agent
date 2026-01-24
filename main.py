@@ -45,20 +45,20 @@ async def lifespan(app: FastAPI):
     global GLOBAL_SANDBOX
     print("--- [Lifespan] Creating Global Sandbox... ---")
 
-    try:
-        # 创建沙箱 (设置较长的超时时间，避免空闲断开)
-        GLOBAL_SANDBOX = Sandbox.create(timeout=3600)
 
-        print("--- [Lifespan] Pre-warming: Installing Dependencies... ---")
-        GLOBAL_SANDBOX.run_code("!pip install pyarrow scikit-learn pandas numpy statsmodels scipy")
-        print("--- [Lifespan] Sandbox Ready! ---")
+    GLOBAL_SANDBOX = Sandbox.create(
+        settings.PPIO_TEMPLATE,
+        api_key=settings.PPIO_API_KEY,
+        timeout=3600
+    )
 
-        yield  # 服务运行中
+    print("--- [Lifespan] Sandbox Ready! ---")
 
-    finally:
-        print("--- [Lifespan] Closing Global Sandbox... ---")
-        GLOBAL_SANDBOX.kill()
-        print("--- [Lifespan] Global Sandbox Has Been Closed! ---")
+    yield
+
+    print("--- [Lifespan] Closing Global Sandbox... ---")
+    GLOBAL_SANDBOX.kill()
+    print("--- [Lifespan] Global Sandbox Has Been Closed! ---")
 
 
 # ==========================================

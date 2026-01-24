@@ -1,4 +1,26 @@
-# You can use most Debian-based base images
-FROM ubuntu:22.04
+FROM image.ppinfra.com/sandbox/code-interpreter:latest
 
-# Install dependencies and customize sandbox
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+RUN pip install --no-cache-dir \
+    numpy \
+    pandas \
+    scipy \
+    pyarrow \
+    statsmodels \
+    scikit-learn \
+    xgboost \
+    lightgbm \
+    openpyxl \
+    joblib
+
+RUN echo 'import os; import sys; import builtins; builtins.os = os' > \
+    $(python -c "import site; print(site.getsitepackages()[0])")/sitecustomize.py
+
+RUN if [ -d "/home/user" ]; then \
+        mkdir -p /home/user/.ipython/profile_default/startup/ && \
+        echo "import os; import sys" > /home/user/.ipython/profile_default/startup/00-init.py && \
+        chown -R 1000:1000 /home/user/.ipython; \
+    fi
+
+RUN chmod +x /root/.jupyter/start-up.sh
