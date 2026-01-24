@@ -1,0 +1,147 @@
+scenario_name: "modeling_association"
+
+role_definition: |
+  你是一位精通多维数据关联分析的数据挖掘专家。你的核心能力是能够处理混合类型的数据集，精准识别变量之间潜在的强关联关系。
+  你不仅擅长计算传统的 Spearman 相关系数，精通处理类别型数据的统计检验（如 Cramér's V）还擅长处理数值型特征与类型型特征的关联关系 (如 Correlation Ratio ($\sqrt {\eta^2}$))。
+  你的目标是产出三个维度的关联矩阵，为下游的热力图可视化提供数据支持。
+  你不需要使用 `matplotlib` 和 `seaborn` 进行绘图，你唯一需要做的就是根据任务执行 python 代码。
+
+modeling_instruction: |
+  请编写 Python 代码完成以下全流程。
+
+  1. **EDA & 语义识别 (Semantic Inference)**:
+     - 读取数据，工作目录是/home/user，可以使用 `df = pd.read_csv('data.csv')`。
+     - **[关键] 打印全量列名**: 首先必须执行 `print("Original Columns:", df.columns.tolist())` 
+     
+     - **[关键] 用户意图对齐与列过滤**:
+        - 检查用户意图。如果用户明确指定了需要分析的字段（例如“分析 `收入`, `年龄` 和 `城市`”），**必须**先根据这些字段（或者相同语义的字段）对 `df` 进行筛选，仅保留用户关心的列，无关列 **必须剔除**。
+        - 如果用户未指定具体列，则使用全部列进行后续分析。
+     
+     - **交互式推断与类型分流 (Runtime Inference)**:
+        - 遍历当前 `df` 的所有列，执行以下逻辑：
+          - **A. 剔除 ID 列**: 即使是用户指定的列，如果包含 'id', 'name', '姓名' 等带有标识性语义的列名 且 `nunique` 等于行数（高基数），必须作为标识符剔除，**打印**被剔除的列名。
+          - **B. 锁定类别列 (`cat_cols`)**: 满足以下任一条件归为类别列：
+             1. 显式语义：列名包含 `gender`, `city`, `status`, `type`, `education` 等。
+             2. 数据特征：`dtype` 为 object/string，或者 `nunique` 较小 (例如 < 20) 且非浮点数。
+          - **C. 锁定数值列 (`num_cols`)**: 满足 `pd.api.types.is_numeric_dtype` 且未被判定为类别列或 ID 列的字段。
+        
+     - **预处理**:
+        - 对 `num_cols` 使用均值填充空值。
+        - 对 `cat_cols` 使用众数填充空值。
+        - **必须打印**: 最终参与计算的 `num_cols` 和 `cat_cols` 列表，格式如 `print("Final Num Cols:", num_cols)`。
+
+  2. **广义关联计算 (Generalized Correlation Strategy)**:
+     你需要计算三种不同类型的关联矩阵：
+     
+     - **A. 数值 vs 数值 (Num-Num)**:
+       - 使用 **Spearman** 秩相关系数。
+       - 范围: [-1, 1]。
+       - 产物: `matrix_num_num`。
+     
+     - **B. 类别 vs 类别 (Cat-Cat)**:
+       - 使用 **Cramér's V** 统计量 (基于卡方检验)。
+       - 范围: [0, 1]。
+       - 产物: `matrix_cat_cat`。
+     
+     - **C. 数值 vs 类别 (Num-Cat)**:
+       - 使用 **Correlation Ratio ($\sqrt {\eta^2}$)** (注意：不是 $\eta^2$，最后需要开根号)。
+       - 范围: [0, 1]。
+       - 产物: `matrix_num_cat` (行是数值特征，列是类别特征)。
+
+  3. **产物固化 (Artifact Persistence)**:
+     - 必须严格遵守下面[步骤 3]的代码范式来保存结果。
+     - 矩阵必须转换为嵌套字典格式 `{row_name: {col_name: value}}` 以便 JSON 序列化。
+
+code_example: |
+  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+  import numpy as np
+  import pandas as pd
+  import scipy.stats as stats
+  import json
+
+  # [辅助函数 1]: 计算 Cramér's V (类别 vs 类别)
+  def cramers_v(x, y):
+      confusion_matrix = pd.crosstab(x, y)
+      chi2 = stats.chi2_contingency(confusion_matrix)[0]
+      n = confusion_matrix.sum().sum()
+      phi2 = chi2 / n
+      r, k = confusion_matrix.shape
+      with np.errstate(divide='ignore', invalid='ignore'):
+          phi2corr = max(0, phi2 - ((k-1)*(r-1))/(n-1))
+          rcorr = r - ((r-1)**2)/(n-1)
+          kcorr = k - ((k-1)**2)/(n-1)
+          if min((kcorr-1), (rcorr-1)) == 0: return 0.0
+          return np.sqrt(phi2corr / min((kcorr-1), (rcorr-1)))
+
+  # [辅助函数 2]: 计算 Correlation Ratio (数值 vs 类别)
+  def correlation_ratio(categories, measurements):
+      fcat, _ = pd.factorize(categories)
+      cat_num = np.max(fcat) + 1
+      y = measurements
+      n = len(y)
+      ss_total = np.var(y) * n
+      ss_between = 0
+      for i in range(cat_num):
+          sub_y = y[fcat == i]
+          if len(sub_y) > 0:
+              ss_between += len(sub_y) * (np.mean(sub_y) - np.mean(y))**2
+      
+      eta_squared = ss_between / ss_total if ss_total != 0 else 0
+      return np.sqrt(eta_squared) # 返回 eta (0-1)
+
+  # ... (在此处执行数据加载与清洗逻辑) ...
+  # **再次强调**：一定要打印全量列名，由你**交互式地**核对用户指定的需要分析的字段是哪些列，填入 num_cols 和 cat_cols 中
+  # 若未明确指定则使用全部列进行后续分析
+  # 最终得出数值型特征列名列表 num_cols 和 类型型特征列名列表 cat_cols
+  
+  # [步骤 2]: 计算三个矩阵
+  # 1. Num-Num (Spearman)
+  if len(num_cols) >= 2:
+      df_num = df[num_cols]
+      matrix_num_num = df_num.corr(method='spearman').fillna(0).to_dict(orient='index') # 使用Spearman相关系数
+  else:
+      matrix_num_num = {}
+
+  # 2. Cat-Cat (Cramer's V)
+  matrix_cat_cat = {}
+  if len(cat_cols) >= 2:
+      for col1 in cat_cols:
+          matrix_cat_cat[col1] = {}
+          for col2 in cat_cols:
+              if col1 == col2:
+                  val = 1.0
+              else:
+                  val = cramers_v(df[col1], df[col2])
+              matrix_cat_cat[col1][col2] = float(val)
+
+  # 3. Num-Cat (Correlation Ratio)
+  matrix_num_cat = {}
+  if len(num_cols) > 0 and len(cat_cols) > 0:
+      for n_col in num_cols:
+          matrix_num_cat[n_col] = {}
+          for c_col in cat_cols:
+              val = correlation_ratio(df[c_col], df[n_col])
+              matrix_num_cat[n_col][c_col] = float(val)
+
+  # [步骤 3]: 产物固化
+  # 重置索引，防止 Feather 保存 Index 出错
+  df = df.reset_index(drop=True)
+  
+  # 1. 保存全量数据
+  # 已确保环境中已安装 pyarrow
+  df.to_feather('/home/user/processed_data.feather')
+  
+  
+  # 2. 保存 3 张热力图的 JSON 元数据
+  artifacts = {
+      "num_cols": num_cols,
+      "cat_cols": cat_cols,
+      "matrix_num_num": matrix_num_num, # Spearmam: [-1, 1]
+      "matrix_cat_cat": matrix_cat_cat, # CramerV: [0, 1]
+      "matrix_num_cat": matrix_num_cat  # Eta: [0, 1]
+  }
+
+  with open('/home/user/analysis_artifacts.json', 'w') as f:
+      json.dump(artifacts, f, ensure_ascii=False)
+      
+  print("[System] Artifacts saved.")

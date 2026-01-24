@@ -29,7 +29,7 @@ modeling_instruction: |
 
   3. **异常检测 (Anomaly Detection)**:
      - 针对 **残差序列 (Residual)** 进行统计分析。
-     - 计算残差的标准差 `sigma = std(residual)`。
+     - 计算残差的标准差 `sigma = np.nanstd(<残差序列>, ddof=1)`。
      - 设定安全阈值 `k = 3` (3-sigma 原则)。
      - 标记异常点: 凡是 `abs(residual)` > `3 * sigma` 的点，标记为异常。
      - 在 `df` 中新增列: `trend`, `seasonal`, `residual`, `is_anomaly` (bool), `fitted` (trend+seasonal), 必须写回原 `df` !

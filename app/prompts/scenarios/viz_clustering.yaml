@@ -99,11 +99,13 @@ viz_instruction: |
         "data_key": "centroids"
       }},
       "bar": {{
+        "type": "bar",
         "title": "<请根据用户意图生成业务标题>",
         "data_source": "artifacts",
         "data_key": "cluster_counts" 
       }},
       "pie": {{
+        "type": "pie",
         "title": "<请根据用户意图生成业务标题>",
         "data_source": "artifacts",
         "data_key": "cluster_counts"

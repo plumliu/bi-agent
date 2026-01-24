@@ -51,6 +51,7 @@ def modeling_node(state: AgentState):
     scenario = state.get("scenario")
     data_schema = state.get("data_schema")
     remote_file_path = state.get("remote_file_path")
+    user_input = state.get("user_input")
 
     # A. 动态加载配置
     config = load_scenario_config(scenario)
@@ -69,7 +70,10 @@ def modeling_node(state: AgentState):
     数据路径: '{remote_file_path}' (已上传，请直接使用 pd.read_csv 读取此路径)
     数据结构: 
     {data_schema}
-
+    
+    用户问题:
+    {user_input}
+    
     【任务指南】
     {instruction}
 

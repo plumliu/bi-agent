@@ -52,7 +52,7 @@ code_example: |
   df['pca_x'] = coords[:, 0]
   df['pca_y'] = coords[:, 1]
 
-  # [步骤 4]: 产物固化
+  # [步骤 4]: 产物固化, **注意**, 所有时间戳 (Timestamp) 都不应该出现在
   # 重置索引，防止 Feather 保存 Index 出错
   df = df.reset_index(drop=True)
   

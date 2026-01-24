@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
         GLOBAL_SANDBOX = Sandbox.create(api_key=settings.E2B_API_KEY, timeout=3600)
 
         print("--- [Lifespan] Pre-warming: Installing Dependencies... ---")
-        GLOBAL_SANDBOX.run_code("!pip install pyarrow scikit-learn pandas numpy statsmodels")
+        GLOBAL_SANDBOX.run_code("!pip install pyarrow scikit-learn pandas numpy statsmodels scipy")
         print("--- [Lifespan] Sandbox Ready! ---")
 
         yield  # 服务运行中

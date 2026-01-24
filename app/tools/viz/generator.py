@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import datetime
 import numpy as np
 import traceback
 from typing import Dict, Any, List
@@ -13,16 +14,24 @@ def _clean_value(val: Any) -> Any:
     """清洗数据，确保 JSON 可序列化"""
     if pd.isna(val):
         return None
+
     if isinstance(val, (np.integer, np.int64, np.int32)):
         return int(val)
     if isinstance(val, (np.floating, np.float64, np.float32)):
         if np.isinf(val):
             return None
         return float(val)
+
+    if isinstance(val, (pd.Timestamp, datetime.datetime, datetime.date)):
+        return str(val)
+
+    if isinstance(val, (np.bool_, bool)):
+        return bool(val)
+
+    if isinstance(val, np.datetime64):
+        return str(val)
+
     return val
-
-
-import pandas as pd
 
 
 def _clean_series(series: pd.Series) -> list:
@@ -190,7 +199,6 @@ def _handle_radar(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
         "indicator": indicators,
         "series": series_list
     }
-
 
 def _handle_bar(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
     """
@@ -645,6 +653,68 @@ def _handle_line(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
         "series": series_list
     }
 
+def _handle_heatmap(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
+    """
+    Heatmap Handler (轻量化协议版)
+
+    功能:
+    1. 解析 Artifacts 中的相关性矩阵。
+    2. 转换为 [x, y, value] 数组。
+    3. 仅传递 min/max 阈值，把颜色策略交还给前端组件。
+    """
+    title = config.get("title", "特征关联热力图")
+    # Num-Num (Spearman): min=-1, max=1
+    # Cat-Cat (CramerV) / Num-Cat (Eta): min=0, max=1
+    visual_map = config.get("visual_map")
+
+    x_categories = []
+    y_categories = []
+    data_points = []
+
+    # =================================================
+    # 模式 A: Artifacts Mode
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        data_key = config.get("data_key")
+        raw_matrix = artifacts.get(data_key)
+
+        if not raw_matrix or not isinstance(raw_matrix, dict):
+            raise ValueError(f"Heatmap data source '{data_key}' error.")
+
+        # 1. 解析 Y 轴 (行)
+        y_categories = sorted(list(raw_matrix.keys()))
+        if not y_categories:
+            raise ValueError("Heatmap matrix is empty.")
+
+        # 2. 解析 X 轴 (列)
+        first_row_key = y_categories[0]
+        x_categories = sorted(list(raw_matrix[first_row_key].keys()))
+
+        # 3. 扁平化数据
+        for y_idx, y_key in enumerate(y_categories):
+            row_data = raw_matrix[y_key]
+            for x_idx, x_key in enumerate(x_categories):
+                val = row_data.get(x_key, 0)
+
+                clean_val = 0.0
+                if pd.notna(val) and not np.isinf(val):
+                    clean_val = float(val)
+
+                data_points.append([x_idx, y_idx, clean_val])
+
+    else:
+        pass
+
+    return {
+        "title": title,
+        "categories": y_categories,  # Y轴
+        "categories2": x_categories,  # X轴
+        "series": [{
+            "data": data_points
+        }],
+        "visualMap": visual_map
+    }
+
 
 # ==========================================
 # 2. 注册表 (Registry)
@@ -656,6 +726,7 @@ CHART_HANDLERS = {
     "line": _handle_line,
     "pie": _handle_pie,
     "boxplot": _handle_boxplot,
+    "heatmap": _handle_heatmap,
     "decomposition": _handle_decomposition,
     "lineWithErrorBars": _handle_line_error
 }
