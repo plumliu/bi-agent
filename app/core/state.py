@@ -26,6 +26,7 @@ class AgentState(TypedDict):
 
     # --- 阶段 0: 路由结果 ---
     scenario: Optional[str]
+    modeling_insight: Optional[str]
 
     # --- 阶段 1: 建模产物 (Modeling Artifacts) ---
     # [新增] 专门存储 Modeling 阶段产生的结构化指标 (JSON)

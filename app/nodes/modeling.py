@@ -46,7 +46,7 @@ llm_with_tools = llm.bind_tools([python_interpreter])
 
 # 4. Modeling Node 核心逻辑
 def modeling_node(state: AgentState):
-    print("--- [Step 1] Modeling Node: Thinking ---")
+    print("--- [Modeling] 思考中... ---")
 
     scenario = state.get("scenario")
     data_schema = state.get("data_schema")
@@ -103,7 +103,7 @@ def modeling_node(state: AgentState):
 
     # 判断：如果这次响应没有调用工具，说明 Agent 认为任务结束了，正在输出最终结论
     if not response.tool_calls:
-        print("--- [Modeling] Analysis Finished. Extracting Summary. ---")
+        print("--- [Modeling] 建模成功，正在输出结论... ---")
         updates["modeling_summary"] = response.content
 
     return updates

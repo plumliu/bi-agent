@@ -27,23 +27,23 @@ llm = ChatOpenAI(
 )
 
 def summary_node(state: AgentState):
-    print("--- [Step 4] Summary Node: Generating Final Report ---")
+    print("--- [Summary] 生成最终报告中 ---")
 
     scenario = state.get("scenario")
     config = load_summary_config(scenario)
 
     if not config:
         # 如果没有配置，返回一个简单结束语
-        return {"final_summary": "Analysis completed. Please check the charts."}
+        return {"final_summary": "分析完毕，请查看图表"}
 
-    # 1. 提取 Modeling 结论 (从历史消息中找)
+    # 1. 提取 Modeling 结论
     modeling_summary = state["modeling_summary"]
 
-    # 2. [关键] 构造 Artifacts
+    # 2. 构造 Artifacts
     artifacts = state.get("modeling_artifacts")
     artifacts_str = json.dumps(artifacts, ensure_ascii=False)
 
-    # 3. [关键] 构造 Viz List String (不读取 viz_data.json!)
+    # 3. 构造 Viz List String
     # 我们从 Config 里读，Config 里有标题和类型，这就够了
     viz_config = state.get("viz_config")
     charts_map = viz_config.get("charts")
@@ -57,8 +57,8 @@ def summary_node(state: AgentState):
     viz_list_str = "\n".join(viz_list_items) if viz_list_items else "无生成图表"
 
     # 4. 填充 Prompt
-    prompt_template = config.get("summary_instruction", "")
-    system_prompt = config.get("role_definition", "") + "\n\n" + prompt_template.format(
+    prompt_template = config.get("summary_instruction")
+    system_prompt = config.get("role_definition") + "\n\n" + prompt_template.format(
         user_input=state.get("user_input"),
         modeling_summary=modeling_summary,
         artifacts_summary=artifacts_str,
@@ -70,7 +70,7 @@ def summary_node(state: AgentState):
 
     messages = [SystemMessage(content=system_prompt)]
 
-    print("--- [Summary] Thinking... ---")
+    print("--- [Summary] 思考中... ---")
     response = llm.invoke(messages)
 
     return {

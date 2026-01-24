@@ -32,7 +32,6 @@ def route_after_modeling(state: AgentState) -> Literal["tools", "fetch_artifacts
     return "fetch_artifacts"
 
 
-# [修改] Viz 执行后的路由：成功则去 Summary，失败则重试
 def route_after_viz_execution(state: AgentState) -> Literal["viz", "summary"]:
     if state.get("viz_success"):
         # 成功 -> 进入总结报告阶段

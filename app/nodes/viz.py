@@ -23,7 +23,7 @@ llm = ChatOpenAI(
 )
 
 def viz_node(state: AgentState):
-    print("--- [Step 2] Viz Config Node: Generative Configuration ---")
+    print("--- [Viz] 生成式的配置信息 ---")
 
     # 1. 获取上下文信息
     scenario = state.get("scenario", "clustering")
@@ -52,7 +52,7 @@ def viz_node(state: AgentState):
     # 3. 调用 LLM
     messages = [SystemMessage(content=system_prompt)]
 
-    print("--- [Viz] Thinking... ---")
+    print("--- [Viz] 思考中... ---")
     response = llm.invoke(messages)
 
     # 4. 解析结果
@@ -60,13 +60,13 @@ def viz_node(state: AgentState):
     try:
         content = response.content.replace("```json", "").replace("```", "").strip()
         viz_config = json.loads(content)
-        print("--- [Viz] Configuration Generated Successfully ---")
+        print("--- [Viz] 图表配置生成成功 ---")
     except Exception as e:
-        print(f"--- [Viz] JSON Parsing Failed: {e} ---")
-        print(f"Raw Output: {response.content}")
+        print(f"--- [Viz] JSON转换失败: {e} ---")
+        print(f"Raw回答: {response.content}")
 
     # 5. 更新 State
     return {
         "viz_config": viz_config,
-        "messages": [SystemMessage(content="Viz Configuration Generated Successfully, 等待viz_execution执行中")]
+        "messages": [SystemMessage(content="图表配置生成成功, 等待viz_execution节点执行中")]
     }

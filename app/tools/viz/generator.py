@@ -746,7 +746,7 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
         ]
     }
     """
-    print(f"--- [Viz Generator] Starting generation... ---")
+    print(f"--- [Viz Generator] 开始生成图表数据... ---")
 
     # 1. 加载数据
     try:
@@ -803,7 +803,7 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
 
     # 提取生成的类型列表用于日志
     generated_types = [item["type"] for item in echarts_list]
-    print(f"--- [Viz Generator] Finished. Success: {generated_types}, Failures: {list(errors.keys())} ---")
+    print(f"--- [Viz Generator] 根据配置信息生成图表数据成功！生成的图表: {generated_types}, 失败的图表: {list(errors.keys())} ---")
 
     # [修改点 3] 返回包含 'echarts' 数组的字典
     return {

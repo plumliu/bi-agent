@@ -10,6 +10,8 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.utils.clean_log_content import clean_log_content
+
 # ==========================================
 # 0. 环境路径配置
 # ==========================================
@@ -43,7 +45,7 @@ async def lifespan(app: FastAPI):
     3. 关闭时：销毁沙箱。
     """
     global GLOBAL_SANDBOX
-    print("--- [Lifespan] Creating Global Sandbox... ---")
+    print("--- [Lifespan] 创建沙盒环境中... ---")
 
 
     GLOBAL_SANDBOX = Sandbox.create(
@@ -52,13 +54,13 @@ async def lifespan(app: FastAPI):
         timeout=3600
     )
 
-    print("--- [Lifespan] Sandbox Ready! ---")
+    print("--- [Lifespan] 沙盒创建成功！---")
 
     yield
 
-    print("--- [Lifespan] Closing Global Sandbox... ---")
+    print("--- [Lifespan] 关闭沙盒中... ---")
     GLOBAL_SANDBOX.kill()
-    print("--- [Lifespan] Global Sandbox Has Been Closed! ---")
+    print("--- [Lifespan] 沙盒已成功关闭！ ---")
 
 
 # ==========================================
@@ -158,10 +160,16 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
 
                     if current_id != last_msg_id:
                         content = str(last_msg.content)
-                        if len(content) < 2000:
-                            yield format_sse("log", content)
+                        if not content.strip():
+                            if hasattr(last_msg, 'tool_calls') and last_msg.tool_calls:
+                                yield format_sse("log", "正在构建代码指令...")
                         else:
-                            yield format_sse("log", "正在生成复杂配置...")
+                            if len(content) < 2000:
+                                clean_content = clean_log_content(content)
+                                yield format_sse("log", clean_content)
+                            else:
+                                yield format_sse("log", "正在生成复杂配置...")
+
                         last_msg_id = current_id
 
                 # B. 捕获可视化数据 (当 Viz 成功生成文件后)
@@ -191,8 +199,8 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
             # 6. 工作流结束，组装并发送完整的 done 对象
             full_result = {
                 "success": True,
-                "message": final_summary_cache,  # 使用缓存的总结
-                "echarts": final_viz_data_cache  # 使用缓存的图表数据
+                "message": final_summary_cache,
+                "echarts": final_viz_data_cache
             }
 
             # 发送最终的大对象
@@ -217,7 +225,7 @@ async def query_agents(
     【同步接口】等待所有步骤完成后一次性返回结果
     """
     if GLOBAL_SANDBOX is None:
-        raise HTTPException(status_code=503, detail="Sandbox is not initialized")
+        raise HTTPException(status_code=503, detail="沙盒还未初始化")
 
     # 1. 解析请求
     try:
@@ -225,20 +233,20 @@ async def query_agents(
         user_query = data.get("query", "")
         scenario = data.get("scenario", None)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON")
+        raise HTTPException(status_code=400, detail="非法的JSON")
 
     # 2. 保存文件
     try:
         with open(LOCAL_CSV_PATH, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"下载文件失败: {str(e)}")
 
     # 3. 读取 Schema
     try:
         schema = get_csv_schema(LOCAL_CSV_PATH)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to read CSV schema: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"读取CSV schema失败: {str(e)}")
 
     # 4. 执行工作流 (同步模式)
     async with SANDBOX_LOCK:
@@ -302,7 +310,7 @@ async def query_agents_stream(
     """
     【流式接口】Server-Sent Events (SSE)
     """
-    print(f"--- [Stream API] Received request ---")
+    print(f"--- [Stream API] 已接收请求 ---")
 
     # 1. 解析参数
     try:
@@ -310,20 +318,20 @@ async def query_agents_stream(
         user_query = data.get("query", "")
         scenario = data.get("scenario", None)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid JSON")
+        raise HTTPException(status_code=400, detail="非法的JSON")
 
     # 2. 保存文件
     try:
         with open(LOCAL_CSV_PATH, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Save file failed: {e}")
+        raise HTTPException(status_code=500, detail=f"保存文件失败: {e}")
 
     # 3. 读取 Schema
     try:
         schema = get_csv_schema(LOCAL_CSV_PATH)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Schema parsing failed: {e}")
+        raise HTTPException(status_code=400, detail=f"Schema 转换失败: {e}")
 
     # 4. 返回流式响应
     return StreamingResponse(
@@ -333,5 +341,5 @@ async def query_agents_stream(
 
 
 if __name__ == "__main__":
-    print("--- Starting BI Agent Server on Port 8009 ---")
+    print("--- BI Agent 服务在端口 8009 启动中 ---")
     uvicorn.run("main:app", host="0.0.0.0", port=8009, reload=True)

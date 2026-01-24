@@ -123,4 +123,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] Artifacts saved.")
+  print("[System] 产物已成功保存: processed_data.feather, analysis_artifacts.json")

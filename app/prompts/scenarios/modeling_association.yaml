@@ -11,24 +11,28 @@ modeling_instruction: |
 
   1. **EDA & 语义识别 (Semantic Inference)**:
      - 读取数据，工作目录是/home/user，可以使用 `df = pd.read_csv('data.csv')`。
-     - **[关键] 打印全量列名**: 首先必须执行 `print("Original Columns:", df.columns.tolist())` 
+     - **[关键] 打印全量列名**: 首先必须执行 `print("原始数据的全量列名:", df.columns.tolist())` 
      
      - **[关键] 用户意图对齐与列过滤**:
         - 检查用户意图。如果用户明确指定了需要分析的字段（例如“分析 `收入`, `年龄` 和 `城市`”），**必须**先根据这些字段（或者相同语义的字段）对 `df` 进行筛选，仅保留用户关心的列，无关列 **必须剔除**。
         - 如果用户未指定具体列，则使用全部列进行后续分析。
      
-     - **交互式推断与类型分流 (Runtime Inference)**:
-        - 遍历当前 `df` 的所有列，执行以下逻辑：
-          - **A. 剔除 ID 列**: 即使是用户指定的列，如果包含 'id', 'name', '姓名' 等带有标识性语义的列名 且 `nunique` 等于行数（高基数），必须作为标识符剔除，**打印**被剔除的列名。
-          - **B. 锁定类别列 (`cat_cols`)**: 满足以下任一条件归为类别列：
-             1. 显式语义：列名包含 `gender`, `city`, `status`, `type`, `education` 等。
-             2. 数据特征：`dtype` 为 object/string，或者 `nunique` 较小 (例如 < 20) 且非浮点数。
-          - **C. 锁定数值列 (`num_cols`)**: 满足 `pd.api.types.is_numeric_dtype` 且未被判定为类别列或 ID 列的字段。
-        
+     - **交互式推断与类型分流 (Smart Inference)**:
+        - **核心指令**: **严禁**进行笨拙的关键词穷举！**严禁**生成包含大量硬编码关键词列表（如 `keywords=['type', 'status'...]`）的 `if-else` 匹配代码。
+        - **执行逻辑**: 
+          - **情况A (列名已知，大部分情况适用)**: 如果你在上下文中已经知晓了列名，请**直接利用你的语义理解能力**在思维链中判断，并将最终结果**硬编码**写入代码 (即：直接生成 `cat_cols = [...]`, `num_cols = [...]`)。
+          - **情况B (列名未知)**: 如果必须编写通用推断逻辑，请按以下标准编写代码：
+            - **Step 1 剔除 ID**: 剔除 `nunique` 等于行数（高基数）且列名包含 'id'/'code'/'name' 语义的列。
+            - **Step 2 锁定类别列 (`cat_cols`)**: 
+               - 所有 `object` 或 `category` 类型的列。
+               - 或者是 **数值型但唯一值极少** (Low Cardinality, 如 `nunique < 10`) 的列（视为分类编码）。
+            - **Step 3 锁定数值列 (`num_cols`)**: 
+               - 剩余的 `numeric` 类型列（即高基数数值列）。
+        - **必须打印**: 最终参与计算的 `num_cols` 和 `cat_cols` 列表，格式如 `print("最终参与建模的数值列:", num_cols)`。
+
      - **预处理**:
         - 对 `num_cols` 使用均值填充空值。
         - 对 `cat_cols` 使用众数填充空值。
-        - **必须打印**: 最终参与计算的 `num_cols` 和 `cat_cols` 列表，格式如 `print("Final Num Cols:", num_cols)`。
 
   2. **广义关联计算 (Generalized Correlation Strategy)**:
      你需要计算三种不同类型的关联矩阵：
@@ -144,4 +148,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] Artifacts saved.")
+  print("[System] 产物已成功保存: processed_data.feather, analysis_artifacts.json")

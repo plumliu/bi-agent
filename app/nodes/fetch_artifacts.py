@@ -13,7 +13,7 @@ def create_fetch_artifacts_node(sandbox: Sandbox):
     """
 
     def fetch_artifacts_node(state: AgentState):
-        print("--- [Middleware] Fetching Artifacts & Updating Schema ---")
+        print("--- [Middleware] 获取产物以及更新data_schema ---")
 
         # 定义路径 (与 Modeling 阶段的协议保持一致)
         remote_json = "/home/user/analysis_artifacts.json"
@@ -27,7 +27,7 @@ def create_fetch_artifacts_node(sandbox: Sandbox):
 
         try:
             # 1. 下载 JSON (统计产物) 并保存到本地
-            print(f"Downloading {remote_json}...")
+            print(f"下载 {remote_json}...")
             json_str = sandbox.files.read(remote_json)
             artifacts = json.loads(json_str)
 
@@ -36,7 +36,7 @@ def create_fetch_artifacts_node(sandbox: Sandbox):
                 json.dump(artifacts, f, ensure_ascii=False, indent=2)
 
             # 2. 下载 Feather (数据全集) 并保存到本地
-            print(f"Downloading {remote_feather}...")
+            print(f"下载 {remote_feather} 中...")
             # 注意：必须用 format="bytes" 下载二进制
             feather_bytes = sandbox.files.read(remote_feather, format="bytes")
 
@@ -67,25 +67,24 @@ def create_fetch_artifacts_node(sandbox: Sandbox):
             # 构造成功消息
             msg_content = f"已成功同步分析产物至本地。检测到新增列：{new_columns if new_columns else '无'}。"
 
-            print(f"--- [Middleware] Schema Updated: Detected {len(result['columns'])} columns ---")
+            print(f"--- [Middleware] Schema已更新: 检测到了 {len(result['columns'])} 列 ---")
             print(f"--- [Middleware] {msg_content} ---")
 
             # 4. 更新 State
             # 这里返回的字典会合并到 State 中
             return {
                 "data_schema": result,  # 更新元数据
-                "modeling_artifacts": artifacts,  # 注入指标
-                # 添加一条 SystemMessage，打破消息流的静默状态
+                "modeling_artifacts": artifacts,
                 "messages": [SystemMessage(content=msg_content)]
             }
 
         except Exception as e:
-            error_msg = f"Failed to fetch artifacts: {str(e)}"
+            error_msg = f"产物获取失败: {str(e)}"
             print(f"--- [Middleware Error] {error_msg} ---")
             # 如果失败，返回错误消息
             return {
                 "messages": [
-                    SystemMessage(content=f"[System Warning] Artifact fetch failed: {error_msg}. Viz step may fail.")
+                    SystemMessage(content=f"[System Warning] 产物获取失败: {error_msg}！ Viz阶段可能会因此失败。")
                 ]
             }
 

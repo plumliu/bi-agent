@@ -64,7 +64,7 @@ code_example: |
 
   # 2. 准备雷达图数据 (Centroids)
   # 注意！使用原始数据(非标准化)计算均值，业务含义更强
-  numeric_cols = <原始数值型列名列表>
+  numeric_cols = <原始的数值型列列名的列表>
   centroids = df.groupby('cluster_label')[numeric_cols].mean().to_dict(orient='index')
   
   # 3. 准备饼图数据 (Counts)
@@ -82,4 +82,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] Artifacts saved successfully: processed_data.feather, analysis_artifacts.json")
+  print("[System] 产物已成功保存：processed_data.feather, analysis_artifacts.json")

@@ -13,9 +13,10 @@ ScenarioType = Literal[
     "clustering",  # 聚类
     "anomaly",  # 异常分析
     "decomposition",  # 趋势分解
+
+    "association",  # 关联分析
     "forecast",  # 时序预测
     "classification",  # 分类
-    "association",  # 关联分析
     "unknown"  # 如果用户在闲聊或无法识别
 ]
 
@@ -33,7 +34,6 @@ class RouterOutput(BaseModel):
 
 
 # 2. 初始化 LLM
-# 建议 Router 使用较快且便宜的模型（如 gpt-4o-mini），因为它只需要做分类
 llm = ChatOpenAI(
     model=settings.LLM_FLASH_MODEL_NAME,
     temperature=0,
@@ -49,14 +49,11 @@ def router_node(state: AgentState) -> dict:
     """
     路由节点：分析用户输入和数据Schema，决定算法场景。
     """
-    print("--- [Step 0] Router Node: Analyzing User Intent ---")
+    print("--- [Router] 分析用户的意图中... ---")
 
     user_input = state["user_input"]
     data_schema = state.get("data_schema")
 
-    # 构建 Prompt
-    # 注意：这里我们动态插入了 data_schema，这对判断非常重要
-    # (例如：如果有时间字段，更有可能是时序预测)
     system_prompt = ROUTER_SYSTEM_TEMPLATE.format(data_schema=data_schema)
 
     messages = [
@@ -69,16 +66,14 @@ def router_node(state: AgentState) -> dict:
         result: RouterOutput = structured_llm.invoke(messages)
 
         # 打印日志方便观察
-        print(f"Decision: {result.scenario} | Reason: {result.reasoning}")
+        print(f"算法场景: {result.scenario} | 理由: {result.reasoning}")
 
-        # 返回要更新的状态
-        # 注意：这里返回的字典会通过 State 的合并逻辑更新到全局 State 中
         return {
             "scenario": result.scenario,
-            "modeling_insight": f"Router Note: {result.reasoning}"  # 可选：把路由理由传递给下游参考
+            "messages": [SystemMessage(content=result.reasoning)],
+            "modeling_insight": f"{result.reasoning}"
         }
 
     except Exception as e:
-        # 兜底逻辑：如果解析失败，默认归为 unknown 或抛出
-        print(f"Router Error: {e}")
-        return {"scenario": "unknown", "modeling_insight": "Routing failed."}
+        print(f"路由失败: {e}")
+        return {"scenario": "unknown", "modeling_insight": f"路由失败，{e}"}

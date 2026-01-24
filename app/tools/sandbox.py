@@ -17,7 +17,7 @@ def create_code_interpreter_tool(sandbox: Sandbox):
             code: Python 代码。
         """
         # 保留你的调试信息
-        print(f"\n--- [Tool] Executing in Injected Sandbox ---")
+        print(f"\n--- [Tool] 在沙盒中执行代码中 ---")
         print(code)
 
         try:
@@ -36,14 +36,14 @@ def create_code_interpreter_tool(sandbox: Sandbox):
                     f"[EXECUTION ERROR]\n{execution.error.name}: {execution.error.value}\n{execution.error.traceback}")
 
             if execution.results:
-                output.append(f"[SYSTEM] Generated {len(execution.results)} results.")
+                output.append(f"[SYSTEM] 生成了 {len(execution.results)} 结果.")
 
             if not output:
-                return "[SYSTEM] Code executed successfully but returned no output."
+                return "[SYSTEM] 代码执行成功了，但并没有返回任何输出."
 
             return "\n".join(output)
 
         except Exception as e:
-            return f"[SYSTEM ERROR] Sandbox exception: {str(e)}"
+            return f"[SYSTEM ERROR] 沙盒出现错误: {str(e)}"
 
     return python_interpreter
