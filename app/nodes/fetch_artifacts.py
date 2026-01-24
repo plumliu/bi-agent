@@ -1,7 +1,8 @@
 import json
 import os
 import pandas as pd
-from e2b_code_interpreter import Sandbox
+# from e2b_code_interpreter import Sandbox
+from ppio_sandbox.code_interpreter import Sandbox
 from langchain_core.messages import SystemMessage
 from app.core.state import AgentState
 

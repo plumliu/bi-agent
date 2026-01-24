@@ -9,6 +9,7 @@ class Settings:
     LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME")
     LLM_FLASH_MODEL_NAME = os.getenv("LLM_FLASH_MODEL_NAME")
 
-    E2B_API_KEY = os.getenv("E2B_API_KEY")
+    # E2B_API_KEY = os.getenv("E2B_API_KEY")
+    PPIO_API_KEY = os.getenv("PPIO_API_KEY")
 
 settings = Settings()

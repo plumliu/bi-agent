@@ -1,6 +1,7 @@
 import os
 from langchain_core.tools import tool
-from e2b_code_interpreter import Sandbox
+# from e2b_code_interpreter import Sandbox
+from ppio_sandbox.code_interpreter import Sandbox
 
 def create_code_interpreter_tool(sandbox: Sandbox):
     """

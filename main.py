@@ -7,7 +7,7 @@ import asyncio
 from typing import Any
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import StreamingResponse  # [新增]
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # ==========================================
@@ -16,7 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # 确保能导入 app 模块
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from e2b_code_interpreter import Sandbox
+# from e2b_code_interpreter import Sandbox
+from ppio_sandbox.code_interpreter import Sandbox
 from app.utils.csv_reader import get_csv_schema
 from app.core.state import AgentState
 from app.graph.workflow import build_graph
@@ -46,7 +47,7 @@ async def lifespan(app: FastAPI):
 
     try:
         # 创建沙箱 (设置较长的超时时间，避免空闲断开)
-        GLOBAL_SANDBOX = Sandbox.create(api_key=settings.E2B_API_KEY, timeout=3600)
+        GLOBAL_SANDBOX = Sandbox.create(timeout=3600)
 
         print("--- [Lifespan] Pre-warming: Installing Dependencies... ---")
         GLOBAL_SANDBOX.run_code("!pip install pyarrow scikit-learn pandas numpy statsmodels scipy")
@@ -56,9 +57,8 @@ async def lifespan(app: FastAPI):
 
     finally:
         print("--- [Lifespan] Closing Global Sandbox... ---")
-        if GLOBAL_SANDBOX:
-            GLOBAL_SANDBOX.kill()
-            print("FastAPI 退出，Sandbox 将随进程销毁")
+        GLOBAL_SANDBOX.kill()
+        print("--- [Lifespan] Global Sandbox Has Been Closed! ---")
 
 
 # ==========================================

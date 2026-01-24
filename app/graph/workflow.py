@@ -1,11 +1,11 @@
 import operator
 from typing import Annotated, Literal, Union, List
 
-from langchain_core.messages import BaseMessage
 from langchain_core.tools import BaseTool
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import ToolNode
-from e2b_code_interpreter import Sandbox
+# from e2b_code_interpreter import Sandbox
+from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.state import AgentState
 from app.nodes.router import router_node
