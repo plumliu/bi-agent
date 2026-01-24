@@ -143,7 +143,6 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
 
             yield format_sse("log", "开始执行多智能体工作流...")
 
-            # [新增] 用于暂存最终结果的变量
             final_viz_data_cache = []
             final_summary_cache = ""
 
@@ -174,10 +173,8 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
                                 if "echarts" in data_content:
                                     echarts_data = data_content["echarts"]
 
-                                    # [修改] 1. 存入缓存
                                     final_viz_data_cache = echarts_data
 
-                                    # [修改] 2. 发送独立事件 (可选，如果前端需要实时渲染)
                                     yield format_sse("viz_data", echarts_data)
                                     yield format_sse("log", "图表数据已生成完毕。")
                         except Exception as e:
@@ -187,10 +184,8 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
                 if "final_summary" in event and event["final_summary"]:
                     summary_text = event["final_summary"]
 
-                    # [修改] 1. 存入缓存
                     final_summary_cache = summary_text
 
-                    # [修改] 2. 发送独立事件
                     yield format_sse("summary", summary_text)
 
             # 6. 工作流结束，组装并发送完整的 done 对象

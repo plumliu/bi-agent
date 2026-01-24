@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir \
     openpyxl \
     joblib
 
-RUN echo 'import os; import sys; import builtins; builtins.os = os' > \
+RUN echo 'import os, sys, copy, builtins; builtins.os = os; builtins.sys = sys; builtins.copy = copy; builtins.E2BEnviron = type(os.environ)' > \
     $(python -c "import site; print(site.getsitepackages()[0])")/sitecustomize.py
 
 RUN if [ -d "/home/user" ]; then \
