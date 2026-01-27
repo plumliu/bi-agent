@@ -5,16 +5,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage
 from app.core.state import AgentState
 from app.core.config import settings
+from app.core.prompts_config import load_prompts_config
 
-
-def load_viz_config(scenario: str):
-    base_path = os.path.join(os.path.dirname(__file__), "../prompts/scenarios")
-    path = os.path.join(base_path, f"viz_{scenario}.yaml")
-    if not os.path.exists(path):
-        print(f"[Warning] Viz prompt not found: {path}")
-        return {}
-    with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+step = "viz"
 
 llm = ChatOpenAI(
     model=settings.LLM_FLASH_MODEL_NAME,
@@ -27,7 +20,7 @@ def viz_node(state: AgentState):
 
     # 1. 获取上下文信息
     scenario = state.get("scenario", "clustering")
-    config = load_viz_config(scenario)
+    config = load_prompts_config(step, scenario)
 
     # 获取最新的 Schema (由 fetch_artifacts 更新过的)
     data_schema = state.get("data_schema")

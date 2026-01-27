@@ -11,6 +11,8 @@
 # const sandbox = await Sandbox.create('7ah3xuld9mfo6rot1h25')
 
 team_id = "4be0327f-a613-4299-8715-a3abd38708e7"
+memory_mb = 2_048
+cpu_count = 2
 start_cmd = "/root/.jupyter/start-up.sh"
 dockerfile = "ppio.Dockerfile"
 template_id = "7ah3xuld9mfo6rot1h25"

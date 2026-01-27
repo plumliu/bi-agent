@@ -5,24 +5,13 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage
 from langchain_core.tools import tool
 
+from app.core.prompts_config import load_prompts_config
 from app.core.state import AgentState
 from app.core.config import settings
 
 
-# 1. 辅助函数：加载 YAML 配置
-def load_scenario_config(scenario: str) -> Dict[str, Any]:
-    if not scenario:
-        raise ValueError("scenario 不存在或为空")
-
-    base_path = os.path.join(os.path.dirname(__file__), "../prompts/scenarios")
-    file_path = os.path.join(base_path, f"modeling_{scenario}.yaml")
-
-    if not os.path.exists(file_path):
-        raise ValueError(f"该scenario：{file_path} 不存在或为空")
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
+# 1. 当前阶段
+step = "modeling"
 
 # 2. 定义工具存根
 @tool("python_interpreter")
@@ -54,7 +43,7 @@ def modeling_node(state: AgentState):
     user_input = state.get("user_input")
 
     # A. 动态加载配置
-    config = load_scenario_config(scenario)
+    config = load_prompts_config(step, scenario)
 
     instruction = config.get('modeling_instruction')
     code_example = config.get('code_example')

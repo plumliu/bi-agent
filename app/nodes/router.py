@@ -17,6 +17,7 @@ ScenarioType = Literal[
     "association",  # 关联分析
     "forecast",  # 时序预测
     "classification",  # 分类
+
     "unknown"  # 如果用户在闲聊或无法识别
 ]
 

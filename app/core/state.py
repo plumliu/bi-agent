@@ -28,22 +28,21 @@ class AgentState(TypedDict):
     scenario: Optional[str]
     modeling_insight: Optional[str]
 
-    # --- 阶段 1: 建模产物 (Modeling Artifacts) ---
-    # [新增] 专门存储 Modeling 阶段产生的结构化指标 (JSON)
+    # --- 建模产物 (Modeling Artifacts) ---
     # 例如: {"k_value": 3, "centroids": {...}, "silhouette_score": 0.5}
     modeling_artifacts: Optional[Dict[str, Any]]
 
     # 建模工作摘要
     modeling_summary: Optional[str]
 
-    # --- 阶段 2: 可视化配置 (Viz Node) ---
+    # --- 可视化配置 (Viz Node) ---
     # 这是一个 JSON 对象，对应 ECharts 配置
     viz_config: Optional[Dict[str, Any]]
 
     # Viz 执行状态标志 (用于控制 Viz 循环)
     viz_success: Optional[bool]
 
-    # --- 阶段 3: 总结 (Summary Node) ---
+    # --- 总结 (Summary Node) ---
     final_summary: Optional[str]
 
     # --- 控制流标志 ---

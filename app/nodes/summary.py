@@ -3,22 +3,12 @@ import json
 import yaml
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, AIMessage
+
+from app.core.prompts_config import load_prompts_config
 from app.core.state import AgentState
 from app.core.config import settings
 
-
-def load_summary_config(scenario: str):
-    # 动态加载对应场景的 yaml
-    base_path = os.path.join(os.path.dirname(__file__), "../prompts/scenarios")
-    path = os.path.join(base_path, f"summary_{scenario}.yaml")
-
-    # 降级策略：如果没有特定 summary，可以用一个默认的
-    if not os.path.exists(path):
-        print(f"[Warning] Summary config for {scenario} not found.")
-        return None
-
-    with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+step = "summary"
 
 llm = ChatOpenAI(
     model=settings.LLM_FLASH_MODEL_NAME,
@@ -30,7 +20,7 @@ def summary_node(state: AgentState):
     print("--- [Summary] 生成最终报告中 ---")
 
     scenario = state.get("scenario")
-    config = load_summary_config(scenario)
+    config = load_prompts_config(step, scenario)
 
     if not config:
         # 如果没有配置，返回一个简单结束语

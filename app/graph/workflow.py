@@ -101,7 +101,7 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
         }
     )
 
-    # [新增] Summary -> END
+    # Summary -> END
     workflow.add_edge("summary", END)
 
     app = workflow.compile()
