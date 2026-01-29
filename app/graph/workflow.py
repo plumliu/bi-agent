@@ -1,5 +1,5 @@
 import operator
-from typing import Annotated, Literal, Union, List
+from typing import Literal, List
 
 from langchain_core.tools import BaseTool
 from langgraph.graph import StateGraph, END, START

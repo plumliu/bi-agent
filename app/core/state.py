@@ -17,14 +17,14 @@ class AgentState(TypedDict):
     user_input: str
 
     # --- 数据上下文 (Data Context) ---
-    # [修改] 升级为结构化字典，包含 'columns', 'dtypes', 'summary'
+    # 结构化字典，包含 'columns', 'dtypes', 'summary'
     # 这样 Fetch_Artifacts 节点就可以只更新里面的 'columns' 列表，而不破坏其他信息
     data_schema: Dict[str, Any]
 
-    # E2B 沙箱中的文件路径 (例如 "/home/user/data.csv")
+    # PPIO 沙盒中的文件路径 (事实上是固定值 "/home/user/data.csv")
     remote_file_path: str
 
-    # --- 阶段 0: 路由结果 ---
+    # --- 路由结果 (Router Node) ---
     scenario: Optional[str]
     modeling_insight: Optional[str]
 

@@ -45,9 +45,9 @@ SANDBOX_LOCK = asyncio.Lock()
 async def lifespan(app: FastAPI):
     """
     FastAPI 生命周期管理器：
-    1. 启动时：创建 E2B 沙箱并安装依赖 (预热)。
-    2. 运行时：保持沙箱存活。
-    3. 关闭时：销毁沙箱。
+    1. 启动时：创建 PPIO 沙盒（已从 E2B 更换）。
+    2. 运行时：保持沙盒存活。
+    3. 关闭时：销毁沙盒。
     """
     global GLOBAL_SANDBOX
     print("--- [Lifespan] 创建沙盒环境中... ---")
