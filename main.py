@@ -14,6 +14,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.utils.alias_generator import generate_semantic_alias
 from app.utils.clean_log_content import clean_log_content
 from app.utils.file_parser import parse_file_content
 
@@ -106,57 +107,75 @@ def format_sse(event_type: str, data: Any = None) -> str:
 
 
 # ==========================================
-# 4. 核心逻辑：流式生成器
+# 4. 核心逻辑：流式生成器 (已适配 Auto-ETL)
 # ==========================================
 
-async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
+async def run_workflow_stream(
+        user_query: str,
+        scenario: str,
+        raw_file_paths: List[str],  # [新参数] 沙盒内的物理路径列表
+        original_filenames: List[str]  # [新参数] 给 LLM 看的语义化文件名列表
+):
     """
-    异步生成器，用于 SSE 流式输出
+    异步生成器，用于 SSE 流式输出。
+    负责初始化 LangGraph 状态并流式传输执行结果。
     """
     if GLOBAL_SANDBOX is None:
         yield format_sse("error", "Sandbox not initialized")
         return
 
     # [关键] 获取锁，确保本流程独占沙箱
+    # 注意：在单例模式下，虽然文件已经在 API 层上传了，但执行期间仍需加锁防止冲突
     async with SANDBOX_LOCK:
         try:
-            yield format_sse("log", "正在初始化计算环境...")
+            yield format_sse("log", "正在初始化智能体工作流...")
 
-            # 1. 清理沙箱
-            GLOBAL_SANDBOX.run_code("%reset -f")
-            GLOBAL_SANDBOX.commands.run("rm -f /home/user/*.csv /home/user/*.json /home/user/*.feather")
-
-            # 2. 上传数据
-            yield format_sse("log", "正在上传数据...")
-            remote_path = "/home/user/data.csv"
-            with open(LOCAL_CSV_PATH, "rb") as f:
-                GLOBAL_SANDBOX.files.write(remote_path, f)
-
-            # 3. 构建图
+            # 1. 构建图
+            # 这里的 tools 需要包含代码解释器
             code_tool = create_code_interpreter_tool(GLOBAL_SANDBOX)
             workflow_app = build_graph(tools=[code_tool], sandbox=GLOBAL_SANDBOX)
 
-            # 4. 初始化状态
+            # 2. 初始化状态 (AgentState)
+            # 注意：data_schema 和 remote_file_path 此时为空，等待 Auto-ETL 节点填充
             initial_state = AgentState(
                 messages=[],
                 user_input=user_query,
-                data_schema=schema,
-                remote_file_path=remote_path,
+
+                # --- Auto-ETL 输入 ---
+                raw_file_paths=raw_file_paths,
+                original_filenames=original_filenames,
+
+                # --- 待产出 (Output) ---
+                remote_file_path=None,  # 等待 Auto-ETL 生成 /home/user/data.csv
+                data_schema={},  # 等待 Auto-ETL 生成 Schema
+
+                # --- 其他上下文 ---
                 scenario=scenario,
                 modeling_artifacts=None,
                 viz_config=None,
-                viz_success=False
+                viz_success=False,
+                final_summary=None,
+                error_count=0
             )
 
-            yield format_sse("log", "开始执行多智能体工作流...")
+            yield format_sse("log", "多文件智能合并 (Auto-ETL) 启动中...")
 
             final_viz_data_cache = []
             final_summary_cache = ""
 
-            # 5. 监听 LangGraph 执行过程 (使用 astream 异步流)
+            # 用于记录 Auto-ETL 是否已完成的标志位，防止重复打日志
+            etl_completed_flag = False
+
+            # 3. 监听 LangGraph 执行过程 (使用 astream 异步流)
             last_msg_id = None
 
             async for event in workflow_app.astream(initial_state, stream_mode="values"):
+
+                # --- [新增] 监听 Auto-ETL 进度 ---
+                # 如果发现 data_schema 从空变为了有值，说明 ETL 完成了
+                if not etl_completed_flag and event.get("data_schema"):
+                    yield format_sse("log", "数据自动合并完成，Schema 已生成。")
+                    etl_completed_flag = True
 
                 # A. 捕获最新的 Log 消息
                 if "messages" in event and event["messages"]:
@@ -166,9 +185,11 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
                     if current_id != last_msg_id:
                         content = str(last_msg.content)
                         if not content.strip():
+                            # 处理工具调用的中间状态
                             if hasattr(last_msg, 'tool_calls') and last_msg.tool_calls:
                                 yield format_sse("log", "正在构建代码指令...")
                         else:
+                            # 过滤过长的日志，避免前端卡顿
                             if len(content) < 2000:
                                 clean_content = clean_log_content(content)
                                 yield format_sse("log", clean_content)
@@ -178,6 +199,8 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
                         last_msg_id = current_id
 
                 # B. 捕获可视化数据 (当 Viz 成功生成文件后)
+                # 注意：这里逻辑假设 Viz 节点生成的 JSON 依然保存在本地 LOCAL_VIZ_DATA_PATH
+                # 如果 Viz 节点是在沙盒内生成并下载的，请确保 viz_execution_node 里有下载逻辑
                 if event.get("viz_success") is True:
                     if os.path.exists(LOCAL_VIZ_DATA_PATH):
                         try:
@@ -185,9 +208,7 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
                                 data_content = json.load(f)
                                 if "echarts" in data_content:
                                     echarts_data = data_content["echarts"]
-
                                     final_viz_data_cache = echarts_data
-
                                     yield format_sse("viz_data", echarts_data)
                                     yield format_sse("log", "图表数据已生成完毕。")
                         except Exception as e:
@@ -196,25 +217,22 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
                 # C. 捕获最终总结
                 if "final_summary" in event and event["final_summary"]:
                     summary_text = event["final_summary"]
-
                     final_summary_cache = summary_text
-
                     yield format_sse("summary", summary_text)
 
-            # 6. 工作流结束，组装并发送完整的 done 对象
+            # 4. 工作流结束
             full_result = {
                 "success": True,
                 "message": final_summary_cache,
                 "echarts": final_viz_data_cache
             }
 
-            # 发送最终的大对象
             yield format_sse("done", full_result)
 
         except Exception as e:
             import traceback
             traceback.print_exc()
-            yield format_sse("error", f"内网错误: {str(e)}")
+            yield format_sse("error", f"工作流执行错误: {str(e)}")
 
 
 # ==========================================
@@ -223,74 +241,105 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
 
 @app.post("/query_agents_stream")
 async def query_agents_stream(
-        files: List[UploadFile] = File(...),
+        file: List[UploadFile] = File(...),  # 保持变量名为 file
         request_data: str = Form(...)
 ):
     """
     【流式接口】Server-Sent Events (SSE)
-    支持多文件上传 -> 解析(含多Sheet) -> 扁平化处理 -> 自动合并 -> 生成唯一 CSV
+    多文件上传 -> 解析拆解(含多Sheet) -> 上传碎片到沙盒 -> 启动 LangGraph (Auto-ETL)
     """
-    print(f"--- [Stream API] 已接收请求，文件数量: {len(files)} ---")
+
+    # 0. 沙盒检查 (单例模式)
+    if GLOBAL_SANDBOX is None:
+        raise HTTPException(status_code=503, detail="计算环境(Sandbox)尚未初始化，请稍后重试")
+
+    print(f"--- [Stream API] 已接收请求，文件数量: {len(file)} ---")
 
     # 1. 解析 JSON 参数
     try:
         data = json.loads(request_data)
-        user_query = data.get("query", "")
+        user_query = data.get("query")
         scenario = data.get("scenario", None)
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="非法的JSON")
 
-    # 2. 内存处理：遍历文件并解析
-    data_frames = []  # 用于存放所有解析出来的 DataFrame (扁平列表)
+    # 2. 预处理：解析 -> 转 CSV -> 上传到沙盒
+    raw_file_paths_in_sandbox = []  # [物理路径] 给代码用: /home/user/raw_0.csv
+    original_filenames = []  # [逻辑名称] 给 LLM 用: File_A.xlsx (Sheet: Jan)
 
     try:
-        for file in files:
-            # 在内存中读取二进制内容
-            content = await file.read()
+        # A. 清理沙盒旧数据 (防止单例模式下上一次请求的文件残留)
+        GLOBAL_SANDBOX.run_code("%reset -f") # 添加了这个
+        GLOBAL_SANDBOX.commands.run("rm -f /home/user/*.csv /home/user/*.json")
+
+        global_fragment_count = 0  # 全局碎片计数器
+
+        # 遍历用户上传的每一个文件
+        for file_index, f in enumerate(file):
+            # 读取内容
+            content = await f.read()
+
+            # B. 生成基础别名 (处理哈希文件名)
+            base_alias = generate_semantic_alias(f.filename, file_index)
 
             try:
-                # file_dfs 是一个 list，可能包含 1 个(CSV) 或 多个(Excel多Sheet) DataFrame
-                file_dfs = parse_file_content(content, file.filename)
+                # C. 解析提取 (返回 [(sheet_name, df), ...])
+                extracted_items = parse_file_content(content, f.filename)
 
-                # 如果 file_dfs 是 [df1, df2]，extend 后 data_frames 增加两个元素，而不是由一个列表元素
-                data_frames.extend(file_dfs)
+                for sheet_name, df in extracted_items:
+                    # --- 物理层操作 ---
+
+                    # D. 本地暂存 (使用最安全的物理命名 raw_0.csv)
+                    local_filename = f"raw_{global_fragment_count}.csv"
+                    local_path = os.path.join(TEMP_DIR, local_filename)
+                    df.to_csv(local_path, index=False)
+
+                    # E. 上传到沙盒
+                    remote_path = f"/home/user/{local_filename}"
+                    with open(local_path, "rb") as file_obj:
+                        GLOBAL_SANDBOX.files.write(remote_path, file_obj)
+
+                    # --- 逻辑层操作 ---
+
+                    # F. 构建语义化全名 (用于 Prompt)
+                    if sheet_name == "CSV_Content":
+                        final_semantic_name = base_alias
+                    else:
+                        # 例如: "File_A.xlsx (Sheet: 一月)"
+                        final_semantic_name = f"{base_alias} (Sheet: {sheet_name})"
+
+                    # G. 存入列表
+                    raw_file_paths_in_sandbox.append(remote_path)
+                    original_filenames.append(final_semantic_name)
+
+                    global_fragment_count += 1
 
             except ValueError as ve:
                 raise HTTPException(status_code=400, detail=str(ve))
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"处理文件 {file.filename} 时发生未知错误: {e}")
 
-        # 3. 合并数据
-        if not data_frames:
+        # 检查是否成功上传了数据
+        if not raw_file_paths_in_sandbox:
             raise HTTPException(status_code=400, detail="未解析出有效数据(可能是空文件)")
 
-        print(f"正在合并数据表，共 {len(data_frames)} 个表格片段...")
-
-        # pd.concat 接收一个 DataFrame 的列表 [df1, df2, df3...]
-        # ignore_index=True 确保行号重新排列 (0, 1, 2...)
-        final_df = pd.concat(data_frames, ignore_index=True, sort=False)
-
-        # 4. 最终落盘
-        final_df.to_csv(LOCAL_CSV_PATH, index=False, encoding="utf-8-sig")
-        print(f"合并完成，总行数: {len(final_df)}，已保存至: {LOCAL_CSV_PATH}")
+        print(f"预处理完成: 已上传 {len(raw_file_paths_in_sandbox)} 个数据碎片到沙盒。")
 
     except HTTPException as he:
         raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"文件流处理或合并失败: {e}")
+        raise HTTPException(status_code=500, detail=f"文件预处理或上传失败: {e}")
 
-    # 5. 读取 Schema 并运行工作流
-    try:
-        schema = get_csv_schema(LOCAL_CSV_PATH)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Schema 转换失败: {e}")
-
-    # 6. 返回流式响应
+    # 3. 启动流式响应
+    # 注意：这里我们移除了 schema 参数，改传文件列表
+    # 下一步你需要修改 run_workflow_stream 的定义来接收这两个参数
     return StreamingResponse(
-        run_workflow_stream(user_query, scenario, schema),
+        run_workflow_stream(
+            user_query,
+            scenario,
+            raw_file_paths_in_sandbox,  # 新参数 1
+            original_filenames  # 新参数 2
+        ),
         media_type="text/event-stream"
     )
-
 
 if __name__ == "__main__":
     print("--- BI Agent 服务在端口 8009 启动中 ---")

@@ -16,13 +16,23 @@ class AgentState(TypedDict):
     # 原始用户输入
     user_input: str
 
-    # --- 数据上下文 (Data Context) ---
+    # 原始碎片文件在沙盒中的物理路径列表 (Auto-ETL 的输入)
+    # 例如: ["/home/user/raw_0.csv", "/home/user/raw_1.csv"]
+    raw_file_paths: List[str]
+
+    # 原始文件名列表 (给 LLM 参考，用于判断合并逻辑)
+    # 例如: ["销售表.xlsx (Sheet: 1月)", "销售表.xlsx (Sheet: 2月)"]
+    # 列表顺序必须与 raw_file_paths 一一对应
+    original_filenames: List[str]
+
     # 结构化字典，包含 'columns', 'dtypes', 'summary'
-    # 这样 Fetch_Artifacts 节点就可以只更新里面的 'columns' 列表，而不破坏其他信息
+    # 注意：初始化时为空字典 {}，由 Auto-ETL 节点运行后填充
     data_schema: Dict[str, Any]
 
-    # PPIO 沙盒中的文件路径 (事实上是固定值 "/home/user/data.csv")
-    remote_file_path: str
+    # PPIO 沙盒中的最终合并文件路径
+    # [修改] 改为 Optional。因为图启动时该文件尚未生成。
+    # Auto-ETL 成功后，会被设置为 "/home/user/data.csv"
+    remote_file_path: Optional[str]
 
     # --- 路由结果 (Router Node) ---
     scenario: Optional[str]
