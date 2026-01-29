@@ -37,7 +37,7 @@ async def setup_sandbox():
         timeout=3600
     )
 
-    # [关键] 将沙盒实例注入到 executor 模块中
+    # 将沙盒实例注入到 executor 模块中
     # 这样 executor_node 运行时就能用 GLOBAL_SANDBOX 了
     executor_module.GLOBAL_SANDBOX = GLOBAL_SANDBOX
 
@@ -77,7 +77,7 @@ async def main():
         # 注意：这里 user_input 是硬编码的测试问题
         initial_state = CustomModelingState(
             messages=[],
-            user_input="分析这份时序数据的趋势",
+            user_input="为我找出这批机器中的异常机器",
             data_schema=schema,
             remote_file_path=remote_path,
             scenario="custom",  # 必须是 custom，以便加载正确的 prompt

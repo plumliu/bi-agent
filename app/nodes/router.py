@@ -18,6 +18,8 @@ ScenarioType = Literal[
     "forecast",  # 时序预测
     "classification",  # 分类
 
+    "custom", # 复杂分析或者前几项标准分析之外的情景
+
     "unknown"  # 如果用户在闲聊或无法识别
 ]
 

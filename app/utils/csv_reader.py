@@ -35,3 +35,9 @@ def get_csv_schema(file_path: str) -> Dict[str, Any]:
 
     except Exception as e:
         return {"error": f"Error reading CSV: {str(e)}"}
+
+
+if __name__ == "__main__":
+    file_path = "../../temp/temp_data.csv"
+    schema = get_csv_schema(file_path)
+    print(schema)

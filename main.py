@@ -1,16 +1,21 @@
+import io
 import os
 import sys
 import json
 import shutil
+import chardet
+
+import pandas as pd
 import uvicorn
 import asyncio
-from typing import Any
+from typing import Any, List
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.utils.clean_log_content import clean_log_content
+from app.utils.file_parser import parse_file_content
 
 # ==========================================
 # 0. 环境路径配置
@@ -209,110 +214,25 @@ async def run_workflow_stream(user_query: str, scenario: str, schema: dict):
         except Exception as e:
             import traceback
             traceback.print_exc()
-            yield format_sse("error", f"Internal Workflow Error: {str(e)}")
+            yield format_sse("error", f"内网错误: {str(e)}")
 
 
 # ==========================================
 # 5. 接口定义
 # ==========================================
 
-@app.post("/query_agents")
-async def query_agents(
-        file: UploadFile = File(...),
-        request_data: str = Form(...)
-):
-    """
-    【同步接口】等待所有步骤完成后一次性返回结果
-    """
-    if GLOBAL_SANDBOX is None:
-        raise HTTPException(status_code=503, detail="沙盒还未初始化")
-
-    # 1. 解析请求
-    try:
-        data = json.loads(request_data)
-        user_query = data.get("query", "")
-        scenario = data.get("scenario", None)
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="非法的JSON")
-
-    # 2. 保存文件
-    try:
-        with open(LOCAL_CSV_PATH, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"下载文件失败: {str(e)}")
-
-    # 3. 读取 Schema
-    try:
-        schema = get_csv_schema(LOCAL_CSV_PATH)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"读取CSV schema失败: {str(e)}")
-
-    # 4. 执行工作流 (同步模式)
-    async with SANDBOX_LOCK:
-        try:
-            # 清理
-            GLOBAL_SANDBOX.run_code("%reset -f")
-            GLOBAL_SANDBOX.commands.run("rm -f /home/user/*.csv /home/user/*.json /home/user/*.feather")
-
-            # 上传
-            remote_path = "/home/user/data.csv"
-            with open(LOCAL_CSV_PATH, "rb") as f:
-                GLOBAL_SANDBOX.files.write(remote_path, f)
-
-            # 构建
-            code_tool = create_code_interpreter_tool(GLOBAL_SANDBOX)
-            workflow_app = build_graph(tools=[code_tool], sandbox=GLOBAL_SANDBOX)
-
-            initial_state = AgentState(
-                messages=[],
-                user_input=user_query,
-                data_schema=schema,
-                remote_file_path=remote_path,
-                scenario=scenario,
-                modeling_artifacts=None,
-                viz_config=None,
-                viz_success=False
-            )
-
-            # 执行
-            final_state = await workflow_app.ainvoke(initial_state)
-
-            # 提取结果
-            summary = final_state.get("final_summary", "分析完成，但未生成总结。")
-            viz_data = []
-            if os.path.exists(LOCAL_VIZ_DATA_PATH) and final_state.get("viz_success"):
-                try:
-                    with open(LOCAL_VIZ_DATA_PATH, "r", encoding="utf-8") as f:
-                        data_content = json.load(f)
-                        if "echarts" in data_content:
-                            viz_data = data_content["echarts"]
-                except Exception as e:
-                    print(f"Error reading viz data: {e}")
-
-            return {
-                "success": True,
-                "message": summary,
-                "echarts": viz_data
-            }
-
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/query_agents_stream")
 async def query_agents_stream(
-        file: UploadFile = File(...),
+        files: List[UploadFile] = File(...),
         request_data: str = Form(...)
 ):
     """
     【流式接口】Server-Sent Events (SSE)
+    支持多文件上传 -> 解析(含多Sheet) -> 扁平化处理 -> 自动合并 -> 生成唯一 CSV
     """
-    print(f"--- [Stream API] 已接收请求 ---")
+    print(f"--- [Stream API] 已接收请求，文件数量: {len(files)} ---")
 
-    # 1. 解析参数
+    # 1. 解析 JSON 参数
     try:
         data = json.loads(request_data)
         user_query = data.get("query", "")
@@ -320,20 +240,52 @@ async def query_agents_stream(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="非法的JSON")
 
-    # 2. 保存文件
-    try:
-        with open(LOCAL_CSV_PATH, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"保存文件失败: {e}")
+    # 2. 内存处理：遍历文件并解析
+    data_frames = []  # 用于存放所有解析出来的 DataFrame (扁平列表)
 
-    # 3. 读取 Schema
+    try:
+        for file in files:
+            # 在内存中读取二进制内容
+            content = await file.read()
+
+            try:
+                # file_dfs 是一个 list，可能包含 1 个(CSV) 或 多个(Excel多Sheet) DataFrame
+                file_dfs = parse_file_content(content, file.filename)
+
+                # 如果 file_dfs 是 [df1, df2]，extend 后 data_frames 增加两个元素，而不是由一个列表元素
+                data_frames.extend(file_dfs)
+
+            except ValueError as ve:
+                raise HTTPException(status_code=400, detail=str(ve))
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"处理文件 {file.filename} 时发生未知错误: {e}")
+
+        # 3. 合并数据
+        if not data_frames:
+            raise HTTPException(status_code=400, detail="未解析出有效数据(可能是空文件)")
+
+        print(f"正在合并数据表，共 {len(data_frames)} 个表格片段...")
+
+        # pd.concat 接收一个 DataFrame 的列表 [df1, df2, df3...]
+        # ignore_index=True 确保行号重新排列 (0, 1, 2...)
+        final_df = pd.concat(data_frames, ignore_index=True, sort=False)
+
+        # 4. 最终落盘
+        final_df.to_csv(LOCAL_CSV_PATH, index=False, encoding="utf-8-sig")
+        print(f"合并完成，总行数: {len(final_df)}，已保存至: {LOCAL_CSV_PATH}")
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"文件流处理或合并失败: {e}")
+
+    # 5. 读取 Schema 并运行工作流
     try:
         schema = get_csv_schema(LOCAL_CSV_PATH)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Schema 转换失败: {e}")
 
-    # 4. 返回流式响应
+    # 6. 返回流式响应
     return StreamingResponse(
         run_workflow_stream(user_query, scenario, schema),
         media_type="text/event-stream"
