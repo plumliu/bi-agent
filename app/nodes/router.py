@@ -13,8 +13,8 @@ ScenarioType = Literal[
     "clustering",  # 聚类
     "anomaly",  # 异常分析
     "decomposition",  # 趋势分解
-
     "association",  # 关联分析
+
     "forecast",  # 时序预测
     "classification",  # 分类
 
@@ -57,12 +57,9 @@ def router_node(state: AgentState) -> dict:
     user_input = state["user_input"]
     data_schema = state.get("data_schema")
 
-    system_prompt = ROUTER_SYSTEM_TEMPLATE.format(data_schema=data_schema)
+    system_prompt = ROUTER_SYSTEM_TEMPLATE.format(user_input=user_input, data_schema=data_schema)
 
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=user_input)
-    ]
+    messages = [SystemMessage(content=system_prompt)]
 
     # 调用 LLM 获取结构化结果
     try:
@@ -74,9 +71,9 @@ def router_node(state: AgentState) -> dict:
         return {
             "scenario": result.scenario,
             "messages": [SystemMessage(content=result.reasoning)],
-            "modeling_insight": f"{result.reasoning}"
+            "reasoning": f"{result.reasoning}"
         }
 
     except Exception as e:
         print(f"路由失败: {e}")
-        return {"scenario": "unknown", "modeling_insight": f"路由失败，{e}"}
+        return {"scenario": "unknown", "reasoning": f"路由失败，{e}"}

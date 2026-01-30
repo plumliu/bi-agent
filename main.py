@@ -113,8 +113,8 @@ def format_sse(event_type: str, data: Any = None) -> str:
 async def run_workflow_stream(
         user_query: str,
         scenario: str,
-        raw_file_paths: List[str],  # [新参数] 沙盒内的物理路径列表
-        original_filenames: List[str]  # [新参数] 给 LLM 看的语义化文件名列表
+        raw_file_paths: List[str],
+        original_filenames: List[str]
 ):
     """
     异步生成器，用于 SSE 流式输出。

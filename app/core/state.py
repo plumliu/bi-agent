@@ -30,13 +30,13 @@ class AgentState(TypedDict):
     data_schema: Dict[str, Any]
 
     # PPIO 沙盒中的最终合并文件路径
-    # [修改] 改为 Optional。因为图启动时该文件尚未生成。
+    # 改为 Optional。因为图启动时该文件尚未生成。
     # Auto-ETL 成功后，会被设置为 "/home/user/data.csv"
     remote_file_path: Optional[str]
 
     # --- 路由结果 (Router Node) ---
     scenario: Optional[str]
-    modeling_insight: Optional[str]
+    reasoning: Optional[str]
 
     # --- 建模产物 (Modeling Artifacts) ---
     # 例如: {"k_value": 3, "centroids": {...}, "silhouette_score": 0.5}
@@ -44,6 +44,9 @@ class AgentState(TypedDict):
 
     # 建模工作摘要
     modeling_summary: Optional[str]
+
+    # 通用场景下的建模产出的所有 feather 文件的文件名
+    generated_data_files: Optional[List[str]]
 
     # --- 可视化配置 (Viz Node) ---
     # 这是一个 JSON 对象，对应 ECharts 配置
