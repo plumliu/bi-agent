@@ -12,7 +12,7 @@ modeling_instruction: |
      - 读取数据，工作目录是/home/user，你可以使用 `df = pd.read_csv('data.csv')` 来读取数据。
      - **交互式推断**：你需要打印列名，找出两列数据。
         - **时间列 (Time Column)**: 列名中可能包含 'date', 'time', 'timestamp', '日期', '时间' 等**用于标识时间步**的关键词，或者是第一列。
-        - **数值列 (Value Column)**: 列名中可能包含 'value', 'price', 'count', '次数', '销售额' 等**代表时序数值本身**的关键词，或者是唯一的数值型列。
+        - **数值列 (Value Column)**: 列名中可能包含 'value', 'price', 'count', '次数', '销售额' 等**代表时序数值**的关键词，或者是唯一的数值型列。
      - **预处理**:
         - 确保数值列无缺失值（使用线性插值 `interpolate()` 填充）。
         - 确保数据按时间列排序。
@@ -44,7 +44,7 @@ modeling_instruction: |
      - 必须严格遵守下面[步骤 5]的代码范式来保存结果，否则下游图表组件无法渲染。
 
 code_example: |
-  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+  # --- 协议代码范式 (请将 <...> 替换为实际变量或代码段) ---
   
   # [步骤 2]: 周期盲测与策略分流
   # 判定标准: SNR > 3.0 且 周期在合理范围内 (例如小于长度的一半)
@@ -123,4 +123,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] 产物已成功保存: processed_data.feather, analysis_artifacts.json")
+  print("已成功保存: processed_data.feather, analysis_artifacts.json")

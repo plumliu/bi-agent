@@ -57,7 +57,7 @@ modeling_instruction: |
      - 矩阵必须转换为嵌套字典格式 `{row_name: {col_name: value}}` 以便 JSON 序列化。
 
 code_example: |
-  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+  # --- 协议代码范式 (请将 <...> 替换为实际变量或代码段) ---
   import numpy as np
   import pandas as pd
   import scipy.stats as stats
@@ -93,7 +93,7 @@ code_example: |
       eta_squared = ss_between / ss_total if ss_total != 0 else 0
       return np.sqrt(eta_squared) # 返回 eta (0-1)
 
-  # ... (在此处执行数据加载与清洗逻辑) ...
+  <...在此处执行数据加载与清洗逻辑...>
   # **再次强调**：一定要打印全量列名，由你**交互式地**核对用户指定的需要分析的字段是哪些列，填入 num_cols 和 cat_cols 中
   # 若未明确指定则使用全部列进行后续分析
   # 最终得出数值型特征列名列表 num_cols 和 类型型特征列名列表 cat_cols
@@ -148,4 +148,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] 产物已成功保存: processed_data.feather, analysis_artifacts.json")
+  print("[已成功保存: processed_data.feather, analysis_artifacts.json")

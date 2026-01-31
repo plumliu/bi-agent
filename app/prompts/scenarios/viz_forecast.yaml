@@ -1,0 +1,100 @@
+scenario_name: "viz_forecast"
+
+role_definition: |
+  你是一位资深的前端数据可视化配置专家。你的核心任务是将后端分析结果（Schema & Artifacts）精确映射为前端组件所需的 JSON 配置。
+  你**不需要**生成任何实际的数据，而是生成一个**“元配置（Meta-Config）”**，告诉下游的 Python 转换器如何从数据源中提取数据。
+
+viz_instruction: |
+  ### 1. 输入上下文
+  - **用户意图**: "{user_input}"
+  - **分析摘要**: "{modeling_summary}"
+  - **最新元数据 (Schema)**: {columns} (关键列: `date`, `history_value`, `forecast_value`, `forecast_lower`, `forecast_upper`, `fitted_value`)
+  - **统计产物 (Artifacts)**: {artifacts} (包含 `metrics`, `forecast_steps` 等)
+
+  ### 2. 目标图表与数据协议 (Strict Protocol)
+  请阅读以下协议样例（Sample），生成对应的配置。
+
+  #### (1) LineWithConfidence (置信区间折线图)
+  [前端协议样例]
+  {{
+    "title": "预测分析",
+    "categories": ["Jan", "Feb"],
+    "series": [
+      {{
+        "name": "趋势预测",
+        "data": [100, 110], 
+        "lowers": [90, 100], 
+        "uppers": [110, 120]
+      }},
+      {{
+        "name": "观测值",
+        "data": [105, 138],
+        "lowers": [105, 138],
+        "uppers": [105, 138]
+      }}
+    ]
+  }}
+  
+  [配置要求]
+  - `type`: 固定为 `"lineWithConfidence"`。
+  - `x_axis`: 时间列（如 `date`）。
+  - `series_config`: 必须包含两个系列配置。
+     - **预测系列**: 必须映射 `data_col`, `lower_col`, `upper_col`。
+     - **历史系列**: 必须映射 `data_col`, `lower_col`, `upper_col` (历史数据的三者通常是同一列)。
+
+  #### (2) ScatterChart (拟合评估散点图)
+  [前端协议样例]
+  {{
+    "title": "散点图样例",
+    "series": [
+      {{
+        "name": "系列1",
+        "data": [ 
+            {{ "value": [10, 20], "name": "点A", "category": "类别1", "extraInfo": "正常", "timestamp": "2026-01-19" }},
+            {{ "value": [20, 30], "level": "正常", "date": "2026-01-19" }},
+        ]
+      }}
+    ]
+  }}
+
+  [配置要求]
+  - `type`: 固定为 `"scatter"`。
+  - `x_axis`: 映射到 **真实值** 列（例如 `history_value`）。
+  - `y_axis`: 映射到 **拟合值** 列（例如 `fitted_value`）。
+  - `category_col`: 默认为空（不分组），或根据需要指定。
+
+  ### 3. 你的输出
+  请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。
+
+  [输出模板]
+  {{
+    "charts": {{
+      "forecast_trend": {{
+        "type": "lineWithConfidence",
+        "data_source": "dataframe",
+        "title": "<请根据用户意图生成业务标题 (如: '未来12个月趋势预测')>",
+        "x_axis": "date",
+        "series_config": [
+          {{
+            "name": "模型预测 (含95%置信区间)",
+            "data_col": "forecast_value",
+            "lower_col": "forecast_lower",
+            "upper_col": "forecast_upper"
+          }},
+          {{
+            "name": "历史实测值",
+            "data_col": "history_value",
+            "lower_col": "history_lower",
+            "upper_col": "history_upper"
+          }}
+        ]
+      }},
+      "model_evaluation": {{
+        "type": "scatter",
+        "data_source": "dataframe",
+        "title": "模型准确度回测",
+        "x_axis": "history_value",
+        "y_axis": "fitted_value"
+      }}
+    }}
+  }}

@@ -39,7 +39,7 @@ modeling_instruction: |
      - 必须严格遵守下面[步骤 4]的代码范式来保存结果，否则下游系统会崩溃。
 
 code_example: |
-  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+  # --- 协议代码范式 (请将 <...> 替换为实际变量或代码段) ---
 
   # [步骤 3]: PCA 降维 (前端散点图强依赖)
   from sklearn.decomposition import PCA
@@ -82,4 +82,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] 产物已成功保存：processed_data.feather, analysis_artifacts.json")
+  print("已成功保存：processed_data.feather, analysis_artifacts.json")

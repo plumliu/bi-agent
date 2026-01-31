@@ -33,18 +33,30 @@ def _clean_value(val: Any) -> Any:
 
     return val
 
-
 def _clean_series(series: pd.Series) -> list:
+    if series.empty:
+        return []
 
-    if series.isna().all():
-        return [0] * len(series)
+    cleaned = series.replace([np.inf, -np.inf], np.nan)
 
-    cleaned = series.interpolate(method='linear', limit_direction='both')
-    cleaned = cleaned.bfill().ffill()
+    valid_mask = cleaned.notna()
+    if not valid_mask.any():
+        return []
 
-    if cleaned.isna().any():
-        cleaned = cleaned.fillna(0)
-    return cleaned.tolist()
+    first_valid = valid_mask.idxmax()
+    last_valid = valid_mask[::-1].idxmax()
+
+    trimmed = cleaned.loc[first_valid:last_valid]
+
+    if trimmed.isna().any():
+        interpolated = trimmed.interpolate(method='linear')
+        interpolated = interpolated.bfill().ffill()
+        if interpolated.isna().any():
+            interpolated = interpolated.fillna(0)
+        trimmed = interpolated
+
+    return trimmed.tolist()
+
 
 
 def _clean_record(record: Dict[str, Any]) -> Dict[str, Any]:
@@ -58,70 +70,67 @@ def _clean_record(record: Dict[str, Any]) -> Dict[str, Any]:
 
 def _handle_scatter(df: pd.DataFrame, config: dict, artifacts: dict = None) -> dict:
     """
-    Scatter Handler
-    支持两种模式：
-    1. Artifacts Mode: (预留接口)
-    2. DataFrame Mode: 标准列映射
+    Scatter Handler (Universal Version)
+    支持2种模式：
+    1. Artifacts Mode: 从统计产物读取
+    3. DataFrame Mode (Grouped): 通过 y_axis + category_col 自动分组
     """
     title = config.get("title")
     series_data = []
 
     # =================================================
-    # 模式 A: Artifacts Mode (从统计产物直接读取)
+    # 模式 A: Artifacts Mode
     # =================================================
     if config.get("data_source") == "artifacts":
-        # 暂时留空，未来可用于直接绘制 PCA 降维后的数组等场景
         pass
 
     # =================================================
-    # 模式 B: DataFrame Mode (从列读取)
+    # 模式 B: DataFrame Mode
     # =================================================
     else:
         x_col = config.get("x_axis")
-        y_col = config.get("y_axis")
-        cat_col = config.get("category_col")
+        if not x_col:
+            raise ValueError("Scatter Chart 需要 'x_axis'.")
+        if x_col not in df.columns:
+            raise ValueError(f"Scatter Chart 缺少 X 轴列: '{x_col}'")
 
-        # 1. 强校验 (Dead Logic: 找不到列就报错，不瞎猜)
-        # 增加对 None 的检查，防止 x_col 为 None 时 df.columns 报错或逻辑混乱
-        if not x_col or not y_col:
-             raise ValueError("Scatter Chart (DataFrame Mode) requires 'x_axis' and 'y_axis'.")
-
-        if x_col not in df.columns or y_col not in df.columns:
-            raise ValueError(f"Scatter columns missing: {x_col} or {y_col} not in {df.columns.tolist()}")
-
-        # 2. 分组逻辑
-        if cat_col and cat_col in df.columns:
-            groups = df.groupby(cat_col)
         else:
-            groups = [("All", df)]
+            y_col = config.get("y_axis")
+            if not y_col:
+                raise ValueError("散点图需要 'y_axis'")
+            if y_col not in df.columns:
+                raise ValueError(f"列 '{y_col}' 未找到！")
 
-        for group_id, group in groups:
-            data_points = []
-            records = group.to_dict(orient='records')
+            cat_col = config.get("category_col", None)
 
-            for record in records:
-                clean_rec = _clean_record(record)
-                point = clean_rec.copy()
-                point['value'] = [clean_rec.get(x_col), clean_rec.get(y_col)]
-
-                data_points.append(point)
-
-            if cat_col:
-                s_name = f"分组 {group_id}" # 或者直接 str(group_id)
+            # 分组逻辑
+            if cat_col and cat_col in df.columns:
+                groups = df.groupby(cat_col)
             else:
-                s_name = config.get("series_name", "Series 1")
+                groups = [("默认分组", df)]
 
-            series_data.append({
-                "name": s_name,
-                "data": data_points,
-                "type": "scatter"
-            })
+            for group_id, group in groups:
+                data_points = []
+                records = group.to_dict(orient='records')
+
+                for record in records:
+                    clean_rec = _clean_record(record)
+                    point = clean_rec.copy()
+                    # 构造 value: [x, y]
+                    point['value'] = [clean_rec.get(x_col), clean_rec.get(y_col)]
+                    data_points.append(point)
+
+                s_name = f"{group_id}" if cat_col else config.get("series_name", "系列 1")
+
+                series_data.append({
+                    "name": s_name,
+                    "data": data_points
+                })
 
     return {
         "title": title,
         "series": series_data
     }
-
 
 def _handle_radar(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
     """
@@ -525,7 +534,6 @@ def _handle_line_error(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
                 main_data = [0] * len(df)
             else:
                 main_data = df[y_col].fillna(0).tolist()
-                # 清洗一下 (假设外部定义了 _clean_value)
                 main_data = [_clean_value(v) for v in main_data]
 
             # 获取 Error 数据
@@ -715,6 +723,88 @@ def _handle_heatmap(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
         "visualMap": visual_map
     }
 
+def _handle_line_confidence(df: pd.DataFrame, config: dict, artifacts: dict = None) -> dict:
+    """
+    Line Forecast with Confidence Interval Handler
+    支持两种模式：
+    1. Artifacts Mode: (预留接口)
+    2. DataFrame Mode: 标准列映射，支持 lowers/uppers 区间数据
+    """
+    title = config.get("title", "时序预测分析")
+    series_list = []
+    categories = []
+
+    # =================================================
+    # 模式 A: Artifacts Mode
+    # =================================================
+    if config.get("data_source") == "artifacts":
+        pass
+
+    # =================================================
+    # 模式 B: DataFrame Mode
+    # =================================================
+    else:
+        # 1. X 轴处理
+        x_col = config.get("x_axis")
+        if not x_col:
+            raise ValueError("DataFrame Mode 必须指定 'x_axis'")
+
+        if x_col not in df.columns:
+            raise ValueError(f"Confidence Chart 缺少 X 轴列: '{x_col}'")
+
+        # [修正点 1]: X 轴数据也需要清洗 (防止 Timestamp 报错)
+        # 虽然 astype(str) 很有用，但用 _clean_value 更保险
+        raw_categories = df[x_col].tolist()
+        categories = [_clean_value(x) for x in raw_categories]
+
+        # 2. 提取配置
+        series_configs = config.get("series_config", [])
+        if not series_configs:
+            raise ValueError("Confidence Chart (DataFrame Mode) 必须提供 'series_config' 配置")
+
+        # 3. 构建 Series
+        for i, sc in enumerate(series_configs):
+            s_name = sc.get("name", f"系列{i + 1}")
+            d_col = sc.get("data_col")
+            l_col = sc.get("lower_col")
+            u_col = sc.get("upper_col")
+
+            # 强校验：Data 列必须存在
+            if not d_col or d_col not in df.columns:
+                continue
+
+            if l_col and l_col not in df.columns:
+                raise ValueError(f"系列 '{s_name}' 配置了 lower_col='{l_col}' 但数据中不存在该列")
+
+            if u_col and u_col not in df.columns:
+                raise ValueError(f"系列 '{s_name}' 配置了 upper_col='{u_col}' 但数据中不存在该列")
+
+            raw_data = df[d_col].tolist()
+            clean_data = [_clean_value(v) for v in raw_data]
+
+            series_item = {
+                "name": s_name,
+                "data": clean_data
+            }
+
+            if l_col:
+                raw_lower = df[l_col]
+                series_item["lowers"] = [_clean_value(v) for v in raw_lower]
+
+            if u_col:
+                raw_upper = df[u_col]
+                series_item["uppers"] = [_clean_value(v) for v in raw_upper]
+
+            series_list.append(series_item)
+
+        if not series_list:
+            raise ValueError("Confidence Chart 未提取到有效数据列")
+
+    return {
+        "title": title,
+        "categories": categories,
+        "series": series_list
+    }
 
 # ==========================================
 # 2. 注册表 (Registry)
@@ -728,7 +818,8 @@ CHART_HANDLERS = {
     "boxplot": _handle_boxplot,
     "heatmap": _handle_heatmap,
     "decomposition": _handle_decomposition,
-    "lineWithErrorBars": _handle_line_error
+    "lineWithErrorBars": _handle_line_error,
+    "lineWithConfidence": _handle_line_confidence
 }
 
 
@@ -760,7 +851,6 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
     except Exception as e:
         return {"success": False, "error": f"Data load failed: {str(e)}"}
 
-    # [修改点 1] 初始化一个列表，而不是字典
     echarts_list = []
     errors = {}
 
@@ -768,7 +858,7 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
     charts_config = viz_config.get("charts")
 
     if not charts_config:
-        return {"success": False, "error": "No 'charts' config found"}
+        return {"success": False, "error": "未找到任何图表配置"}
 
     for chart_key, config in charts_config.items():
         # 获取对应的处理函数
@@ -776,19 +866,16 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
         handler = CHART_HANDLERS.get(chart_type)
 
         if not handler:
-            errors[chart_key] = f"No handler registered for chart type: {chart_key}"
+            errors[chart_key] = f"图表类型未注册: '{chart_type}' (图表名称: {chart_key})"
             continue
 
         try:
-            print(f"  -> Generating {chart_key}...")
+            print(f"  -> 生成 {chart_key} 中...")
 
-            # 动态调用 Handler 生成具体的 data 内容
             chart_data = handler(df, config, artifacts)
 
-            # [修改点 2] 构造对象并添加到数组
-            # 结构: { "type": "bar", "data": { ... } }
             chart_item = {
-                "type": chart_type,  # 例如 "bar", "boxplot"
+                "type": chart_type,
                 "data": chart_data
             }
             echarts_list.append(chart_item)
@@ -804,8 +891,9 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
     # 提取生成的类型列表用于日志
     generated_types = [item["type"] for item in echarts_list]
     print(f"--- [Viz Generator] 根据配置信息生成图表数据成功！生成的图表: {generated_types}, 失败的图表: {list(errors.keys())} ---")
+    if len(errors.keys()) > 0:
+        print(errors)
 
-    # [修改点 3] 返回包含 'echarts' 数组的字典
     return {
         "success": has_success,
         "viz_data": {

@@ -39,7 +39,7 @@ modeling_instruction: |
      - 箱线图统计值 (`box_stats`) 必须基于 **Scaled (标准化)** 后的数据计算。
 
 code_example: |
-  # --- 协议代码范式 (请将 <...> 替换为实际变量) ---
+  # --- 协议代码范式 (请将 <...> 替换为实际变量或代码段) ---
 
   # [步骤 3]: PCA 降维 (前端散点图强依赖)
   if len(<数值特征列的长度>) >= 2:
@@ -101,4 +101,4 @@ code_example: |
   with open('/home/user/analysis_artifacts.json', 'w') as f:
       json.dump(artifacts, f, ensure_ascii=False)
       
-  print("[System] 产物已成功保存: processed_data.feather, analysis_artifacts.json")
+  print("已成功保存: processed_data.feather, analysis_artifacts.json")
