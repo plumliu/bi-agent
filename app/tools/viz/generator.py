@@ -806,6 +806,67 @@ def _handle_line_confidence(df: pd.DataFrame, config: dict, artifacts: dict = No
         "series": series_list
     }
 
+def _handle_table(df: pd.DataFrame, config: dict, artifacts: dict) -> dict:
+    """
+    Table Handler
+    支持 Artifacts Mode (例如 top_anomalies 列表) 和 DataFrame Mode (预览原始数据)
+    Protocol:
+    {
+      "title": "...",
+      "categories": ["Col1", "Col2"],
+      "series": [ [Val1, Val2], [Val3, Val4] ... ]
+    }
+    """
+    title = config.get("title", "表格详情")
+    categories = []  # 表头
+    series = []  # 数据行
+
+    # --- Mode A: Artifacts (List[Dict]) ---
+    if config.get("data_source") == "artifacts":
+        data_key = config.get("data_key")
+        if data_key and artifacts and data_key in artifacts:
+            raw_list = artifacts[data_key]
+
+            if isinstance(raw_list, list) and len(raw_list) > 0:
+                # 1. 确定表头 (Categories)
+                # 优先使用配置的 columns，否则使用第一条数据的 keys
+                target_cols = config.get("columns")
+                if not target_cols:
+                    target_cols = list(raw_list[0].keys())
+
+                categories = target_cols
+
+                # 2. 构造数据 (Series)
+                for i, item in enumerate(raw_list):
+                    row = []
+                    for col in target_cols:
+                        val = item.get(col)
+                        row.append(_clean_value(val))
+                    series.append(row)
+
+    # --- Mode B: DataFrame ---
+    else:
+        # 1. 确定表头
+        target_cols = config.get("columns")
+        if not target_cols:
+            target_cols = df.columns.tolist()
+        else:
+            # 过滤掉不存在的列
+            target_cols = [c for c in target_cols if c in df.columns]
+
+        categories = target_cols
+
+        # 2. 构造数据
+        for _, record in df[target_cols].iterrows():
+            row = [_clean_value(record[c]) for c in target_cols]
+            series.append(row)
+
+    return {
+        "title": title,
+        "categories": categories,
+        "series": series
+    }
+
 # ==========================================
 # 2. 注册表 (Registry)
 # ==========================================
@@ -819,7 +880,8 @@ CHART_HANDLERS = {
     "heatmap": _handle_heatmap,
     "decomposition": _handle_decomposition,
     "lineWithErrorBars": _handle_line_error,
-    "lineWithConfidence": _handle_line_confidence
+    "lineWithConfidence": _handle_line_confidence,
+    "table": _handle_table
 }
 
 

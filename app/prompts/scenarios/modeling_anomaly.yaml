@@ -37,6 +37,7 @@ modeling_instruction: |
   4. **产物固化 (Artifact Persistence)**:
      - 必须严格遵守下面[步骤 4]的代码范式来保存结果。
      - 箱线图统计值 (`box_stats`) 必须基于 **Scaled (标准化)** 后的数据计算。
+     - **必须**构建 `outliers` 列表（List[Dict]），用于前端“异常明细表格”展示，必须按异常分降序排序并建议截取前 500 条以防前端卡顿。
 
 code_example: |
   # --- 协议代码范式 (请将 <...> 替换为实际变量或代码段) ---
@@ -85,17 +86,20 @@ code_example: |
     box_stats[col] = [lower_whisker, Q1, desc['50%'], Q3, upper_whisker]
 
   # 准备异常点数据 (包含所有列的 Rich Object)
-  outliers = df[df['is_anomaly'] == 1].to_dict(orient='records')
+  # 为了支持前端表格展示 (TableChart)，并防止数据量过大导致卡顿
+  # 我们按异常分降序排列，并截取前 500 个最显著的异常点
+  outliers_df = df[df['is_anomaly'] == 1].sort_values(by='anomaly_score', ascending=False)
+  outliers = outliers_df.head(500).to_dict(orient='records')
   
   # 3. 准备柱状图数据 (Top 10 异常数据对象)
   top_anomalies = df.nlargest(10, 'anomaly_score').to_dict(orient='records')
 
   artifacts = {
-      "n_anomalies": len(outliers) # 异常点数目
-      "box_stats": box_stats,      # 用于画箱子背景
-      "outliers": outliers,        # 用于画散点前景
+      "n_anomalies": len(outliers), # 当前列表包含的异常点数 (最大500)
+      "box_stats": box_stats,       # 用于画箱子背景
+      "outliers": outliers,         # 用于画散点前景 及 异常明细表格
       "top_anomalies": top_anomalies, # 用于画排行榜
-      "anomaly_count": int(df['is_anomaly'].sum())
+      "anomaly_count": int(df['is_anomaly'].sum()) # 真实的总异常数
   }
   
   with open('/home/user/analysis_artifacts.json', 'w') as f:

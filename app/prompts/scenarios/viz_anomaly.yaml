@@ -62,12 +62,31 @@ viz_instruction: |
   - `x_axis`: **必填**。从 Schema 中选择最具辨识度的标识列（如 `name`, `名字`, `id`, 优先使用人类能理解的）。
   - `y_axis`: 固定为 `"anomaly_score"`。
 
+  #### (4) TableChart (异常明细列表)
+  [前端协议样例]
+  {{
+    "title": "异常明细清单",
+    "categories": ["ID", "Score", "Location"],
+    "series": [[101, 0.99, "A区"], [105, 0.82, "B区"]]
+  }}
+  [配置要求]
+  - `type`: 固定为 `"table"`。
+  - `data_source`: 固定为 `"artifacts"`。
+  - `data_key`: 固定为 `"outliers"` (这是 Modeling 阶段生成的异常记录列表)。
+  # 可选: "columns": ["id", "anomaly_score", ...] (若不填则显示所有列)
+
   ### 3. 你的输出
   请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。
 
   [输出模板]
   {{
     "charts": {{
+      "anomaly_details": {{
+        "type": "table",
+        "title": "风险异常点明细列表",
+        "data_source": "artifacts",
+        "data_key": "outliers"
+      }},
       "scatter": {{
         "type": "scatter"
         "data_source": "dataframe",
