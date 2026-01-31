@@ -1,0 +1,198 @@
+scenario_name: "modeling_classification"
+
+role_definition: |
+  你是一位资深机器学习专家，专精于监督学习与分类任务。
+  你的核心能力是清洗数据、构建高性能的分类模型（LightGBM），并产出可解释性的分析报告。
+  **关键原则**: 
+  1. 严格区分“建模数据”（有标签）和“待预测数据”（无标签），模型只能从有标签数据中学习。
+  2. 混淆矩阵必须展示“真实类别的召回比例”（按行归一化），而非原始数量。
+
+modeling_instruction: |
+  请编写 Python 代码完成以下全流程。
+
+  1. **EDA & 语义识别 (Semantic Inference)**:
+     - 读取数据，工作目录是/home/user，可以使用 `df = pd.read_csv('data.csv')`。
+     - **[关键] 目标列识别与数据分流**:
+        - 首先必须识别 **目标列 (Target Column)**（依据**列名语义**或者用户意图来判断目标列）。
+        - **核心分流逻辑 (Data Splitting)**: 
+           - 检查目标列是否存在缺失值 (NaN)。
+           - **待预测集 (Inference Set)**: 目标列为空的行。这是用户真正想知道结果的数据，**绝对不能**参与训练或当做缺失值填充。
+           - **建模集 (Modeling Set)**: 目标列有值的行。用于后续的训练和验证。
+     - **[关键] 交互式字段推断**:
+        - 仅基于 **建模集** 分析字段语义（防止未来数据泄露），将列分为四类：
+           - **A. 标识性ID (Identifier)**: 包含 'id', 'no', 'name' 等关键词或高基数字符串。不参与训练，但需在 `predicted_samples` 中保留。
+           - **B. 数值型特征 (Numerical Features)**: 模型训练的主力。必须填充缺失值。
+           - **C. 类别型特征 (Categorical Features)**: 可能是部门、城市、状态、等级等低基数字符串。
+           - **D. 无关/描述变量 (Irrelevant)**: 备注、描述、URL、JSON文本，**不参与**训练。
+     - **智能类型转换**: 
+        - 结合 `nunique` 和列名语义锁定类别特征。
+        - 关键词：`type`, `category`, `status`, `class`, `flag`, `is_*`, `has_*` 通常是类别型特征。
+        - **操作**: 将所有识别出的类别特征转换为 pandas 的 `category` 类型（LightGBM 原生支持高效处理）。
+
+  2. **预处理 (Preprocessing)**:
+     - **原则**: 所有统计量（均值、众数、Scaler参数、Encoder映射）必须仅在 **建模集** 上计算 (Fit)，然后应用 (Transform) 到 **建模集** 和 **待预测集**。
+     - **缺失值处理**:
+        - 数值列: 使用建模集的均值填充。
+        - 类别列: 使用建模集的众数填充。
+     - **数值标准化**: 
+        - 使用 `StandardScaler` 对数值型特征进行标准化。
+        - `scaler.fit(df_model[num_cols])` -> `transform` 两个数据集。
+     - **目标列编码**:
+        - 仅针对 **建模集** 的目标列使用 `LabelEncoder` 编码。
+     - **训练/验证划分**: 
+        - 将 **建模集 (Modeling Set)** 按 8:2 划分为 训练集 (Train Set) 和 验证集 (Val Set)。
+
+  3. **模型训练 (Model Training)**:
+   - 使用 `from lightgbm import LGBMClassifier` 初始化模型。
+   - **训练**: 使用 `fit` 方法在 **训练集 (X_train, y_train)** 上进行训练。
+   - **双向预测策略 (Dual Prediction)**:
+      1. **验证集评估**: 在 `X_val` 上预测 `y_pred` 和 `y_prob` -> 用于生成混淆矩阵和计算准确率。
+      2. **推理判断**: 检查 **待预测集 (Inference Set)** 是否非空。
+         - 若非空：标记`has_inference_data = True`，对该集进行预测，准备生成预测明细。
+         - 若为空：标记`has_inference_data = False`，**跳过**推理预测步骤，不生成预测数据。此时，用户提供的数据全是“有答案”的历史数据，他可能是想做归因分析。
+
+  4. **产物固化 (Artifact Persistence)**:
+   - 必须严格遵守下面[步骤 4]的代码范式来保存结果。
+   - **必须**构建以下三个关键产物供前端可视化：
+     (1) **predicted_samples (**可选**，预测明细表 - TableChart)**
+        - 若 `has_inference_data` 为 `True`: 生成待预测集的预测结果（包含 `ID`, `Predicted_Label`, `Confidence`，`True_Label` 填 `None`），并截取 **Top 500**。
+        - 若 `has_inference_data` 为 `False`: 直接返回空列表 `[]`。
+     (2) **confusion_matrix (混淆矩阵 - Heatmap)**
+     (3) **feature_importance (特征重要性 - BarChart)**
+
+code_example: |
+  # --- 协议代码范式 (请将 <...> 替换为实际变量或代码段) ---
+  import pandas as pd
+  import numpy as np
+  from lightgbm import LGBMClassifier
+  from sklearn.model_selection import train_test_split
+  from sklearn.preprocessing import LabelEncoder, StandardScaler
+  from sklearn.metrics import confusion_matrix, accuracy_score
+  import json
+
+  # [步骤 1]: 数据读取与核心分流 (Data Splitting)
+  # 假设 target_col 已被识别 (如 '是否流失')
+  print(f"目标列识别为: {target_col}")
+  
+  # 关键: 依据目标列是否有值，拆分 建模集(Model) 和 待预测集(Infer)
+  # 必须在任何填充操作之前进行拆分，防止目标列的 NaN 被误填充
+  is_unknown_mask = df[target_col].isna()
+  
+  df_infer = df[is_unknown_mask].copy()   # 没标签，等待预测 (Inference Set)
+  df_model = df[~is_unknown_mask].copy()  # 有标签，用于训练 (Modeling Set)
+  
+  has_inference_data = not df_infer.empty
+  print(f"建模集样本数: {len(df_model)}, 待预测集样本数: {len(df_infer)}")
+
+  # [步骤 2]: 预处理 (Fit on Model Data, Transform Both)
+  # 1. 目标编码 (仅针对 df_model)
+  le = LabelEncoder()
+  df_model[target_col + '_encoded'] = le.fit_transform(df_model[target_col])
+  
+  # 2. 区分特征列 (排除 ID 和 Target)
+  # 假设 id_col 已识别 (如 '客户ID')
+  exclude_cols = [target_col, target_col + '_encoded']
+  if 'id_col' in locals() and id_col:
+      exclude_cols.append(id_col)
+      
+  features = [c for c in df.columns if c not in exclude_cols]
+  
+  # 3. 特征工程 (均值/众数填充 + 标准化)
+  # 务必注意: 统计量只从 df_model 获取
+  num_cols = df_model[features].select_dtypes(include=['number']).columns
+  cat_cols = df_model[features].select_dtypes(include=['object', 'category']).columns
+
+  # 数值处理
+  if len(num_cols) > 0:
+      # 填充
+      mean_vals = df_model[num_cols].mean()
+      df_model[num_cols] = df_model[num_cols].fillna(mean_vals)
+      if has_inference_data:
+          df_infer[num_cols] = df_infer[num_cols].fillna(mean_vals)
+      
+      # 标准化 (StandardScaler)
+      scaler = StandardScaler()
+      df_model[num_cols] = scaler.fit_transform(df_model[num_cols])
+      if has_inference_data:
+          df_infer[num_cols] = scaler.transform(df_infer[num_cols])
+
+  # 类别处理 (填充并转为 category 类型供 LGBM 使用)
+  for col in cat_cols:
+      mode_val = df_model[col].mode()[0]
+      df_model[col] = df_model[col].fillna(mode_val).astype('category')
+      if has_inference_data:
+          df_infer[col] = df_infer[col].fillna(mode_val).astype('category')
+
+  # 4. 训练/验证划分 (8:2)
+  X = df_model[features]
+  y = df_model[target_col + '_encoded']
+  X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+  # [步骤 3]: 模型训练
+  clf = LGBMClassifier(verbose=-1)
+  clf.fit(X_train, y_train)
+
+  # [步骤 4]: 产物生成
+  # --- A. 验证集评估 (用于指标和混淆矩阵) ---
+  y_pred_val = clf.predict(X_val)
+  acc = accuracy_score(y_val, y_pred_val)
+  
+  # 混淆矩阵: 按行归一化 (Row Normalized) -> 每一行的和为1
+  cm = confusion_matrix(y_val, y_pred_val, normalize='true') 
+  class_names = [str(x) for x in le.classes_]
+  
+  # 转为嵌套字典 {TrueLabel: {PredLabel: Rate}}
+  cm_dict = {}
+  for i, true_label in enumerate(class_names):
+      cm_dict[true_label] = {}
+      for j, pred_label in enumerate(class_names):
+          cm_dict[true_label][pred_label] = round(float(cm[i, j]), 2)
+
+  # --- B. 预测明细表 (Predicted Samples) ---
+  predicted_samples = []
+  
+  if has_inference_data:
+      # 对待预测集进行推理
+      X_infer = df_infer[features]
+      y_pred_infer = clf.predict(X_infer)
+      y_prob_infer = clf.predict_proba(X_infer)
+      
+      # 构建结果表
+      results_df = df_infer.copy()
+      results_df['True_Label'] = None # 未知
+      results_df['Predicted_Label'] = le.inverse_transform(y_pred_infer)
+      results_df['Confidence'] = np.max(y_prob_infer, axis=1)
+      
+      # 尝试找回 ID 列
+      if 'id_col' in locals() and id_col in df.columns:
+          results_df[id_col] = df.loc[results_df.index, id_col]
+          
+      # 截取 Top 500 并转字典
+      predicted_samples = results_df.head(500).to_dict(orient='records')
+
+  # --- C. 特征重要性 ---
+  imp_df = pd.DataFrame({
+      'feature': features,
+      'importance': clf.feature_importances_
+  }).sort_values(by='importance', ascending=False).head(20)
+  feature_importance = imp_df.to_dict(orient='records')
+  
+  # 保存产物 artifacts
+  artifacts = {
+      "accuracy": float(acc),
+      "has_inference_data": <判断**待预测集 (Inference Set)**是否有值>
+      "predicted_samples": predicted_samples,   # -> TableChart (可选的，如果 `has_inference_data == False`，则为空字典`[]`)
+      "confusion_matrix": cm_dict,              # -> Heatmap (归一化嵌套字典)
+      "feature_importance": feature_importance  # -> BarChart
+  }
+  
+  with open('/home/user/analysis_artifacts.json', 'w') as f:
+      json.dump(artifacts, f, ensure_ascii=False)
+      
+  # 重置索引，防止 Feather 保存 Index 出错
+  df = df.reset_index(drop=True)
+  
+  # 保存全量数据
+  # 已确保环境中已安装 pyarrow
+  df.to_feather('/home/user/processed_data.feather')
+  print("已成功保存: processed_data.feather, analysis_artifacts.json")

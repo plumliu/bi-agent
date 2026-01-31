@@ -79,7 +79,7 @@ viz_instruction: |
     "charts": {{
       // 仅当 artifacts.matrix_num_num 有数据时输出
       "heatmap_spearman": {{
-        "title": "<业务标题> - 数值特征相关性 (Spearman)",
+        "title": "<业务标题> - 数值特征相关性",
         "type": "heatmap",
         "data_source": "artifacts",
         "data_key": "matrix_num_num",
