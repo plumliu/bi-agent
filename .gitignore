@@ -12,3 +12,8 @@ wheels/
 .env
 
 temp/
+
+.idea/
+.vscode/
+
+.DS_Store
