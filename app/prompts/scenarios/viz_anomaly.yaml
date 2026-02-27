@@ -91,8 +91,8 @@ viz_instruction: |
         "type": "scatter"
         "data_source": "dataframe",
         "title": "<请根据用户意图生成业务标题>",
-        "x_axis": "pca_x",
-        "y_axis": "pca_y",
+        "x_axis": "<主成分 x>",
+        "y_axis": "<主成分 y>",
         "category_col": "is_anomaly"
       }},
       "boxplot": {{
@@ -112,7 +112,7 @@ viz_instruction: |
         "data_source": "artifacts",
         "data_key": "top_anomalies",
         "x_axis": "<标识列名>",
-        "y_axis": "anomaly_score"
+        "y_axis": "<异常得分列名>"
       }}
     }}
   }}

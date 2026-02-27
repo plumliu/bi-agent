@@ -75,13 +75,13 @@ def reflector_node(state: CustomModelingState):
         if decision.new_scratchpad:
             note = f"[Task {task.id} 成功]: {decision.new_scratchpad}"
             scratchpad.append(note)
+            print(note)
 
         # 准备返回更新
         updates = {
             "current_task_index": current_idx + 1,  # 指针移向下一个任务
             "retry_count": 0,  # 重置重试计数
             "scratchpad": scratchpad,
-            # 注意：plan 已经在内存中通过 task.mark_completed 修改了，LangGraph 会自动合并
             "plan": plan
         }
 
@@ -105,6 +105,7 @@ def reflector_node(state: CustomModelingState):
             if decision.retry_suggestion:
                 note = f"[Task {task.id} 重试建议]: {decision.retry_suggestion}"
                 scratchpad.append(note)
+                print(note)
 
             updates = {
                 "retry_count": current_retry + 1,
@@ -115,31 +116,38 @@ def reflector_node(state: CustomModelingState):
 
     # === 分支 C: 插入新任务 ===
     elif decision.action == "insert_task":
-        # 逻辑：Reflector 认为必须先做个新任务（例如清洗数据），才能继续
-        print(f"--- [Subgraph] 插入新任务: {decision.new_task_description} ---")
+        print(f"--- [Subgraph] 发现缺失前置任务，准备插入新任务: {decision.new_task_description} ---")
 
-        task.mark_completed(task.result)
+        # 我们必须清空它这次执行的错误代码和结果，让它“退回”队列等待
+        task.status = "pending"
+        task.code = None
+        task.result = None
+
         if decision.insert_reason:
-            scratchpad.append(f"[Task {task.id} 完成并且需要在下一步新增任务]: 发现了这样的问题: {decision.insert_reason}")
+            note = f"[Task {task.id} 暂停执行，需先解决前置问题]: {decision.insert_reason}。已新增前置任务。"
+            scratchpad.append(note)
+            print(note)
 
+        # 2. 创建新任务
         new_task = Task(
             id=0,
             description=decision.new_task_description,
             status="pending"
         )
 
-        # 插入到当前任务之后 (Index + 1)
-        plan.insert(current_idx + 1, new_task)
+        # 3. 核心修复：插入到当前位置 (把原来失败的任务往后推)
+        plan.insert(current_idx, new_task)
 
-        # 重排 ID
+        # 4. 重排 ID
         for i, t in enumerate(plan):
             t.id = i + 1
 
+        # 5. 核心修复：指针保持不变 (因为新任务占据了 current_idx 的位置，下一步 Executor 会正好拿到新任务)
         updates = {
             "plan": plan,
             "scratchpad": scratchpad,
             "retry_count": 0,
-            "current_task_index": current_idx + 1
+            "current_task_index": current_idx  # 保持原位！
         }
 
     return updates

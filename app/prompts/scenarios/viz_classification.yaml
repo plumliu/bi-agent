@@ -57,7 +57,7 @@ viz_instruction: |
   - `type`: "table"
   - `data_source`: "artifacts"。
   - `data_key`: "predicted_samples"。
-  - `columns`: 必须显式指定。建议包含标识列(ID)、预测标签(`Predicted_Label`)、置信度(`Confidence`)。由于是待预测数据，真实标签(`True_Label`)可不显示或作为参考显示。
+  - `columns`: 必须显式指定。建议包含标识列(ID)、预测标签(`Predicted_Label`)、置信度(`Confidence`)。由于是待预测数据，真实标签(`True_Label`)可不显示。
 
   ### 3. 你的输出
   请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。
@@ -81,8 +81,8 @@ viz_instruction: |
         "title": "<请根据用户意图生成业务标题>",
         "data_source": "artifacts",
         "data_key": "feature_importance",
-        "x_axis": "feature",
-        "y_axis": "importance"
+        "x_axis": "<特征列>",
+        "y_axis": "<重要性列>"
       }},
 
       // **仅当** artifacts.has_inference_data 为 True 时生成此配置
@@ -91,7 +91,7 @@ viz_instruction: |
         "title": "<请根据用户意图生成业务标题>",
         "data_source": "artifacts",
         "data_key": "predicted_samples",
-        "columns": ["<标识列>", "Predicted_Label", "Confidence"] // 请根据实际 schema 补充列名
+        "columns": ["<标识列>", "<预测标签列>", "<置信度列>"] // 请根据实际 schema 补充列名
       }}
     }}
   }}

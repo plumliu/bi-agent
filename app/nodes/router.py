@@ -14,7 +14,6 @@ ScenarioType = Literal[
     "anomaly",  # 异常分析
     "decomposition",  # 趋势分解
     "association",  # 关联分析
-
     "forecast",  # 时序预测
     "classification",  # 分类
 

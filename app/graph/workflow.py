@@ -19,7 +19,7 @@ from app.nodes.viz import viz_node
 from app.nodes.viz_execution import viz_execution_node
 from app.nodes.summary import summary_node
 
-# [新增] 导入子图构建器
+#    导入子图构建器
 from app.graph.modeling_custom_workflow import build_modeling_custom_subgraph
 
 
@@ -53,7 +53,7 @@ def route_after_modeling_sop(state: AgentState) -> Literal["tools", "fetch_artif
 
 def route_after_fetch(state: AgentState) -> Literal["viz", "summary"]:
     """
-    [新增] Fetch Artifacts 之后的路由
+       Fetch Artifacts 之后的路由
     在这里区分 SOP (去绘图) 和 Custom (直接总结)
     """
     scenario = state.get("scenario")
@@ -93,7 +93,7 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     workflow.add_node("modeling", modeling_node)
     workflow.add_node("tools", ToolNode(tools))  # SOP 专用工具节点
 
-    # 分支 B: Custom Modeling 子图 [新增]
+    # 分支 B: Custom Modeling 子图   
     # 注意：build_modeling_custom_subgraph 返回的是一个 CompiledGraph，可以直接作为节点
     workflow.add_node("modeling_custom", build_modeling_custom_subgraph(sandbox))
 

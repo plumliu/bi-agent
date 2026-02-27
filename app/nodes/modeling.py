@@ -17,7 +17,7 @@ step = "modeling"
 @tool("python_interpreter")
 def python_interpreter(code: str):
     """
-    Python 代码执行环境。具备数据分析库 (pandas, numpy, scikit-learn 等)。
+    Python 代码执行环境。具备数据分析库 (pandas, numpy, scikit-learn 等)，还有一个封装好的强大算法库 bi_sandbox_sdk。
     使用 print() 输出结果。
     """
     pass
@@ -67,7 +67,8 @@ def modeling_node(state: AgentState):
     {instruction}
 
     【协议与代码范式 (Protocol)】
-    在生成最终产物时，必须严格遵守以下代码结构（尤其是文件保存部分）：
+    在生成最终产物时，必须严格遵守以下代码结构（尤其是文件保存部分）
+    在执行完 SDK 中的方法拿到 result 对象后，不需要再次打印查看 result 对象的内容，直接保存即可。
 
     ```python
     {code_example}
@@ -75,10 +76,7 @@ def modeling_node(state: AgentState):
 
     【结束与交付】
     当你完成所有代码执行并获得满意的分析结果后，你需要输出最后一条自然语言回复。
-    这条回复将作为【分析摘要】传递给可视化专家和决策者，注意这部分篇幅不要太长。
-    要求：
-    1. 不要再输出代码，只说关键信息！
-    2. 清晰地简单陈述你的发现（例如：分为了几个聚类，每类有什么特点）。
+    这条回复将作为【分析摘要】传递给可视化专家和决策者，注意这部分篇幅不要太长，1到2句话。
     """
 
     # 构造消息列表

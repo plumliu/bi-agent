@@ -98,9 +98,9 @@ viz_instruction: |
         "data_source": "dataframe"
         "x_axis": "<时间列>",
         "observed_col": "<数值列>",
-        "trend_col": "trend",
-        "seasonal_col": "seasonal",
-        "residual_col": "residual"
+        "trend_col": "<趋势列>",
+        "seasonal_col": "<季节性列>",
+        "residual_col": "<残差列>"
       }},
       "line_error": {{
         "title": "<业务标题> - 异常监控",
@@ -110,8 +110,8 @@ viz_instruction: |
         "series_mapping": [
           {{
             "name": "模型拟合曲线",
-            "y_col": "fitted",
-            "error_col": "error"
+            "y_col": "<拟合值列>",
+            "error_col": "<误差带列>"
           }},
           {{
             "name": "<数值列列名>",

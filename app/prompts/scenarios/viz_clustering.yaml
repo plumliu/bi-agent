@@ -87,8 +87,8 @@ viz_instruction: |
         "type": "scatter"
         "data_source": "dataframe",
         "title": "<请根据用户意图生成业务标题 (如: '员工绩效分群分布')>",
-        "x_axis": "pca_x",
-        "y_axis": "pca_y",
+        "x_axis": "<主成分 x>",
+        "y_axis": "<主成分 y>",
         "category_col": "cluster_label"
       }},
       "radar": {{

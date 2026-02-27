@@ -73,19 +73,19 @@ viz_instruction: |
         "type": "lineWithConfidence",
         "data_source": "dataframe",
         "title": "<请根据用户意图生成业务标题 (如: '未来12个月趋势预测')>",
-        "x_axis": "date",
+        "x_axis": "<时间标识列>",
         "series_config": [
           {{
             "name": "模型预测 (含95%置信区间)",
-            "data_col": "forecast_value",
-            "lower_col": "forecast_lower",
-            "upper_col": "forecast_upper"
+            "data_col": "<预测值列>",
+            "lower_col": "<预测值列下界>",
+            "upper_col": "<预测值列上界>"
           }},
           {{
             "name": "历史实测值",
-            "data_col": "history_value",
-            "lower_col": "history_lower",
-            "upper_col": "history_upper"
+            "data_col": "<历史实测值列>",
+            "lower_col": "<历史实测值列下界>",
+            "upper_col": "<历史实测值列上界>"
           }}
         ]
       }},
@@ -93,8 +93,8 @@ viz_instruction: |
         "type": "scatter",
         "data_source": "dataframe",
         "title": "模型准确度回测",
-        "x_axis": "history_value",
-        "y_axis": "fitted_value"
+        "x_axis": "<历史实测值列>",
+        "y_axis": "<拟合值列>"
       }}
     }}
   }}

@@ -70,6 +70,13 @@ def planner_node(state: CustomModelingState):
     messages = [SystemMessage(content=system_content)]
     output: PlannerOutput = structured_llm.invoke(messages)
 
+    actual_task_count = len(output.tasks)
+    print(f"--- [Subgraph] Planner: 生成了 {actual_task_count} 个初始任务 ---")
+
+    # 逐行遍历打印，彻底防止控制台截断，也绝不可能数错
+    for idx, item in enumerate(output.tasks, start=1):
+        print(f"  [Task {idx}/{actual_task_count}] {item.description}")
+
     # 6. 将 Output 转换为内部 Task 对象
     # 这里由 Python 代码负责分配初始 ID (1-based)
     initial_plan = []
@@ -81,7 +88,7 @@ def planner_node(state: CustomModelingState):
         )
         initial_plan.append(new_task)
 
-    print(f"--- [Subgraph] Planner: 已生成 {len(initial_plan)} 个初始任务 ---")
+
 
     # 7. 返回状态更新
     return {

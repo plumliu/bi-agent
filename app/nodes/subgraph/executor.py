@@ -1,7 +1,7 @@
 import json
 import re
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
 from app.core.config import settings
@@ -9,10 +9,10 @@ from app.core.prompts_config import load_prompts_config
 from app.core.subgraph.state import CustomModelingState
 from app.tools.sandbox import create_code_interpreter_tool
 
-
+# 1. 初始化 LLM
 llm = ChatOpenAI(
     model=settings.LLM_MODEL_NAME,
-    temperature=0,
+    temperature=0,  # 保持 0，确保代码生成的确定性
     api_key=settings.OPENAI_API_KEY
 )
 
@@ -21,14 +21,22 @@ step = "modeling"
 
 def _extract_code(text: str) -> str:
     """
-    辅助函数：从 LLM 回复中提取 Python 代码块
+    【升级版】辅助函数：从 LLM 回复中提取 Python 代码块
+    增强了对多代码块和非标准 markdown 格式的兼容性。
     """
-    if "```python" in text:
-        return text.split("```python")[1].split("```")[0].strip()
-    elif "```" in text:
-        return text.split("```")[1].split("```")[0].strip()
-    else:
-        return text.strip()
+    # 优先匹配所有标准的 ```python ... ``` 块
+    matches = re.findall(r'```python\n(.*?)\n```', text, re.DOTALL)
+    if matches:
+        # 如果模型输出了多个代码块，将它们拼接起来（通常模型是为了分段解释，但执行时需要完整代码）
+        return "\n\n".join(matches).strip()
+
+    # 降级方案：匹配没有写 python 语言标识的 ``` ... ``` 块
+    fallback_matches = re.findall(r'```(.*?)```', text, re.DOTALL)
+    if fallback_matches:
+        return "\n\n".join([m.strip() for m in fallback_matches]).strip()
+
+    # 如果完全没有 markdown 标记，直接剔除首尾空白返回
+    return text.strip()
 
 
 def create_executor_node(sandbox):
@@ -41,13 +49,14 @@ def create_executor_node(sandbox):
         【Executor 节点】
         职责：
         1. 读取当前 Task。
-        2. 让 LLM 生成代码 (Text -> Code)。
-        3. 调用 Tool 在沙盒中运行代码。
-        4. 将运行结果写入 Task.result。
+        2. 检查是否为重试状态，若是则提取上次的错误现场。
+        3. 让 LLM 生成代码 (Text -> Code)。
+        4. 调用 Tool 在沙盒中运行代码。
+        5. 将运行结果写入 Task.result。
         """
-        print("--- [Subgraph] Executor: 正在执行任务... ---")
+        print("--- [Subgraph] Executor: 正在准备执行任务... ---")
 
-        # 1. 获取上下文
+        # 1. 获取上下文与当前任务
         plan = state["plan"]
         current_idx = state["current_task_index"]
 
@@ -60,19 +69,22 @@ def create_executor_node(sandbox):
         # 将该任务标记为正在运行
         task.mark_running()
         remote_file_path = state.get("remote_file_path")
+        current_retry_count = state.get("retry_count", 0)
 
-        # 将 scratchpad 列表转换为字符串
+        # 提取 Scratchpad
         scratchpad_list = state.get("scratchpad")
         scratchpad_str = "\n".join(scratchpad_list) if scratchpad_list else "无"
 
-        # 2. 加载 Prompt
+        # 2. 加载 Prompt 模板
         scenario = state.get("scenario")
-
         config = load_prompts_config(step, scenario)
         instruction_template = config.get('executor_instruction')
 
+        # 3. 构造历史成功代码 (Context)
+        # 严格只取 current_idx 之前的 completed 任务，防止污染
         previous_code_blocks = []
         cell_pattern = re.compile(r'^# \[Jupyter Code Cell\]: .+\n')
+
         for t in plan[:current_idx]:
             if t.status == "completed" and t.code:
                 stripped = t.code.lstrip()
@@ -83,7 +95,7 @@ def create_executor_node(sandbox):
 
         previous_code_str = "\n\n".join(previous_code_blocks) if previous_code_blocks else "无 (这是第一个任务)"
 
-        # 3. 构造 Prompt
+        # 4. 构造基础 Prompt
         system_content = instruction_template.format(
             task_description=task.description,
             scratchpad=scratchpad_str,
@@ -91,36 +103,52 @@ def create_executor_node(sandbox):
             previous_code=previous_code_str
         )
 
-        # 4. 调用 LLM 生成代码
+        messages = [SystemMessage(content=system_content)]
+
+        # 5. 【核心修复】：注入重试的“错误现场”
+        if current_retry_count > 0 and task.code and task.result:
+            print(
+                f"--- [Subgraph] Executor: 检测到 Task {task.id} 为第 {current_retry_count} 次重试，正在注入错误日志 ---")
+            retry_warning = (
+                f"【紧急修正：当前为第 {current_retry_count} 次重试】\n"
+                f"你上一次生成的代码执行失败（或被 Reflector 判定为逻辑错误）。请仔细分析下方的错误现场，并在本次生成中彻底修复！\n\n"
+                f"--- 你上次生成的错误代码 ---\n```python\n{task.code}\n```\n\n"
+                f"--- 沙盒报错 / 执行日志 ---\n{task.result}\n\n"
+                f"注意：你在 Jupyter 环境中，请注意全局变量（如 df）可能已被你上次的错误代码污染。建议使用防御性编程（如检查列是否存在，或重新拷贝数据）。"
+            )
+            # 作为一个显眼的 HumanMessage 追加，强迫大模型优先关注报错
+            messages.append(HumanMessage(content=retry_warning))
+
+        # 6. 调用 LLM 生成代码
         print(f"--- [Subgraph] Executor: 正在生成 Task {task.id} 的代码 ---")
-        response = llm.invoke([SystemMessage(content=system_content)])
+        response = llm.invoke(messages)
         raw_content = response.content
 
-        # 5. 代码清洗
+        # 7. 代码清洗与提取
         code_to_run = _extract_code(raw_content)
 
-        # 6. 在沙盒中执行 (调用工具)
-        print(f"--- [Subgraph] Executor: 代码生成完毕，正在沙盒运行... ---")
-
+        # 8. 在沙盒中执行 (调用工具)
+        print(f"--- [Subgraph] Executor: 代码生成完毕，正在沙盒中运行... ---")
         execution_result = ""
 
         if sandbox:
-            # [修改] 使用注入的 sandbox 实例
             python_tool = create_code_interpreter_tool(sandbox)
-
             try:
                 execution_result = python_tool.invoke(code_to_run)
             except Exception as e:
-                execution_result = f"[SYSTEM ERROR] 工具调用失败: {str(e)}"
+                execution_result = f"[SYSTEM ERROR] 沙盒工具调用底层异常: {str(e)}"
         else:
             execution_result = "[SYSTEM ERROR] Sandbox 未注入，无法执行代码。"
 
-        # 7. 更新 Task 对象状态
+        # 9. 更新 Task 对象状态 (覆盖掉之前的错误代码和结果，供下一轮 Reflector 审查)
         task.code = code_to_run
         task.result = execution_result
 
-        print(f"--- [Subgraph] Executor: 执行完毕，结果已存入 Task {task.id} ---")
+        print(f"--- [Subgraph] Executor: Task {task.id} 的代码执行结果如下 ---")
+        print(execution_result)
+        print(f"--- [Subgraph] Executor: 执行完毕，结果已更新至 Task {task.id} ---")
 
+        # 返回未修改的 plan 引用（状态机内部已更新 task 属性）
         return {"plan": plan}
 
     return executor_node
