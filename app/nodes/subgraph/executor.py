@@ -1,5 +1,6 @@
 import json
 import re
+import time  # [新增] 引入时间模块
 
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
@@ -55,6 +56,11 @@ def create_executor_node(sandbox):
         5. 将运行结果写入 Task.result。
         """
         print("--- [Subgraph] Executor: 正在准备执行任务... ---")
+
+        # [新增] 初始化或获取当前的 metrics
+        metrics = state.get("metrics") or {}
+        metrics.setdefault("llm_duration", 0.0)
+        metrics.setdefault("sandbox_duration", 0.0)
 
         # 1. 获取上下文与当前任务
         plan = state["plan"]
@@ -121,7 +127,18 @@ def create_executor_node(sandbox):
 
         # 6. 调用 LLM 生成代码
         print(f"--- [Subgraph] Executor: 正在生成 Task {task.id} 的代码 ---")
+
+        # [新增] 掐表开始：LLM 耗时
+        llm_start_time = time.perf_counter()
+
         response = llm.invoke(messages)
+
+        # [新增] 掐表结束：LLM 耗时
+        llm_end_time = time.perf_counter()
+        current_llm_time = llm_end_time - llm_start_time
+        metrics["llm_duration"] += current_llm_time
+        print(f"--- [Time] Executor LLM 生成代码耗时: {current_llm_time:.2f} 秒")
+
         raw_content = response.content
 
         # 7. 代码清洗与提取
@@ -133,10 +150,21 @@ def create_executor_node(sandbox):
 
         if sandbox:
             python_tool = create_code_interpreter_tool(sandbox)
+
+            # [新增] 掐表开始：沙盒执行耗时
+            sandbox_start_time = time.perf_counter()
+
             try:
                 execution_result = python_tool.invoke(code_to_run)
             except Exception as e:
                 execution_result = f"[SYSTEM ERROR] 沙盒工具调用底层异常: {str(e)}"
+
+            # [新增] 掐表结束：沙盒执行耗时
+            sandbox_end_time = time.perf_counter()
+            current_sb_time = sandbox_end_time - sandbox_start_time
+            metrics["sandbox_duration"] += current_sb_time
+            print(f"--- [Time] Executor Sandbox 代码执行耗时: {current_sb_time:.2f} 秒")
+
         else:
             execution_result = "[SYSTEM ERROR] Sandbox 未注入，无法执行代码。"
 
@@ -148,7 +176,10 @@ def create_executor_node(sandbox):
         print(execution_result)
         print(f"--- [Subgraph] Executor: 执行完毕，结果已更新至 Task {task.id} ---")
 
-        # 返回未修改的 plan 引用（状态机内部已更新 task 属性）
-        return {"plan": plan}
+        # [修改] 返回未修改的 plan 引用和更新后的 metrics
+        return {
+            "plan": plan,
+            "metrics": metrics
+        }
 
     return executor_node

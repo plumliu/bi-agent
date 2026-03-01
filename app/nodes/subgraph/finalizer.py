@@ -1,4 +1,5 @@
 import json
+import time  # [新增] 引入时间模块
 # from e2b_code_interpreter import Sandbox
 from ppio_sandbox.code_interpreter import Sandbox
 from app.core.subgraph.state import CustomModelingState
@@ -16,8 +17,14 @@ def create_finalizer_node(sandbox: Sandbox):
         1. 扫描并合并 JSON 产物。
         2. 登记 Feather 数据文件。
         3. 整理 Summary 并清理 State。
+        4. 统计并打印全局执行耗时。
         """
         print("--- [Subgraph] Finalizer: 正在整理产物... ---")
+
+        # [新增] 初始化或获取 metrics
+        metrics = state.get("metrics") or {}
+        metrics.setdefault("llm_duration", 0.0)
+        metrics.setdefault("sandbox_duration", 0.0)
 
         # =========================================================
         # 1. 构造“收尾”脚本 (保持不变)
@@ -67,7 +74,15 @@ print(json.dumps(result, ensure_ascii=False))
         # 2. 执行脚本与输出处理
         # =========================================================
         try:
+            # [新增] 掐表开始：Finalizer 沙盒执行耗时
+            sandbox_start_time = time.perf_counter()
+
             execution = sandbox.run_code(cleanup_script)
+
+            # [新增] 掐表结束：累加到 sandbox_duration
+            sandbox_end_time = time.perf_counter()
+            current_sb_time = sandbox_end_time - sandbox_start_time
+            metrics["sandbox_duration"] += current_sb_time
 
             # Sandbox 的 stdout 是一个 List[str]，我们需要将其合并为一个完整的字符串
             stdout_list = execution.logs.stdout
@@ -91,7 +106,7 @@ print(json.dumps(result, ensure_ascii=False))
                 )
 
             # =========================================================
-            # 3. 更新 State
+            # 3. 更新 State & 打印耗时
             # =========================================================
 
             # A. 整理 Modeling Summary
@@ -105,9 +120,22 @@ print(json.dumps(result, ensure_ascii=False))
             print(f"--- [Subgraph] Finalizer: 指标合并完成，Key: {merged_keys}")
             print(f"--- [Subgraph] Finalizer: 登记数据文件: {feather_files}")
 
+            # [新增] 打印全局性能统计看板
+            print("\n" + "=" * 45)
+            print("[Performance Metrics] 子图执行耗时统计")
+            print("=" * 45)
+            total_duration = 0.0
+            for k, v in metrics.items():
+                print(f"  ▶ {k:<20}: {v:>8.2f} 秒")
+                total_duration += v
+            print("-" * 45)
+            print(f"  ▶ {'Total Duration':<20}: {total_duration:>8.2f} 秒")
+            print("=" * 45 + "\n")
+
             return {
                 "modeling_summary": summary_text,
                 "generated_data_files": feather_files,
+                "metrics": metrics  # [新增] 将最终指标返回
             }
 
         except Exception as e:

@@ -21,6 +21,8 @@ modeling_instruction: |
     (1) 时间列 (Time Column)，可能以以下形式出现：
         - 单一时间列：列名包含 'date', 'time', 'timestamp', '日期', '时间' 等关键词。
         - 多列时间组件：如果时间分散在 年/月/日 或 时/分/秒，你必须使用 pandas 将其组合为一个新的时间列（如 df['parsed_date'] = pd.to_datetime(...)）。
+        - 当构造时间列需要构造时，请注意：
+          - pd.to_datetime(...) 返回的是 Series 对象，严禁对其调用 .assign() 方法（这是 DataFrame 专属方法）。正确做法是直接在字符串层面拼接完整日期（如 '2024-' + 月列 + '-' + 日列），然后再传入 pd.to_datetime()。
         - 时间步标识列：列值为 1, 2, 3 等差整数序列，表示时间顺序。
     (2) 数值列 (Value Column)：
         - 列名包含 'value', 'price', 'count', 'sales', '销量', '次数', '金额', '库存' 等关键词。

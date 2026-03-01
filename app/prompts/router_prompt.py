@@ -71,7 +71,7 @@ ROUTER_SYSTEM_TEMPLATE = """
 
 ### 5. 输出要求
 - 请直接返回对应的 scenario-reasoning 键值，reasoning 的篇幅不可过长，一句话即可。
-- 使用 JSON 格式，返回结构化数据。
+- 使用 JSON 格式，返回结构化数据，不能包含额外的文本（比如 ```json）。
 
 【输出样例】
 {{

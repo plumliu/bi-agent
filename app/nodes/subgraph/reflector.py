@@ -1,3 +1,4 @@
+import time  # [新增] 引入时间模块
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
 
@@ -16,6 +17,7 @@ llm = ChatOpenAI(
 
 step = "modeling"
 
+
 def reflector_node(state: CustomModelingState):
     """
     【Reflector 节点】
@@ -30,6 +32,11 @@ def reflector_node(state: CustomModelingState):
     # 安全检查
     if current_idx >= len(plan):
         return {"error": "Reflector索引越界"}
+
+    # [新增] 初始化或获取当前的 metrics
+    metrics = state.get("metrics") or {}
+    metrics.setdefault("llm_duration", 0.0)
+    metrics.setdefault("sandbox_duration", 0.0)
 
     task = plan[current_idx]
     print(f"--- [Subgraph] Reflector: 正在审查 Task {task.id} 的结果... ---")
@@ -58,7 +65,17 @@ def reflector_node(state: CustomModelingState):
 
     # 4. 调用 LLM (Structured Output)
     structured_llm = llm.with_structured_output(ReflectorOutput)
+
+    # [新增] 掐表开始：LLM 审查耗时
+    llm_start_time = time.perf_counter()
+
     decision: ReflectorOutput = structured_llm.invoke([SystemMessage(content=system_content)])
+
+    # [新增] 掐表结束：计算并累加耗时
+    llm_end_time = time.perf_counter()
+    current_llm_time = llm_end_time - llm_start_time
+    metrics["llm_duration"] += current_llm_time
+    print(f"  [Time] Reflector LLM 审查耗时: {current_llm_time:.2f} 秒")
 
     print(f"--- [Subgraph] Reflector 决策: {decision.action} ---")
 
@@ -82,7 +99,8 @@ def reflector_node(state: CustomModelingState):
             "current_task_index": current_idx + 1,  # 指针移向下一个任务
             "retry_count": 0,  # 重置重试计数
             "scratchpad": scratchpad,
-            "plan": plan
+            "plan": plan,
+            "metrics": metrics  # [新增] 返回更新后的 metrics
         }
 
     # === 分支 B: 任务失败，重试 ===
@@ -111,7 +129,8 @@ def reflector_node(state: CustomModelingState):
                 "retry_count": current_retry + 1,
                 "current_task_index": current_idx,
                 "scratchpad": scratchpad,
-                "plan": plan
+                "plan": plan,
+                "metrics": metrics  # [新增] 返回更新后的 metrics
             }
 
     # === 分支 C: 插入新任务 ===
@@ -147,7 +166,8 @@ def reflector_node(state: CustomModelingState):
             "plan": plan,
             "scratchpad": scratchpad,
             "retry_count": 0,
-            "current_task_index": current_idx  # 保持原位！
+            "current_task_index": current_idx,  # 保持原位！
+            "metrics": metrics  # [新增] 返回更新后的 metrics
         }
 
     return updates

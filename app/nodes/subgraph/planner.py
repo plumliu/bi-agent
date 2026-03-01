@@ -1,4 +1,6 @@
 import json
+import time  # [新增] 引入时间模块
+
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
 
@@ -28,28 +30,26 @@ def planner_node(state: CustomModelingState):
     print("--- [Subgraph] Planner: 正在规划任务列表... ---")
 
     # 1. 检查是否需要规划
-    # 如果 plan 列表中已有任务，说明是 Re-entry（例如 Reflector 决定循环），Planner 应当静默
     if state.get("plan") and len(state["plan"]) > 0:
         print("--- [Subgraph] Planner: 检测到已有计划，跳过规划步骤 ---")
         return {}
 
+    # [新增] 安全地获取并初始化 metrics
+    metrics = state.get("metrics") or {}
+    metrics.setdefault("llm_duration", 0.0)
+    metrics.setdefault("sandbox_duration", 0.0)
+
     # 2. 从 State 中获取上下文
-    # 注意：router 节点已将 scenario 设为 "custom"，所以这里加载 modeling_custom.yaml
     scenario = state.get("scenario")
     remote_file_path = state.get("remote_file_path")
     user_input = state.get("user_input")
-
 
     # 将 data_schema 字典转换为 JSON 字符串，方便 LLM 理解结构
     data_schema_obj = state.get("data_schema")
     data_schema_str = json.dumps(data_schema_obj, ensure_ascii=False, indent=2)
 
     # 3. 动态加载提示词配置
-    # 这会读取 app/prompts/scenarios/modeling_custom.yaml
     config = load_prompts_config(step, scenario)
-
-    # 获取 Planner 专用的指令
-    # 确保 yaml 文件中有 'planner_instruction' 这个 key
     instruction_template = config.get('planner_instruction')
 
     if not instruction_template:
@@ -63,12 +63,19 @@ def planner_node(state: CustomModelingState):
     )
 
     # 5. 调用 LLM (Structured Output)
-    # 强制 LLM 返回符合 PlannerOutput 定义的 JSON 结构
     structured_llm = llm.with_structured_output(PlannerOutput)
-
-    # 发送请求
     messages = [SystemMessage(content=system_content)]
+
+    # [新增] 掐表开始：记录 LLM 调用耗时
+    llm_start_time = time.perf_counter()
+
     output: PlannerOutput = structured_llm.invoke(messages)
+
+    # [新增] 掐表结束：计算并累加耗时
+    llm_end_time = time.perf_counter()
+    llm_duration = llm_end_time - llm_start_time
+    metrics["llm_duration"] += llm_duration
+    print(f"--- [Time] Planner LLM 规划耗时: {llm_duration:.2f} 秒")
 
     actual_task_count = len(output.tasks)
     print(f"--- [Subgraph] Planner: 生成了 {actual_task_count} 个初始任务 ---")
@@ -78,7 +85,6 @@ def planner_node(state: CustomModelingState):
         print(f"  [Task {idx}/{actual_task_count}] {item.description}")
 
     # 6. 将 Output 转换为内部 Task 对象
-    # 这里由 Python 代码负责分配初始 ID (1-based)
     initial_plan = []
     for i, item in enumerate(output.tasks):
         new_task = Task(
@@ -88,12 +94,11 @@ def planner_node(state: CustomModelingState):
         )
         initial_plan.append(new_task)
 
-
-
     # 7. 返回状态更新
     return {
         "plan": initial_plan,
         "current_task_index": 0,  # 指针归零
         "retry_count": 0,  # 重试计数归零
-        "scratchpad": []  # 初始化为空列表
+        "scratchpad": [],  # 初始化为空列表
+        "metrics": metrics  #  将更新后的统计数据传回状态机
     }

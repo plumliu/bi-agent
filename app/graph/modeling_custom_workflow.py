@@ -41,12 +41,12 @@ def build_modeling_custom_subgraph(sandbox: Sandbox):
     # 2. 添加节点
     workflow.add_node("planner", planner_node)
 
-    # [修改] 使用工厂函数注入 sandbox
+    # 使用工厂函数注入 sandbox
     workflow.add_node("executor", create_executor_node(sandbox))
 
     workflow.add_node("reflector", reflector_node)
 
-    # [修改] 使用工厂函数注入 sandbox
+    #  使用工厂函数注入 sandbox
     workflow.add_node("finalizer", create_finalizer_node(sandbox))
 
     # 3. 设置入口点

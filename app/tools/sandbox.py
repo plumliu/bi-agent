@@ -16,7 +16,6 @@ def create_code_interpreter_tool(sandbox: Sandbox):
         Args:
             code: Python 代码。
         """
-        # 保留你的调试信息
         print(f"\n--- [Tool] 在沙盒中执行代码中 ---")
         print(code)
 
