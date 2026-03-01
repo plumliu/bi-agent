@@ -1,50 +1,33 @@
 from typing import Literal
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, AIMessage # 引入 AIMessage
+from langchain_openai import ChatOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
 from app.core.state import AgentState
-from app.core.config import settings  # 假设你会在 config 中存放 API_KEY 和 Model Name
+from app.core.config import settings
 from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE
 
-# 1. 定义路由的输出结构
-# 使用 Literal 严格限制 LLM 只能从这几个选项里选，防止幻觉
+# 1. 定义路由的输出结构 (保持不变)
 ScenarioType = Literal[
-    "clustering",  # 聚类
-    "anomaly",  # 异常分析
-    "decomposition",  # 趋势分解
-    "association",  # 关联分析
-    "forecast",  # 时序预测
-    "classification",  # 分类
-
-    "custom", # 复杂分析或者前几项标准分析之外的情景
-
-    "unknown"  # 如果用户在闲聊或无法识别
+    "clustering", "anomaly", "decomposition", "association", "forecast", "classification", # sop 场景
+    "custom",  # custom 场景
+    "unknown" # 拒绝
 ]
-
 
 class RouterOutput(BaseModel):
     """路由器的决策结果结构"""
-    scenario: ScenarioType = Field(
-        ...,
-        description="最适合用户需求的算法场景分类"
-    )
-    reasoning: str = Field(
-        ...,
-        description="选择该场景的理由，简短的一句话即可，用于调试或告知用户"
-    )
+    scenario: ScenarioType = Field(..., description="最适合用户需求的算法场景分类")
+    reasoning: str = Field(..., description="选择该场景的理由，简短的一句话即可，用于调试或告知用户")
 
-
-# 2. 初始化 LLM
+# 2. 初始化 LLM (保持不变)
 llm = ChatOpenAI(
     model=settings.LLM_FLASH_MODEL_NAME,
-    temperature=0,
-    api_key=settings.OPENAI_API_KEY
+    temperature=0.1,
+    api_key=settings.OPENAI_API_KEY_FLASH,
+    use_responses_api=settings.USE_RESPONSES_API_FLASH,
+    base_url=settings.OPENAI_API_BASE_FLASH,
 )
-
-# 绑定结构化输出，强制 LLM 返回 JSON 格式
 structured_llm = llm.with_structured_output(RouterOutput)
-
 
 # 3. Router 节点函数
 def router_node(state: AgentState) -> dict:
@@ -52,25 +35,24 @@ def router_node(state: AgentState) -> dict:
     路由节点：分析用户输入和数据Schema，决定算法场景。
     """
     print("--- [Router] 分析用户的意图中... ---")
+    data_schema = state.get("data_schema", "")
 
-    user_input = state["user_input"]
-    data_schema = state.get("data_schema")
+    # 1. 构建纯净的系统规则 (完美命中 Cache)
+    system_prompt = ROUTER_SYSTEM_TEMPLATE.format(data_schema=data_schema)
 
-    system_prompt = ROUTER_SYSTEM_TEMPLATE.format(user_input=user_input, data_schema=data_schema)
-
-    messages = [SystemMessage(content=system_prompt)]
+    # 2. 组装 Messages：系统规则 + 之前积攒的所有对话历史 (包含用户的真实提问)
+    messages = [SystemMessage(content=system_prompt)] + state.get("messages", [])
 
     # 调用 LLM 获取结构化结果
     try:
         result: RouterOutput = structured_llm.invoke(messages)
 
-        # 打印日志方便观察
         print(f"算法场景: {result.scenario} | 理由: {result.reasoning}")
 
         return {
             "scenario": result.scenario,
-            "messages": [SystemMessage(content=result.reasoning)],
-            "reasoning": f"{result.reasoning}"
+            "messages": [AIMessage(content=f"[路由决策] Router 节点将本任务路由到了 {result.scenario} 场景")],
+            "reasoning": result.reasoning
         }
 
     except Exception as e:

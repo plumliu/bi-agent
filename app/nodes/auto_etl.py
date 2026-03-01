@@ -5,7 +5,7 @@ import re
 from typing import Dict, Any, List, Union
 
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from app.core.state import AgentState
 from app.core.config import settings
@@ -18,14 +18,14 @@ step = "auto_etl"
 logger = logging.getLogger(__name__)
 
 # 定义本地留档路径 (与 main.py 中的 LOCAL_CSV_PATH 保持一致)
-# 建议将其放入 config 或常量文件中，这里暂时硬编码以匹配你的需求
 LOCAL_CSV_PATH = "temp/temp_data.csv"
 
 # 2. 初始化 LLM
 llm = ChatOpenAI(
     model=settings.LLM_MODEL_NAME,
     temperature=0.1,
-    api_key=settings.OPENAI_API_KEY
+    api_key=settings.OPENAI_API_KEY,
+    use_responses_api=settings.USE_RESPONSES_API,
 )
 
 
@@ -195,5 +195,5 @@ def auto_etl_node(state: AgentState, sandbox: Sandbox) -> Dict[str, Any]:
     return {
         "remote_file_path": TARGET_PATH,  # 沙盒里的路径，给后续节点用
         "data_schema": data_schema,  # Schema 给 Router 用
-        "messages": [SystemMessage(content=merge_msg)]
+        "messages": [AIMessage(content=f"[系统汇报] {merge_msg}")]
     }

@@ -1,6 +1,6 @@
 from typing import List, Dict
 from app.core.state import AgentState
-from app.core.subgraph.task import Task
+from app.core.modeling_custom_subgraph.task import Task
 
 class CustomModelingState(AgentState):
     """

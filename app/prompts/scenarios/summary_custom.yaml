@@ -8,9 +8,6 @@ role_definition: |
 summary_instruction: |
   请根据以下分析上下文，为用户撰写一份最终分析总结。
 
-  【用户需求】
-  {user_input}
-
   【分析过程回顾 (Modeling Log)】
   {modeling_summary}
 

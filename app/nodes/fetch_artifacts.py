@@ -3,7 +3,7 @@ import os
 import pandas as pd
 # from e2b_code_interpreter import Sandbox
 from ppio_sandbox.code_interpreter import Sandbox
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, AIMessage
 from app.core.state import AgentState
 
 
@@ -110,15 +110,16 @@ def create_fetch_artifacts_node(sandbox: Sandbox):
             # =========================================================
             return {
                 **result_updates,
-                "messages": [SystemMessage(content=msg_content)]
+                "messages": [AIMessage(content=f"[系统汇报] {msg_content}")]
             }
 
         except Exception as e:
             error_msg = f"Fetch Artifacts Critical Error: {str(e)}"
             print(f"--- [Middleware Error] {error_msg} ---")
+
             return {
                 "messages": [
-                    SystemMessage(content=f"[System Warning] 产物同步异常: {error_msg}")
+                    AIMessage(content=f"[系统异常汇报] 产物同步失败: {error_msg}")
                 ]
             }
 

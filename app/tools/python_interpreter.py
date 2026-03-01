@@ -43,7 +43,7 @@ def create_code_interpreter_tool(sandbox: Sandbox):
                 output.append(f"[SYSTEM] 生成了 {len(execution.results)} 结果.")
 
             if not output:
-                return "[SYSTEM] 代码执行成功了，但并没有返回任何输出."
+                return "[SYSTEM] 代码执行成功，进程正常退出，但没有任何控制台输出 (STDOUT 为空)。如果你需要提取数据，请确保在代码中使用了 print()。"
 
             return "\n".join(output)
 

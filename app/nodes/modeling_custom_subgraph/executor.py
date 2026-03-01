@@ -1,24 +1,26 @@
 import time
 from langchain_core.messages import SystemMessage
 from langchain_openai import ChatOpenAI
+from langchain_core.runnables import RunnableConfig
 
 from app.core.config import settings
 from app.core.prompts_config import load_prompts_config
-from app.core.subgraph.state import CustomModelingState
-from app.tools.sandbox import create_code_interpreter_tool
+from app.core.modeling_custom_subgraph.state import CustomModelingState
+from app.tools.python_interpreter import create_code_interpreter_tool
 from ppio_sandbox.code_interpreter import Sandbox
 
 # 1. 初始化基础 LLM
 llm = ChatOpenAI(
     model=settings.LLM_MODEL_NAME,
     temperature=0,
-    api_key=settings.OPENAI_API_KEY
+    api_key=settings.OPENAI_API_KEY,
+    use_responses_api=settings.USE_RESPONSES_API,
 )
 
 step = "modeling"
 
 
-def executor_node(state: CustomModelingState, sandbox: Sandbox):
+def executor_node(state: CustomModelingState, sandbox: Sandbox, config: RunnableConfig):
     """
     【Executor 节点】(采用 partial 依赖注入模式)
     职责：看全局计划 -> 思考 -> 决定调用工具写代码 (或给出最终结论)
@@ -34,7 +36,12 @@ def executor_node(state: CustomModelingState, sandbox: Sandbox):
     metrics.setdefault("llm_duration", 0.0)
 
     # 3. 获取上下文与 Planner 制定的战略计划
-    plan = state.get("plan", [])
+    plan = state.get("plan")
+    if plan is None or not isinstance(plan, list):
+        raise RuntimeError("--- [Subgraph] Executor: 错误! 'plan' 不在 state 中! ")
+    elif len(plan) == 0:
+        raise RuntimeError("--- [Subgraph] Executor: 错误! 'plan' 是空的! ")
+
     remote_file_path = state.get("remote_file_path", "")
 
     # 将结构化的 Plan 转化为文本指南
@@ -59,11 +66,11 @@ def executor_node(state: CustomModelingState, sandbox: Sandbox):
     llm_start_time = time.perf_counter()
 
     # 让大模型自己决定是输出 tool_calls(写代码)，还是直接输出文本(宣布完工)
-    response = llm_with_tools.invoke(messages)
+    response = llm_with_tools.invoke(messages, config=config)
 
     current_llm_time = time.perf_counter() - llm_start_time
     metrics["llm_duration"] += current_llm_time
-    print(f"  [Time] Executor LLM 决策耗时: {current_llm_time:.2f} 秒")
+    print(f"--- [Time] Executor LLM 决策耗时: {current_llm_time:.2f} 秒")
 
     # 7. 返回状态 (直接把 LLM 的回复追加到主 messages 列表中)
     return {

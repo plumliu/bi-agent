@@ -90,7 +90,7 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     workflow.add_node("router", router_node)
 
     # 分支 A: SOP Modeling 节点
-    workflow.add_node("modeling", modeling_node)
+    workflow.add_node("modeling", partial(modeling_node, tools=tools))
     workflow.add_node("tools", ToolNode(tools))  # SOP 专用工具节点
 
     # 分支 B: Custom Modeling 子图   

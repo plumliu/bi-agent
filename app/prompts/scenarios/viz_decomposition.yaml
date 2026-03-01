@@ -5,7 +5,6 @@ role_definition: |
 
 viz_instruction: |
   ### 1. 输入上下文
-  - **用户意图**: "{user_input}"
   - **分析摘要**: "{modeling_summary}"
   - **最新元数据 (Schema)**: {columns} (包含 `trend`, `seasonal`, `residual`, `fitted`, `error` 等)
   - **统计产物 (Artifacts)**: {artifacts} (包含 `has_seasonality`, `seasonal_cycles` 等)
@@ -77,7 +76,7 @@ viz_instruction: |
   - `series_names_key`: 固定为 "seasonal_cycle_names" (Modeling 生成的系列名称)。
   
   ### 3. 你的输出
-  请生成一个标准的 JSON 配置对象。
+  请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。你必须且只能输出一个合法的 JSON 结构。严禁输出任何分析解释、问候语或前言后语。
   **注意**: 
   1. `raw_data_line` 必须始终生成。
   2. 如果 `has_seasonality` 为 false，则**不要**生成 `seasonal_fingerprint`。

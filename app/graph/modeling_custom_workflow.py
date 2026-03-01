@@ -4,13 +4,13 @@ from functools import partial
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 
-from app.core.subgraph.state import CustomModelingState
+from app.core.modeling_custom_subgraph.state import CustomModelingState
 from ppio_sandbox.code_interpreter import Sandbox
 
-from app.nodes.subgraph.finalizer import finalizer_node
-from app.nodes.subgraph.planner import planner_node
-from app.nodes.subgraph.executor import executor_node
-from app.tools.sandbox import create_code_interpreter_tool
+from app.nodes.modeling_custom_subgraph.finalizer import finalizer_node
+from app.nodes.modeling_custom_subgraph.planner import planner_node
+from app.nodes.modeling_custom_subgraph.executor import executor_node
+from app.tools.python_interpreter import create_code_interpreter_tool
 
 
 def should_continue(state: CustomModelingState) -> Literal["tools", "finalizer"]:

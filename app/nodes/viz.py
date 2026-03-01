@@ -1,18 +1,24 @@
 import json
 import os
+import re
+
 import yaml
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, AIMessage
+
 from app.core.state import AgentState
 from app.core.config import settings
 from app.core.prompts_config import load_prompts_config
+from app.utils.extract_text_from_content import extract_text_from_content
 
 step = "viz"
 
 llm = ChatOpenAI(
     model=settings.LLM_FLASH_MODEL_NAME,
     temperature=0,
-    api_key=settings.OPENAI_API_KEY
+    api_key=settings.OPENAI_API_KEY_FLASH,
+    use_responses_api=settings.USE_RESPONSES_API_FLASH,
+    base_url=settings.OPENAI_API_BASE_FLASH,
 )
 
 def viz_node(state: AgentState):
@@ -22,28 +28,22 @@ def viz_node(state: AgentState):
     scenario = state.get("scenario", "clustering")
     config = load_prompts_config(step, scenario)
 
-    # 获取最新的 Schema (由 fetch_artifacts 更新过的)
+    # 获取最新的 Schema 和产物
     data_schema = state.get("data_schema")
-
-    # 获取 Modeling 阶段的产物 (artifacts)
     artifacts = state.get("modeling_artifacts", {})
+    modeling_summary = state.get("modeling_summary", "")
 
-    # 获取 Modeling 阶段的自然语言摘要
-    # 策略：取最后一条 AI 消息的内容作为摘要
-    modeling_summary = state["modeling_summary"]
-
-    # 2. 构造 Prompt
-    # 注意：使用 str(json.dumps(...)) 确保 Prompt 里是合法的 JSON 字符串表示，方便 LLM 阅读
+    # 2. 构造静态 System Prompt (移除 user_input)
     prompt_template = config.get("viz_instruction")
     system_prompt = config.get("role_definition") + "\n\n" + prompt_template.format(
-        user_input=state.get("user_input"),
+        # user_input 被移除，完全依赖下方的对话历史
         modeling_summary=modeling_summary,
         columns=data_schema,
-        artifacts=json.dumps(artifacts, ensure_ascii=False)  # 注入全量 Artifacts
+        artifacts=json.dumps(artifacts, ensure_ascii=False)
     )
 
-    # 3. 调用 LLM
-    messages = [SystemMessage(content=system_prompt)]
+    # 3. 组装 Messages：静态规则 + 全局对话历史 (自带了用户的 HumanMessage)
+    messages = [SystemMessage(content=system_prompt)] + state.get("messages", [])
 
     print("--- [Viz] 思考中... ---")
     response = llm.invoke(messages)
@@ -51,15 +51,35 @@ def viz_node(state: AgentState):
     # 4. 解析结果
     viz_config = {}
     try:
-        content = response.content.replace("```json", "").replace("```", "").strip()
+        raw_text = extract_text_from_content(response.content)
+
+        # 策略 1：使用正则表达式提取 Markdown 代码块中的内容
+        match = re.search(r"```(?:json)?(.*?)```", raw_text, re.DOTALL)
+        if match:
+            content = match.group(1).strip()
+        else:
+            # 策略 2：如果没有使用 Markdown 代码块，尝试暴力截取第一个 { 和最后一个 } 之间的内容
+            start_idx = raw_text.find('{')
+            end_idx = raw_text.rfind('}')
+            if start_idx != -1 and end_idx != -1:
+                content = raw_text[start_idx:end_idx + 1]
+            else:
+                content = raw_text.strip()
+
         viz_config = json.loads(content)
         print("--- [Viz] 图表配置生成成功 ---")
+
     except Exception as e:
         print(f"--- [Viz] JSON转换失败: {e} ---")
         print(f"Raw回答: {response.content}")
+        # 【防御性编程】：如果解析失败，不要把空字典传给下游，直接利用我们刚刚做好的 Reflexion 机制报错！
+        return {
+            "viz_config": None,  # 明确置为 None，触发下游错误拦截
+            "messages": [AIMessage(content=f"[系统报错] Viz 节点未能生成合法的 JSON 配置。")]
+        }
 
-    # 5. 更新 State
+    # 5. 更新 State (修正为 AIMessage)
     return {
         "viz_config": viz_config,
-        "messages": [SystemMessage(content="图表配置生成成功, 等待viz_execution节点执行中")]
+        "messages": [AIMessage(content="[系统汇报] 图表配置生成成功，等待执行。")]
     }

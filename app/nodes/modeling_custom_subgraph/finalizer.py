@@ -2,7 +2,10 @@ import json
 import time  # 引入时间模块
 # from e2b_code_interpreter import Sandbox
 from ppio_sandbox.code_interpreter import Sandbox
-from app.core.subgraph.state import CustomModelingState
+from app.core.modeling_custom_subgraph.state import CustomModelingState
+from langchain_core.messages import AIMessage
+
+from app.utils.extract_text_from_content import extract_text_from_content
 
 
 def finalizer_node(state: CustomModelingState, sandbox: Sandbox):
@@ -107,7 +110,8 @@ print(json.dumps(result, ensure_ascii=False))
         # A. 整理 Modeling Summary (核心修改：提取 Agent 的最后一段自然语言发言)
         messages = state.get("messages", [])
         if messages and hasattr(messages[-1], "content") and messages[-1].content:
-            summary_text = messages[-1].content
+            # 【核心修正】：安全地剥离多模态 List，只提取纯净的字符串文本！
+            summary_text = extract_text_from_content(messages[-1].content)
         else:
             summary_text = "分析与数据处理已完成。"
 
@@ -133,7 +137,9 @@ print(json.dumps(result, ensure_ascii=False))
         return {
             "modeling_summary": summary_text,
             "generated_data_files": feather_files,
-            "metrics": metrics  # 将最终指标返回
+            "metrics": metrics,
+
+            "messages": [AIMessage(content=f"[系统汇报] 复杂分析已完成，共生成 {len(feather_files)} 个数据文件，关键指标已合并。")]
         }
 
     except Exception as e:

@@ -5,7 +5,6 @@ role_definition: |
 
 summary_instruction: |
   ### 1. 任务背景
-  - **用户意图**: "{user_input}"
   - **建模分析摘要**: "{modeling_summary}"
   - **关键统计指标**: {artifacts_summary} (包含质心、占比等统计数据)
   - **可用图表清单**: 
