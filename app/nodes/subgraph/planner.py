@@ -13,7 +13,6 @@ from app.core.subgraph.schemas import PlannerOutput
 step = "modeling"
 
 # 1. 初始化 LLM
-# Planner 不需要写代码，只需要极强的逻辑规划能力，建议使用配置中的主模型
 llm = ChatOpenAI(
     model=settings.LLM_MODEL_NAME,
     temperature=0,
@@ -80,7 +79,6 @@ def planner_node(state: CustomModelingState):
     actual_task_count = len(output.tasks)
     print(f"--- [Subgraph] Planner: 生成了 {actual_task_count} 个初始任务 ---")
 
-    # 逐行遍历打印，彻底防止控制台截断，也绝不可能数错
     for idx, item in enumerate(output.tasks, start=1):
         print(f"  [Task {idx}/{actual_task_count}] {item.description}")
 
@@ -97,8 +95,5 @@ def planner_node(state: CustomModelingState):
     # 7. 返回状态更新
     return {
         "plan": initial_plan,
-        "current_task_index": 0,  # 指针归零
-        "retry_count": 0,  # 重试计数归零
-        "scratchpad": [],  # 初始化为空列表
         "metrics": metrics  #  将更新后的统计数据传回状态机
     }

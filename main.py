@@ -26,9 +26,7 @@ from app.utils.file_parser import parse_file_content
 # 确保能导入 app 模块
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# from e2b_code_interpreter import Sandbox
-from ppio_sandbox.code_interpreter import Sandbox
-from app.utils.csv_reader import get_csv_schema
+from ppio_sandbox.code_interpreter import Sandbox, SandboxQuery, SandboxState
 from app.core.state import AgentState
 from app.graph.workflow import build_graph
 from app.core.config import settings
@@ -39,7 +37,36 @@ from app.tools.sandbox import create_code_interpreter_tool
 # ==========================================
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-app = FastAPI(title="BI Agent API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 【启动阶段】: 这里可以放置应用启动时需要执行的代码
+    print("[Launching] 启动BI agent中...")
+    yield
+    # 【关闭阶段】: 当 Ctrl + C 终止时执行以下逻辑
+    print("\n[Shutdown] 正在检测并关闭所有运行中的沙箱...")
+    try:
+        # 1. 查找所有状态为 RUNNING 的沙箱
+        query = SandboxQuery(state=[SandboxState.RUNNING])
+        paginator = Sandbox.list(query=query)
+        running_sandboxes = paginator.next_items()
+
+        if not running_sandboxes:
+            print("[Shutdown] 未发现运行中的沙箱。")
+        else:
+            print(f"[Shutdown] 发现 {len(running_sandboxes)} 个运行中的沙箱，准备关闭...")
+            for sb_info in running_sandboxes:
+                try:
+                    # 2. 连接并杀死沙箱
+                    sb = Sandbox.connect(sb_info.sandbox_id)
+                    sb.kill()
+                    print(f"成功关闭沙箱 ID: {sb_info.sandbox_id}")
+                except Exception as e:
+                    print(f"关闭沙箱 {sb_info.sandbox_id} 失败: {e}")
+            print("[Shutdown] 所有沙箱清理完毕。")
+    except Exception as e:
+        print(f"[Shutdown] 获取沙箱列表失败: {e}")
+
+app = FastAPI(title="BI Agent API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -306,6 +333,7 @@ async def query_agents_stream(
         ),
         media_type="text/event-stream"
     )
+
 
 
 if __name__ == "__main__":
