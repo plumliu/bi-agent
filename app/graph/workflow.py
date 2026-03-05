@@ -1,22 +1,17 @@
-import operator
-from typing import Literal, List
+from typing import Literal
 from functools import partial
 
-from langchain_core.tools import BaseTool
 from langgraph.graph import StateGraph, END, START
-from langgraph.prebuilt import ToolNode
-# from e2b_code_interpreter import Sandbox
 from ppio_sandbox.code_interpreter import Sandbox
 
-from app.core.state import AgentState
+from app.core.state import WorkflowState
 
 # 导入节点
 from app.nodes.auto_etl import auto_etl_node
 from app.nodes.router import router_node
-from app.nodes.modeling import modeling_node  # SOP Modeling
+from app.nodes.modeling import create_modeling_node  # SOP Modeling
 from app.nodes.fetch_artifacts import create_fetch_artifacts_node
-from app.nodes.viz import viz_node
-from app.nodes.viz_execution import viz_execution_node
+from app.nodes.viz import create_viz_node
 from app.nodes.summary import summary_node
 
 #    导入子图构建器
@@ -26,7 +21,7 @@ from app.graph.viz_custom_workflow import build_viz_custom_subgraph
 
 # --- 路由逻辑 ---
 
-def route_after_router(state: AgentState) -> Literal["modeling", "modeling_custom", END]:
+def route_after_router(state: WorkflowState) -> Literal["modeling", "modeling_custom", END]:
     """
     Router 之后的路由：决定走 SOP 流程还是 Custom 流程
     """
@@ -42,17 +37,7 @@ def route_after_router(state: AgentState) -> Literal["modeling", "modeling_custo
     return "modeling"
 
 
-def route_after_modeling_sop(state: AgentState) -> Literal["tools", "fetch_artifacts"]:
-    """
-    SOP Modeling 之后的路由
-    """
-    last_message = state["messages"][-1]
-    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-        return "tools"
-    return "fetch_artifacts"
-
-
-def route_after_modeling_custom(state: AgentState) -> Literal["viz_custom"]:
+def route_after_modeling_custom(state: WorkflowState) -> Literal["viz_custom"]:
     """
     Custom Modeling 之后的路由：直接进入 viz_custom 子图
     """
@@ -60,21 +45,13 @@ def route_after_modeling_custom(state: AgentState) -> Literal["viz_custom"]:
     return "viz_custom"
 
 
-def route_after_viz_execution(state: AgentState) -> Literal["viz", "summary"]:
-    if state.get("viz_success"):
-        return "summary"
-    else:
-        print("--- [Router] Viz execute failed, looping back to Config Agent ---")
-        return "viz"
-
-
 # --- 构建图 ---
 
-def build_graph(tools: List[BaseTool], sandbox: Sandbox):
+def build_graph(sandbox: Sandbox):
     """
     构建完整的工作流图 (SOP + Custom 双模态)。
     """
-    workflow = StateGraph(AgentState)
+    workflow = StateGraph(WorkflowState)
 
     # ============================================================
     # 1. 注册节点
@@ -82,13 +59,11 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     workflow.add_node("auto_etl", partial(auto_etl_node, sandbox=sandbox))
     workflow.add_node("router", router_node)
 
-    # 分支 A: SOP Modeling 节点
-    workflow.add_node("modeling", partial(modeling_node, tools=tools))
-    workflow.add_node("tools", ToolNode(tools))  # SOP 专用工具节点
+    # 分支 A: SOP Modeling 节点（使用 create_agent）
+    workflow.add_node("modeling", create_modeling_node(sandbox))
 
     workflow.add_node("fetch_artifacts", create_fetch_artifacts_node(sandbox))
-    workflow.add_node("viz", viz_node)
-    workflow.add_node("viz_execution", viz_execution_node)
+    workflow.add_node("viz", create_viz_node())
 
     # 分支 B: Custom Modeling 子图
     # 注意：build_modeling_custom_subgraph 返回的是一个 CompiledGraph，可以直接作为节点
@@ -119,15 +94,8 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     )
 
     # --- 路径 A: SOP 流程 ---
-    workflow.add_conditional_edges(
-        "modeling",
-        route_after_modeling_sop,
-        {
-            "tools": "tools",
-            "fetch_artifacts": "fetch_artifacts"
-        }
-    )
-    workflow.add_edge("tools", "modeling")
+    # create_agent 自动处理 ReAct 循环，直接连接到 fetch_artifacts
+    workflow.add_edge("modeling", "fetch_artifacts")
 
     # --- 路径 B: Custom 流程 ---
     # 子图内部有自己的循环，当子图返回时(END)，说明建模完成
@@ -142,19 +110,9 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     # viz_custom 子图完成后，直接去 summary
     workflow.add_edge("viz_custom", "summary")
 
-    # 3. SOP 路径：Fetch -> Viz（固定流程）
+    # 3. SOP 路径：Fetch -> Viz -> Summary
     workflow.add_edge("fetch_artifacts", "viz")
-
-    # 4. SOP 后半程: Viz -> Execution -> Summary
-    workflow.add_edge("viz", "viz_execution")
-    workflow.add_conditional_edges(
-        "viz_execution",
-        route_after_viz_execution,
-        {
-            "viz": "viz",
-            "summary": "summary"
-        }
-    )
+    workflow.add_edge("viz", "summary")
 
     # 5. 终点
     workflow.add_edge("summary", END)

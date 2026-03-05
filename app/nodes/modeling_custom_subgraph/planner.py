@@ -68,7 +68,7 @@ def planner_node(state: CustomModelingState):
     context_message = HumanMessage(content=context_content)
 
     # 6. 调用原生 LLM
-    messages = [system_message, context_message] + state.get("messages", [])
+    messages = [system_message, context_message]
 
     llm_start_time = time.perf_counter()
 
@@ -125,9 +125,5 @@ def planner_node(state: CustomModelingState):
     # 8. 返回状态更新
     return {
         "plan": initial_plan,
-        "metrics": metrics,
-        # 抛出一个合法的 AIMessage，避免中断上下文流
-        "messages": [
-            AIMessage(content=f"[规划完毕] 已成功制定包含 {actual_task_count} 个步骤的分析计划，准备移交执行引擎。")
-        ]
+        "metrics": metrics
     }

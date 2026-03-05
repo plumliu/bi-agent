@@ -1,15 +1,21 @@
-from typing import List, Dict
-from app.core.state import AgentState
-from app.core.modeling_custom_subgraph.task import Task
+from typing import TypedDict, List, Optional, Dict, Any
 
-class CustomModelingState(AgentState):
+
+class CustomModelingState(TypedDict):
     """
-    通用建模子图 (Modeling Custom Subgraph) 的专用状态。
-    继承自 AgentState (这意味着它天生拥有 messages 列表，用于记忆对话历史)
+    Custom Modeling 子图状态（无 messages）
     """
+    # 从主图传入
+    scenario: str
+    remote_file_path: str
+    data_schema: Dict[str, Any]
+    user_input: str
 
-    # 战略任务指南 (由 Planner 生成，供 Executor 全局参考)
-    plan: List[Task]
+    # Planner 生成
+    plan: Optional[List[Dict[str, Any]]]
+    metrics: Optional[Dict[str, Any]]
 
-    # 时间统计 (用于性能监控)
-    metrics: Dict[str, float]
+    # Executor 生成（返回给主图）
+    modeling_summary: Optional[str]
+    generated_data_files: Optional[List[str]]
+    file_metadata: Optional[List[Dict[str, Any]]]

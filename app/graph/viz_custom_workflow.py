@@ -1,11 +1,10 @@
 from typing import List
-from functools import partial
 from langgraph.graph import StateGraph, END
 from langgraph.types import Send
 from ppio_sandbox.code_interpreter import Sandbox
 from app.core.viz_custom_subgraph.state import CustomVizState
 from app.nodes.viz_custom_subgraph.planner import viz_planner_node
-from app.nodes.viz_custom_subgraph.executor import viz_executor_node
+from app.nodes.viz_custom_subgraph.executor import create_viz_executor_node
 from app.nodes.viz_custom_subgraph.aggregator import viz_aggregator_node
 
 
@@ -50,7 +49,7 @@ def build_viz_custom_subgraph(sandbox: Sandbox):
 
     # 1. 注册节点
     workflow.add_node("viz_planner", viz_planner_node)
-    workflow.add_node("viz_executor", partial(viz_executor_node, sandbox=sandbox))
+    workflow.add_node("viz_executor", create_viz_executor_node(sandbox))
     workflow.add_node("viz_aggregator", viz_aggregator_node)
 
     # 2. 设置入口

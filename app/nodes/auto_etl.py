@@ -7,7 +7,7 @@ from typing import Dict, Any, List, Union
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
-from app.core.state import AgentState
+from app.core.state import WorkflowState
 from app.core.config import settings
 from ppio_sandbox.code_interpreter import Sandbox
 from app.prompts.auto_etl_prompt import AUTO_ETL_SYSTEM_TEMPLATE, AUTO_ETL_CONTEXT_TEMPLATE
@@ -68,7 +68,7 @@ def _generate_meta_extraction_code(raw_paths: List[str]) -> str:
 # Auto-ETL Node 核心逻辑
 # ==========================================
 
-def auto_etl_node(state: AgentState, sandbox: Sandbox) -> Dict[str, Any]:
+def auto_etl_node(state: WorkflowState, sandbox: Sandbox) -> Dict[str, Any]:
     print("--- [Auto-ETL] 分析文件关系中... ---")
 
     raw_paths = state.get("raw_file_paths", [])
@@ -195,5 +195,4 @@ def auto_etl_node(state: AgentState, sandbox: Sandbox) -> Dict[str, Any]:
     return {
         "remote_file_path": TARGET_PATH,  # 沙盒里的路径，给后续节点用
         "data_schema": data_schema,  # Schema 给 Router 用
-        "messages": [AIMessage(content=f"[系统汇报] {merge_msg}")]
     }

@@ -78,7 +78,7 @@ viz_instruction: |
   - `data_key`: 固定为 `"cluster_counts"`。 # 这代表每个聚类中的数目
 
   ### 3. 你的输出
-  请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。你必须且只能输出一个合法的 JSON 结构。严禁输出任何分析解释、问候语或前言后语。
+  请生成一个标准的 JSON 配置对象，然后调用 viz_execution 工具执行配置。
 
   [输出模板]
   {{

@@ -1,17 +1,11 @@
-import operator
-from typing import TypedDict, Annotated, List, Optional, Any, Dict
-from langchain_core.messages import BaseMessage
+from typing import TypedDict, List, Optional, Any, Dict
 
 
-class AgentState(TypedDict):
+class WorkflowState(TypedDict):
     """
-    LangGraph 的状态对象。
-    这个字典会在图中的所有节点(Agent)之间传递。
+    主工作流状态对象（无 messages）。
+    这个字典会在图中的所有节点之间传递。
     """
-
-    # --- 基础对话上下文 ---
-    # messages: 保存对话历史 (追加模式)
-    messages: Annotated[List[BaseMessage], operator.add]
 
     # 原始用户输入
     user_input: str

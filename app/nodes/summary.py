@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from app.core.prompts_config import load_prompts_config
-from app.core.state import AgentState
+from app.core.state import WorkflowState
 from app.core.config import settings
 from app.utils.extract_text_from_content import extract_text_from_content
 
@@ -19,7 +19,7 @@ llm = ChatOpenAI(
     base_url=settings.OPENAI_API_BASE_FLASH,
 )
 
-def summary_node(state: AgentState):
+def summary_node(state: WorkflowState):
     print("--- [Summary] 生成最终报告中 ---")
 
     scenario = state.get("scenario")
@@ -61,14 +61,13 @@ def summary_node(state: AgentState):
     )
     context_message = HumanMessage(content=context_content)
 
-    # 5. 组装 Messages：静态规则 + 动态上下文 + 全局对话历史
-    messages = [system_message, context_message] + state.get("messages", [])
+    # 5. 组装 Messages：静态规则 + 动态上下文
+    messages = [system_message, context_message]
 
     print("--- [Summary] 思考中... ---")
     response = llm.invoke(messages)
 
     # summary_node 直接返回 response (这就是一个自带 content 的 AIMessage)，逻辑是完美的
     return {
-        "final_summary": extract_text_from_content(response.content),
-        "messages": [response]
+        "final_summary": extract_text_from_content(response.content)
     }

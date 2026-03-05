@@ -1,19 +1,19 @@
-from typing import List, Dict, Any, Optional
-from app.core.state import AgentState
+from typing import TypedDict, List, Optional, Dict, Any
 
 
-class CustomVizState(AgentState):
+class CustomVizState(TypedDict):
     """
-    viz_custom 子图的专用状态
-    继承自 AgentState，拥有所有父图字段
+    Custom Viz 子图状态（无 messages）
     """
+    # 从主图传入
+    scenario: str
+    file_metadata: List[Dict[str, Any]]
 
-    # viz 任务列表（由 planner 生成）
+    # Planner 生成
     viz_tasks: Optional[List[Dict[str, Any]]]
 
-    # 收集所有 executor 的输出结果
-    # 格式: {"viz_task_1": {"type": "scatter", "data": {...}}, ...}
-    viz_results: Optional[Dict[str, Dict[str, Any]]]
+    # Send API 注入（每个并发分支）
+    viz_task: Optional[Dict[str, Any]]
 
-    # 时间统计
-    viz_metrics: Optional[Dict[str, float]]
+    # Aggregator 汇总
+    viz_results: Optional[List[Dict[str, Any]]]

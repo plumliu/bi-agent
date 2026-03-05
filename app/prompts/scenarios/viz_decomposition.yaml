@@ -75,10 +75,10 @@ viz_instruction: |
   - `data_key`: "seasonal_cycles" (核心数据源)。
   - `categories_key`: 固定为 "seasonal_categories" (Modeling 生成的 X 轴标签)。
   - `series_names_key`: 固定为 "seasonal_cycle_names" (Modeling 生成的系列名称)。
-  
+
   ### 3. 你的输出
-  请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。你必须且只能输出一个合法的 JSON 结构。严禁输出任何分析解释、问候语或前言后语。
-  **注意**: 
+  请生成一个标准的 JSON 配置对象，然后调用 viz_execution 工具执行配置。
+  **注意**:
   1. `raw_data_line` 必须始终生成。
   2. 如果 `has_seasonality` 为 false，则**不要**生成 `seasonal_fingerprint`。
 

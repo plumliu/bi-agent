@@ -7,7 +7,7 @@ data_protocol: |
     "type": "line",
     "data": {
       "title": "图表标题",
-      "xAxis": [...],           // X 轴数据（通常是时间或连续变量）
+      "categories": [...],           // X 轴数据（通常是时间或连续变量）
       "series": [               // 多条折线
         {
           "name": "系列名称",
@@ -18,17 +18,17 @@ data_protocol: |
   }
 
   【字段说明】
-  - xAxis: 数组，X 轴标签（如日期、月份、连续数值等）
+  - categories: 数组，X 轴标签（如日期、月份、连续数值等）
   - series: 数组，每个元素代表一条折线
     - name: 字符串，折线名称（用于图例）
-    - data: 数组，Y 轴数值（与 xAxis 长度一致）
+    - data: 数组，Y 轴数值（与 categories 长度一致）
 
 example: |
   {
     "type": "line",
     "data": {
       "title": "月度销售额趋势",
-      "xAxis": ["1月", "2月", "3月", "4月", "5月", "6月"],
+      "categories": ["1月", "2月", "3月", "4月", "5月", "6月"],
       "series": [
         {
           "name": "产品A",
@@ -46,12 +46,12 @@ common_errors: |
   【常见错误及解决方案】
 
   1. 数据类型错误
-     - 错误：xAxis 包含数值型而非字符串
+     - 错误：categories 包含数值型而非字符串
      - 解决：使用 df['date'].astype(str).tolist() 转换
 
   2. 长度不匹配
-     - 错误：series[i].data 长度与 xAxis 不一致
-     - 解决：确保所有 series 的 data 长度与 xAxis 相同
+     - 错误：series[i].data 长度与 categories 不一致
+     - 解决：确保所有 series 的 data 长度与 categories 相同
 
   3. NaN/Inf 值
      - 错误：数据中包含 NaN 或 Inf

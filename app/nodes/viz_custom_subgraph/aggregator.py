@@ -2,7 +2,6 @@ import os
 import json
 import glob
 from typing import Dict, Any
-from langchain_core.messages import AIMessage
 
 from app.core.viz_custom_subgraph.state import CustomVizState
 
@@ -80,13 +79,10 @@ def viz_aggregator_node(state: CustomVizState) -> Dict[str, Any]:
 
         # 5. 返回状态更新
         return {
-            "viz_data": viz_data,
-            "messages": [AIMessage(content=f"[Viz Aggregator] 成功合并 {success_count} 个图表")]
+            "viz_data": viz_data
         }
 
     except Exception as e:
         error_msg = f"--- [Viz Subgraph] Aggregator: 保存失败 - {e} ---"
         print(error_msg)
-        return {
-            "messages": [AIMessage(content=f"[Viz Aggregator] 保存失败: {e}")]
-        }
+        return {}

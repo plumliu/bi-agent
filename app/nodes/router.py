@@ -3,7 +3,7 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
-from app.core.state import AgentState
+from app.core.state import WorkflowState
 from app.core.config import settings
 from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE, ROUTER_CONTEXT_TEMPLATE
 
@@ -30,7 +30,7 @@ llm = ChatOpenAI(
 structured_llm = llm.with_structured_output(RouterOutput)
 
 # 3. Router 节点函数
-def router_node(state: AgentState) -> dict:
+def router_node(state: WorkflowState) -> dict:
     """
     路由节点：分析用户输入和数据Schema，决定算法场景。
     """
@@ -44,8 +44,8 @@ def router_node(state: AgentState) -> dict:
     context_content = ROUTER_CONTEXT_TEMPLATE.format(data_schema=data_schema)
     context_message = HumanMessage(content=context_content)
 
-    # 3. 组装 Messages：静态规则 + 动态上下文 + 全局对话历史
-    messages = [system_message, context_message] + state.get("messages", [])
+    # 3. 组装 Messages：静态规则 + 动态上下文
+    messages = [system_message, context_message]
 
     # 调用 LLM 获取结构化结果
     try:
@@ -55,7 +55,6 @@ def router_node(state: AgentState) -> dict:
 
         return {
             "scenario": result.scenario,
-            "messages": [AIMessage(content=f"[路由决策] Router 节点将本任务路由到了 {result.scenario} 场景")],
             "reasoning": result.reasoning
         }
 

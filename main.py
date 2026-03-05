@@ -29,10 +29,9 @@ from langchain_core.messages import SystemMessage, HumanMessage
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from ppio_sandbox.code_interpreter import Sandbox, SandboxQuery, SandboxState
-from app.core.state import AgentState
+from app.core.state import WorkflowState
 from app.graph.workflow import build_graph
 from app.core.config import settings
-from app.tools.python_interpreter import create_code_interpreter_tool
 
 # ==========================================
 # 1. Config & Setup
@@ -139,13 +138,10 @@ async def run_workflow_stream(
             raw_file_paths_in_sandbox.append(remote_p)
 
         # --- C. Workflow Init ---
-        # Pass the specific sandbox instance to tools
-        code_tool = create_code_interpreter_tool(sandbox)
-        workflow_app = build_graph(tools=[code_tool], sandbox=sandbox)
+        workflow_app = build_graph(sandbox=sandbox)
 
         # Initialize State
-        initial_state = AgentState(
-            messages=[HumanMessage(content=f"[用户原始query] {user_query}")],
+        initial_state = WorkflowState(
             user_input=user_query,
             raw_file_paths=raw_file_paths_in_sandbox,
             original_filenames=original_filenames,

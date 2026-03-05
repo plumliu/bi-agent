@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 import json
 import re
 import time
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
 from app.core.config import settings
@@ -118,8 +118,7 @@ def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
 
         return {
             "viz_tasks": viz_tasks,
-            "viz_metrics": viz_metrics,
-            "messages": [AIMessage(content=f"[Viz Planner] 已规划 {len(viz_tasks)} 个可视化任务")]
+            "viz_metrics": viz_metrics
         }
 
     except Exception as e:

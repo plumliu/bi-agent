@@ -904,7 +904,7 @@ def generate_viz_data(local_feather_path: str, local_artifacts_path: str, viz_co
     # 1. 加载数据
     try:
         if not viz_config:
-            return {"success": False, "error": "Viz config is empty"}
+            return {"success": False, "error": "Viz config 是空的"}
 
         df = pd.read_feather(local_feather_path)
         with open(local_artifacts_path, 'r', encoding='utf-8') as f:

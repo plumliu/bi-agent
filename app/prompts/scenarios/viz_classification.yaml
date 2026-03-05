@@ -60,7 +60,7 @@ viz_instruction: |
   - `columns`: 必须显式指定。建议包含标识列(ID)、预测标签(`Predicted_Label`)、置信度(`Confidence`)。由于是待预测数据，真实标签(`True_Label`)可不显示。
 
   ### 3. 你的输出
-  请生成一个标准的 JSON 配置对象。只输出 JSON 字符串。你必须且只能输出一个合法的 JSON 结构。严禁输出任何分析解释、问候语或前言后语。
+  请生成一个标准的 JSON 配置对象，然后调用 viz_execution 工具执行配置。
 
   [输出模板]
   {{
