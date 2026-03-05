@@ -1,0 +1,53 @@
+chart_type: radar
+description: 雷达图，用于展示多维特征对比
+
+data_protocol: |
+  前端组件需要的数据格式：
+  {
+    "type": "radar",
+    "data": {
+      "title": "图表标题",
+      "indicator": [
+        {"name": "维度1", "max": 最大值1},
+        {"name": "维度2", "max": 最大值2}
+      ],
+      "series": [
+        {
+          "name": "系列名称",
+          "data": [
+            {"name": "维度1", "value": 数值1},
+            {"name": "维度2", "value": 数值2}
+          ]
+        }
+      ]
+    }
+  }
+
+example: |
+  {
+    "type": "radar",
+    "data": {
+      "title": "各用户群组画像对比",
+      "indicator": [
+        {"name": "recency", "max": 403},
+        {"name": "freq", "max": 27},
+        {"name": "money", "max": 13080}
+      ],
+      "series": [
+        {
+          "name": "分组 1",
+          "data": [
+            {"name": "recency", "value": 24.25},
+            {"name": "freq", "value": 6.25},
+            {"name": "money", "value": 1475.0}
+          ]
+        }
+      ]
+    }
+  }
+
+common_errors: |
+  - indicator 定义了所有维度，每个 series 的 data 必须包含所有维度
+  - max 值应该是所有系列中该维度的最大值（或合理的上限）
+  - 维度名称在 indicator 和 data 中必须一致
+  - 数值不能为负数（雷达图不支持负值）

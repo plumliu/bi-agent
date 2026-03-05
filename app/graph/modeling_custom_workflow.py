@@ -7,20 +7,19 @@ from langgraph.prebuilt import ToolNode
 from app.core.modeling_custom_subgraph.state import CustomModelingState
 from ppio_sandbox.code_interpreter import Sandbox
 
-from app.nodes.modeling_custom_subgraph.finalizer import finalizer_node
 from app.nodes.modeling_custom_subgraph.planner import planner_node
 from app.nodes.modeling_custom_subgraph.executor import executor_node
 from app.tools.python_interpreter import create_code_interpreter_tool
 
 
-def should_continue(state: CustomModelingState) -> Literal["tools", "finalizer"]:
+def should_continue(state: CustomModelingState) -> Literal["tools", END]:
     """
     【条件边逻辑】
     判断 Agent 是否还需要调用工具。
     """
     messages = state.get("messages", [])
     if not messages:
-        return "finalizer"  # 防御性编程
+        return END  # 防御性编程
 
     last_message = messages[-1]
 
@@ -29,9 +28,9 @@ def should_continue(state: CustomModelingState) -> Literal["tools", "finalizer"]
         print("--- [Subgraph] Router: 发现工具调用请求，进入沙盒执行 ---")
         return "tools"
 
-    # 如果大模型没有输出工具调用，说明它认为所有的计划任务都已解决，开始总结
-    print("--- [Subgraph] Router: 任务全部完成，进入收尾阶段 ---")
-    return "finalizer"
+    # 如果大模型没有输出工具调用，说明它认为所有的计划任务都已解决，直接结束
+    print("--- [Subgraph] Router: 任务全部完成，子图结束 ---")
+    return END
 
 
 def build_modeling_custom_subgraph(sandbox: Sandbox):
@@ -50,8 +49,6 @@ def build_modeling_custom_subgraph(sandbox: Sandbox):
     # 【高光时刻】：直接使用官方 ToolNode 接管沙盒执行！它会自动处理错误并将结果封装为 ToolMessage 传回给 LLM
     workflow.add_node("tools", ToolNode([python_tool]))
 
-    workflow.add_node("finalizer", partial(finalizer_node, sandbox=sandbox))
-
     # 3. 设置入口点
     workflow.set_entry_point("planner")
 
@@ -64,14 +61,11 @@ def build_modeling_custom_subgraph(sandbox: Sandbox):
         should_continue,
         {
             "tools": "tools",  # 分支 A: 发现要写代码，去沙盒
-            "finalizer": "finalizer"  # 分支 B: 任务全部搞定，去收尾
+            END: END  # 分支 B: 任务全部搞定，直接结束
         }
     )
 
     # 工具执行完毕后，必须无条件回到大脑，让大脑看执行结果（形成 ReAct 闭环）
     workflow.add_edge("tools", "executor")
-
-    # 收尾完成 -> 退出子图
-    workflow.add_edge("finalizer", END)
 
     return workflow.compile()

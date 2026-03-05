@@ -29,11 +29,11 @@ def planner_node(state: CustomModelingState):
     职责：根据用户需求和数据 Schema，初始化任务列表 (Plan)。
     触发条件：仅在 plan 为空时执行。如果已有 plan，通常意味着是循环回来的，直接跳过。
     """
-    print("--- [Subgraph] Planner: 正在规划任务列表... ---")
+    print("--- [Modeling Subgraph] Planner: 正在规划任务列表... ---")
 
     # 1. 检查是否需要规划
     if state.get("plan") and len(state["plan"]) > 0:
-        print("--- [Subgraph] Planner: 检测到已有计划，跳过规划步骤 ---")
+        print("--- [Modeling Subgraph] Planner: 检测到已有计划，跳过规划步骤 ---")
         return {}
 
     # 安全地获取并初始化 metrics
@@ -97,12 +97,12 @@ def planner_node(state: CustomModelingState):
         parsed_tasks = parsed_json.get("tasks", [])
 
     except Exception as e:
-        print(f"--- [Subgraph Error] Planner JSON 解析失败: {e} ---")
-        print(f"--- [Debug] 原始模型输出: {response.content} ---")
+        print(f"--- [Modeling Subgraph Error] Planner JSON 解析失败: {e} ---")
+        print(f"--- [Modeling Subgraph Debug] 原始模型输出: {response.content} ---")
         raise RuntimeError(f"Planner 无法从文本中提取合法的 JSON 任务列表: {e}")
 
     actual_task_count = len(parsed_tasks)
-    print(f"--- [Subgraph] Planner: 生成了 {actual_task_count} 个初始任务 ---")
+    print(f"--- [Modeling Subgraph] Planner: 生成了 {actual_task_count} 个初始任务 ---")
 
     # 7. 将提取出的字典列表转换为内部 Task 对象
     initial_plan = []

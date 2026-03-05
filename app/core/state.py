@@ -48,12 +48,19 @@ class AgentState(TypedDict):
     # 通用场景下的建模产出的所有 feather 文件的文件名
     generated_data_files: Optional[List[str]]
 
+    # 建模产物的结构化元数据（包含文件名、列名、列描述）
+    # 格式: [{"file_name": "...", "columns": [{"name": "...", "description": "..."}]}]
+    file_metadata: Optional[List[Dict[str, Any]]]
+
     # --- 可视化配置 (Viz Node) ---
     # 这是一个 JSON 对象，对应 ECharts 配置
     viz_config: Optional[Dict[str, Any]]
 
     # Viz 执行状态标志 (用于控制 Viz 循环)
     viz_success: Optional[bool]
+
+    # viz_custom 子图生成的可视化数据（格式：{"echarts": [...]}}）
+    viz_data: Optional[Dict[str, Any]]
 
     # --- 总结 (Summary Node) ---
     final_summary: Optional[str]

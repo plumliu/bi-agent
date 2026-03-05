@@ -1,0 +1,56 @@
+chart_type: scatter
+description: 散点图，用于展示二维数据分布，支持按类别着色
+
+data_protocol: |
+  前端组件需要的数据格式：
+  {
+    "type": "scatter",
+    "data": {
+      "title": "图表标题",
+      "series": [
+        {
+          "name": "系列名称（如分类标签）",
+          "data": [
+            {
+              "value": [x值, y值],
+              ...其他字段（可选，用于 tooltip）
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+example: |
+  {
+    "type": "scatter",
+    "data": {
+      "title": "用户分群分布图",
+      "series": [
+        {
+          "name": "1",
+          "data": [
+            {
+              "uid": "user_05",
+              "value": [-0.117, -0.970]
+            }
+          ]
+        },
+        {
+          "name": "2",
+          "data": [
+            {
+              "uid": "user_01",
+              "value": [2.408, 0.470]
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+common_errors: |
+  - 确保 value 是 [x, y] 格式的数组
+  - 处理 NaN 和 Inf 值（使用 df.replace([np.inf, -np.inf], np.nan).dropna()）
+  - 如果有分类列，按分类分组生成多个 series
+  - 每个 series 的 name 应该是分类标签的字符串形式

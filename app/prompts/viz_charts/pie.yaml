@@ -1,0 +1,44 @@
+chart_type: pie
+description: 饼图，用于展示占比分布
+
+data_protocol: |
+  前端组件需要的数据格式：
+  {
+    "type": "pie",
+    "data": {
+      "title": "图表标题",
+      "series": [
+        {
+          "type": "pie",
+          "data": [
+            {"name": "分类1", "value": 数值1},
+            {"name": "分类2", "value": 数值2}
+          ]
+        }
+      ]
+    }
+  }
+
+example: |
+  {
+    "type": "pie",
+    "data": {
+      "title": "用户群组占比分布",
+      "series": [
+        {
+          "type": "pie",
+          "data": [
+            {"name": "分组 1", "value": 4},
+            {"name": "分组 2", "value": 5},
+            {"name": "分组 3", "value": 6}
+          ]
+        }
+      ]
+    }
+  }
+
+common_errors: |
+  - value 必须是正数
+  - name 应该是有意义的分类标签
+  - 所有 value 的总和代表 100%
+  - 不要有太多分类（建议不超过 8 个）

@@ -1,0 +1,72 @@
+chart_type: line
+description: 折线图，用于展示数据随时间或连续变量的趋势变化
+
+data_protocol: |
+  前端 Vue 组件需要的数据格式：
+  {
+    "type": "line",
+    "data": {
+      "title": "图表标题",
+      "xAxis": [...],           // X 轴数据（通常是时间或连续变量）
+      "series": [               // 多条折线
+        {
+          "name": "系列名称",
+          "data": [...]         // Y 轴数据（数值型）
+        }
+      ]
+    }
+  }
+
+  【字段说明】
+  - xAxis: 数组，X 轴标签（如日期、月份、连续数值等）
+  - series: 数组，每个元素代表一条折线
+    - name: 字符串，折线名称（用于图例）
+    - data: 数组，Y 轴数值（与 xAxis 长度一致）
+
+example: |
+  {
+    "type": "line",
+    "data": {
+      "title": "月度销售额趋势",
+      "xAxis": ["1月", "2月", "3月", "4月", "5月", "6月"],
+      "series": [
+        {
+          "name": "产品A",
+          "data": [120, 132, 101, 134, 90, 230]
+        },
+        {
+          "name": "产品B",
+          "data": [220, 182, 191, 234, 290, 330]
+        }
+      ]
+    }
+  }
+
+common_errors: |
+  【常见错误及解决方案】
+
+  1. 数据类型错误
+     - 错误：xAxis 包含数值型而非字符串
+     - 解决：使用 df['date'].astype(str).tolist() 转换
+
+  2. 长度不匹配
+     - 错误：series[i].data 长度与 xAxis 不一致
+     - 解决：确保所有 series 的 data 长度与 xAxis 相同
+
+  3. NaN/Inf 值
+     - 错误：数据中包含 NaN 或 Inf
+     - 解决：使用 df.replace([np.inf, -np.inf], np.nan).dropna()
+
+  4. 时间序列排序
+     - 错误：时间轴未排序，导致折线混乱
+     - 解决：在处理前先按时间列排序：df.sort_values('date')
+
+  5. 多系列数据透视
+     - 错误：数据格式不适合多系列展示
+     - 解决：使用 pivot_table 或 groupby 重组数据
+
+  【最佳实践】
+  - 时间数据格式化：pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+  - 数值精度控制：round(value, 2) 保留两位小数
+  - 缺失值处理：可以用 fillna(0) 或 interpolate() 填充
+  - 数据点数量：建议不超过 100 个点，过多会影响性能

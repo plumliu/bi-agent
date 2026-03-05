@@ -21,6 +21,7 @@ from app.nodes.summary import summary_node
 
 #    导入子图构建器
 from app.graph.modeling_custom_workflow import build_modeling_custom_subgraph
+from app.graph.viz_custom_workflow import build_viz_custom_subgraph
 
 
 # --- 路由逻辑 ---
@@ -51,17 +52,19 @@ def route_after_modeling_sop(state: AgentState) -> Literal["tools", "fetch_artif
     return "fetch_artifacts"
 
 
+def route_after_modeling_custom(state: AgentState) -> Literal["viz_custom"]:
+    """
+    Custom Modeling 之后的路由：直接进入 viz_custom 子图
+    """
+    print("--- [Router] Custom Modeling 完成，进入 viz_custom 子图 ---")
+    return "viz_custom"
+
+
 def route_after_fetch(state: AgentState) -> Literal["viz", "summary"]:
     """
-       Fetch Artifacts 之后的路由
-    在这里区分 SOP (去绘图) 和 Custom (直接总结)
+       Fetch Artifacts 之后的路由（仅用于 SOP 路径）
     """
     scenario = state.get("scenario")
-
-    if scenario == "custom":
-        # Custom 场景：暂时跳过 Viz，直接去 Summary
-        print("--- [Router] Custom Scenario: Skipping Viz, going to Summary ---")
-        return "summary"
 
     # SOP 场景：继续走 Viz 流程
     return "viz"
@@ -93,9 +96,12 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     workflow.add_node("modeling", partial(modeling_node, tools=tools))
     workflow.add_node("tools", ToolNode(tools))  # SOP 专用工具节点
 
-    # 分支 B: Custom Modeling 子图   
+    # 分支 B: Custom Modeling 子图
     # 注意：build_modeling_custom_subgraph 返回的是一个 CompiledGraph，可以直接作为节点
     workflow.add_node("modeling_custom", build_modeling_custom_subgraph(sandbox))
+
+    # 分支 C: Custom Viz 子图
+    workflow.add_node("viz_custom", build_viz_custom_subgraph(sandbox))
 
     # 公共节点
     workflow.add_node("fetch_artifacts", create_fetch_artifacts_node(sandbox))
@@ -134,16 +140,24 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     workflow.add_edge("tools", "modeling")
 
     # --- 路径 B: Custom 流程 ---
-    # 子图内部有自己的循环，当子图返回时(END)，说明建模完成，直接去取产物
-    workflow.add_edge("modeling_custom", "fetch_artifacts")
+    # 子图内部有自己的循环，当子图返回时(END)，说明建模完成
+    workflow.add_conditional_edges(
+        "modeling_custom",
+        route_after_modeling_custom,
+        {
+            "viz_custom": "viz_custom"  # Custom 路径：建模 → 可视化
+        }
+    )
 
-    # 3. 汇聚与再次分流: Fetch -> (Viz / Summary)
+    # viz_custom 子图完成后，直接去 summary
+    workflow.add_edge("viz_custom", "summary")
+
+    # 3. 汇聚与再次分流: Fetch -> Viz (仅 SOP 路径)
     workflow.add_conditional_edges(
         "fetch_artifacts",
         route_after_fetch,
         {
-            "viz": "viz",  # SOP 去绘图
-            "summary": "summary"  # Custom 直接去总结
+            "viz": "viz"  # SOP 去绘图
         }
     )
 

@@ -1,0 +1,41 @@
+chart_type: bar
+description: 柱状图，用于展示分类数据对比
+
+data_protocol: |
+  前端组件需要的数据格式：
+  {
+    "type": "bar",
+    "data": {
+      "title": "图表标题",
+      "categories": ["分类1", "分类2", "分类3"],
+      "series": [
+        {
+          "name": "系列名称",
+          "type": "bar",
+          "data": [数值1, 数值2, 数值3]
+        }
+      ]
+    }
+  }
+
+example: |
+  {
+    "type": "bar",
+    "data": {
+      "title": "各用户群组人数对比",
+      "categories": ["分组 1", "分组 2", "分组 3"],
+      "series": [
+        {
+          "name": "数量",
+          "type": "bar",
+          "data": [4, 5, 6]
+        }
+      ]
+    }
+  }
+
+common_errors: |
+  - categories 和 data 的长度必须一致
+  - data 必须是数值数组，不能包含 NaN
+  - 如果需要多个系列（如堆叠柱状图），添加多个 series 对象
+  - 分类名称应该是字符串类型
