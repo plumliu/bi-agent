@@ -1,6 +1,6 @@
 import json
 import os
-from langchain_core.messages import AIMessage, HumanMessage # 引入正确的角色消息
+from langchain_core.messages import HumanMessage
 from app.core.state import AgentState
 from app.tools.viz.generator import generate_viz_data
 
@@ -34,7 +34,7 @@ def viz_execution_node(state: AgentState):
 
         return {
             "viz_success": True,
-            "messages": [AIMessage(content="[系统汇报] 图表数据已成功生成，前端准备渲染。")]
+            "messages": [HumanMessage(content="[系统汇报] 图表数据已成功生成，前端准备渲染。")]
         }
     else:
         # 4. 失败处理 (反馈机制 - Reflexion Loop)
@@ -53,6 +53,5 @@ def viz_execution_node(state: AgentState):
 
         return {
             "viz_success": False,
-            # 【核心修正】：失败时，作为 HumanMessage 严厉指出错误！
             "messages": [HumanMessage(content=feedback_msg)]
         }

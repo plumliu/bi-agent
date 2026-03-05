@@ -2,7 +2,7 @@ import json
 import time
 import re
 
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 
@@ -52,18 +52,23 @@ def planner_node(state: CustomModelingState):
     # 3. 动态加载提示词配置
     config = load_prompts_config(step, scenario)
     instruction_template = config.get('planner_instruction')
+    context_template = config.get('planner_context_template')
 
     if not instruction_template:
         raise ValueError(f"在 modeling_{scenario}.yaml 中未找到 'planner_instruction' 配置")
 
-    # 4. 格式化纯净版 Prompt
-    system_content = instruction_template.format(
+    # 4. SystemMessage 完全静态
+    system_message = SystemMessage(content=instruction_template)
+
+    # 5. HumanMessage 包含动态上下文
+    context_content = context_template.format(
         remote_file_path=remote_file_path,
         data_schema=data_schema_str
     )
+    context_message = HumanMessage(content=context_content)
 
-    # 5. 调用原生 LLM (彻底抛弃 structured_output，拥抱原生调用)
-    messages = [SystemMessage(content=system_content)] + state.get("messages", [])
+    # 6. 调用原生 LLM
+    messages = [system_message, context_message] + state.get("messages", [])
 
     llm_start_time = time.perf_counter()
 

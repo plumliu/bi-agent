@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 import json
 import re
 import time
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 
 from app.core.config import settings
@@ -45,19 +45,24 @@ def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
     # 3. 加载提示词配置
     prompts = load_prompts_config("viz", "custom")
     planner_instruction = prompts["planner_instruction"]
+    context_template = prompts["planner_context_template"]
 
-    # 4. 格式化提示词
-    system_prompt = planner_instruction.format(
+    # 4. SystemMessage 完全静态
+    system_message = SystemMessage(content=planner_instruction)
+
+    # 5. HumanMessage 包含动态上下文
+    context_content = context_template.format(
         modeling_summary=modeling_summary,
         user_input=user_input,
         generated_files=generated_files
     )
+    context_message = HumanMessage(content=context_content)
 
     print("--- [Viz Subgraph] Planner: 调用大模型中... ---")
     start_time = time.perf_counter()
 
-    # 5. 调用 LLM
-    messages = [SystemMessage(content=system_prompt)]
+    # 6. 调用 LLM
+    messages = [system_message, context_message]
     response = llm.invoke(messages)
     llm_duration = time.perf_counter() - start_time
 

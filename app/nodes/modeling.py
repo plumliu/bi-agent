@@ -2,7 +2,7 @@ import os
 import yaml
 from typing import Dict, Any, Optional
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from app.core.prompts_config import load_prompts_config
 from app.core.state import AgentState
@@ -35,43 +35,47 @@ def modeling_node(state: AgentState, tools: list):
     # A. 动态加载配置
     config = load_prompts_config(step, scenario)
 
+    role_definition = config.get('role_definition')
     instruction = config.get('modeling_instruction')
     code_example = config.get('code_example')
+    context_template = config.get('context_template')
 
-    # B. 构建 System Prompt (纯净版，完全静态化，完美命中 Cache)
-    system_message_content = f"""
-    {config.get('role_definition')}
+    # B. 构建 System Prompt (完全静态，跨请求 KV Cache 命中)
+    system_content = f"""
+{role_definition}
 
-    你当前的任务场景是: {str(scenario).upper()}
+【任务指南】
+{instruction}
 
-    【环境信息】
-    数据路径: '{remote_file_path}' (已上传，请直接使用 pd.read_csv 读取此路径)
-    数据结构: 
-    {data_schema}
+【协议与代码范式 (Protocol)】
+在生成最终产物时，必须严格遵守以下代码结构（尤其是文件保存部分）
+在执行完 SDK 中的方法得到 result 对象后，不需要再次打印查看 result 对象的内容，直接保存即可。
 
-    【任务指南】
-    {instruction}
+```python
+{code_example}
+```
 
-    【协议与代码范式 (Protocol)】
-    在生成最终产物时，必须严格遵守以下代码结构（尤其是文件保存部分）
-    在执行完 SDK 中的方法得到 result 对象后，不需要再次打印查看 result 对象的内容，直接保存即可。
+【交互规范：操作前播报】
+在你决定调用 `python_interpreter` 工具编写代码之前，你**必须**先在回复中输出一句简短的自然语言（1 到 2 句话即可），告诉用户你正在做什么。
+示例："正在为您加载数据并进行初步探查..." 或 "我正在编写代码训练 RFM 聚类模型..."
+输出这句话后，再附带你的工具调用指令。
 
-    ```python
-    {code_example}
-    ```
+【结束与交付】
+你需要足够相信沙盒中的bi_sandbox_sdk！
+当你完成所有代码执行并获得满意的分析结果后，只需要输出一句"建模过程结束。"即可。
+"""
+    system_message = SystemMessage(content=system_content)
 
-    【交互规范：操作前播报】
-    在你决定调用 `python_interpreter` 工具编写代码之前，你**必须**先在回复中输出一句简短的自然语言（1 到 2 句话即可），告诉用户你正在做什么。
-    示例："正在为您加载数据并进行初步探查..." 或 "我正在编写代码训练 RFM 聚类模型..."
-    输出这句话后，再附带你的工具调用指令。
+    # C. HumanMessage 包含动态上下文
+    context_content = context_template.format(
+        remote_file_path=remote_file_path,
+        data_schema=data_schema,
+        scenario=scenario
+    )
+    context_message = HumanMessage(content=context_content)
 
-    【结束与交付】
-    你需要足够相信沙盒中的bi_sandbox_sdk！
-    当你完成所有代码执行并获得满意的分析结果后，只需要输出一句“建模过程结束。”即可。
-    """
-
-    # 构造消息列表：纯净版系统规则 + 原生对话历史 (用户的实际提问包含在其中)
-    messages = [SystemMessage(content=system_message_content)] + state.get("messages", [])
+    # 构造消息列表：静态系统规则 + 动态上下文 + 原生对话历史
+    messages = [system_message, context_message] + state.get("messages", [])
 
     # C. 调用 LLM
     response = llm_with_tools.invoke(messages)

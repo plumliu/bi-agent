@@ -1,11 +1,11 @@
 from typing import Literal
-from langchain_core.messages import SystemMessage, AIMessage # 引入 AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI, OpenAI
 from pydantic import BaseModel, Field
 
 from app.core.state import AgentState
 from app.core.config import settings
-from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE
+from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE, ROUTER_CONTEXT_TEMPLATE
 
 # 1. 定义路由的输出结构 (保持不变)
 ScenarioType = Literal[
@@ -37,11 +37,15 @@ def router_node(state: AgentState) -> dict:
     print("--- [Router] 分析用户的意图中... ---")
     data_schema = state.get("data_schema", "")
 
-    # 1. 构建纯净的系统规则 (完美命中 Cache)
-    system_prompt = ROUTER_SYSTEM_TEMPLATE.format(data_schema=data_schema)
+    # 1. 构建静态 System Message
+    system_message = SystemMessage(content=ROUTER_SYSTEM_TEMPLATE)
 
-    # 2. 组装 Messages：系统规则 + 之前积攒的所有对话历史 (包含用户的真实提问)
-    messages = [SystemMessage(content=system_prompt)] + state.get("messages", [])
+    # 2. HumanMessage 包含动态上下文
+    context_content = ROUTER_CONTEXT_TEMPLATE.format(data_schema=data_schema)
+    context_message = HumanMessage(content=context_content)
+
+    # 3. 组装 Messages：静态规则 + 动态上下文 + 全局对话历史
+    messages = [system_message, context_message] + state.get("messages", [])
 
     # 调用 LLM 获取结构化结果
     try:

@@ -4,7 +4,7 @@ import re
 
 import yaml
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from app.core.state import AgentState
 from app.core.config import settings
@@ -33,17 +33,23 @@ def viz_node(state: AgentState):
     artifacts = state.get("modeling_artifacts", {})
     modeling_summary = state.get("modeling_summary", "")
 
-    # 2. 构造静态 System Prompt (移除 user_input)
+    # 2. 构造静态 System Prompt
     prompt_template = config.get("viz_instruction")
-    system_prompt = config.get("role_definition") + "\n\n" + prompt_template.format(
-        # user_input 被移除，完全依赖下方的对话历史
+    context_template = config.get("context_template")
+
+    system_content = config.get("role_definition") + "\n\n" + prompt_template
+    system_message = SystemMessage(content=system_content)
+
+    # 3. HumanMessage 包含动态上下文
+    context_content = context_template.format(
         modeling_summary=modeling_summary,
         columns=data_schema,
         artifacts=json.dumps(artifacts, ensure_ascii=False)
     )
+    context_message = HumanMessage(content=context_content)
 
-    # 3. 组装 Messages：静态规则 + 全局对话历史 (自带了用户的 HumanMessage)
-    messages = [SystemMessage(content=system_prompt)] + state.get("messages", [])
+    # 4. 组装 Messages：静态规则 + 动态上下文 + 全局对话历史
+    messages = [system_message, context_message] + state.get("messages", [])
 
     print("--- [Viz] 思考中... ---")
     response = llm.invoke(messages)
@@ -72,7 +78,6 @@ def viz_node(state: AgentState):
     except Exception as e:
         print(f"--- [Viz] JSON转换失败: {e} ---")
         print(f"Raw回答: {response.content}")
-        # 【防御性编程】：如果解析失败，不要把空字典传给下游，直接利用我们刚刚做好的 Reflexion 机制报错！
         return {
             "viz_config": None,  # 明确置为 None，触发下游错误拦截
             "messages": [AIMessage(content=f"[系统报错] Viz 节点未能生成合法的 JSON 配置。")]

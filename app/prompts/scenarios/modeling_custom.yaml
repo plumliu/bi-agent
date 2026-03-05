@@ -14,11 +14,6 @@ planner_instruction: |
 
   你的核心职责是**将业务问题转化为计算步骤**，而不是对数据操作做出主观决策。
 
-  【环境信息】
-  数据路径: '{remote_file_path}'
-  数据Schema: 
-  {data_schema}
-  
   ## 核心原则：**超前思考**
   在规划任何任务前，你必须深度剖析用户的真实意图：
      - 用户真正想要的是什么？
@@ -122,15 +117,9 @@ executor_instruction: |
   - **上游3**：任务规划者 Planner
   - **你的层级**：执行者 Executor（编写代码并迭代的 ReAct 智能体）
   - **下游**：可视化引擎（可视化引擎负责渲染。你的工作是为引擎提供关键的**计算数据**）
-  
-  【当前全局分析计划】
-  Planner 为你制定了以下初始指导计划：
-  {plan_str}
-
-  原始数据文件路径为: {remote_file_path}
 
   ---
-  
+
   【根据用户指令动态规划任务】
   你是真正接触底层数据的执行者，你需要参考 Planner 的计划，但不必盲从。
   但是你需要**完整地**完成用户所提出的任务，永远把满足用户需求放在心中！
@@ -247,3 +236,28 @@ executor_instruction: |
   3. 对于 `.feather` 文件，列出所有列名（特别标注新增列）
   4. 对于 `.json` 文件，列出所有顶级键名
   5. 必须是合法的 JSON 格式，不能有注释或额外文本
+
+# 新增：planner_context_template（用于 HumanMessage）
+planner_context_template: |
+  【当前任务的环境信息】
+  数据路径: {remote_file_path}
+
+  【数据Schema】
+  {data_schema}
+
+  【重要说明】
+  下方的对话历史包含了用户的原始需求和系统的处理过程。
+  请结合上述环境信息和下方的对话历史中的用户需求，生成任务规划。
+
+# 新增：executor_context_template（用于 HumanMessage）
+executor_context_template: |
+  【当前任务的执行上下文】
+
+  Planner 为你制定了以下初始指导计划：
+  {plan_str}
+
+  原始数据文件路径：{remote_file_path}
+
+  【重要说明】
+  下方的对话历史包含了用户的原始需求、Planner的规划结果，以及你之前的执行记录。
+  请结合上述计划、数据路径和下方的对话历史，继续执行数据分析任务。

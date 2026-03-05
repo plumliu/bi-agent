@@ -145,7 +145,7 @@ async def run_workflow_stream(
 
         # Initialize State
         initial_state = AgentState(
-            messages=[HumanMessage(content=user_query)],
+            messages=[HumanMessage(content=f"[用户原始query] {user_query}")],
             user_input=user_query,
             raw_file_paths=raw_file_paths_in_sandbox,
             original_filenames=original_filenames,

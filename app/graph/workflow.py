@@ -60,16 +60,6 @@ def route_after_modeling_custom(state: AgentState) -> Literal["viz_custom"]:
     return "viz_custom"
 
 
-def route_after_fetch(state: AgentState) -> Literal["viz", "summary"]:
-    """
-       Fetch Artifacts 之后的路由（仅用于 SOP 路径）
-    """
-    scenario = state.get("scenario")
-
-    # SOP 场景：继续走 Viz 流程
-    return "viz"
-
-
 def route_after_viz_execution(state: AgentState) -> Literal["viz", "summary"]:
     if state.get("viz_success"):
         return "summary"
@@ -96,17 +86,17 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     workflow.add_node("modeling", partial(modeling_node, tools=tools))
     workflow.add_node("tools", ToolNode(tools))  # SOP 专用工具节点
 
-    # 分支 B: Custom Modeling 子图
-    # 注意：build_modeling_custom_subgraph 返回的是一个 CompiledGraph，可以直接作为节点
-    workflow.add_node("modeling_custom", build_modeling_custom_subgraph(sandbox))
-
-    # 分支 C: Custom Viz 子图
-    workflow.add_node("viz_custom", build_viz_custom_subgraph(sandbox))
-
-    # 公共节点
     workflow.add_node("fetch_artifacts", create_fetch_artifacts_node(sandbox))
     workflow.add_node("viz", viz_node)
     workflow.add_node("viz_execution", viz_execution_node)
+
+    # 分支 B: Custom Modeling 子图
+    # 注意：build_modeling_custom_subgraph 返回的是一个 CompiledGraph，可以直接作为节点
+    workflow.add_node("modeling_custom", build_modeling_custom_subgraph(sandbox))
+    workflow.add_node("viz_custom", build_viz_custom_subgraph(sandbox))
+
+    # 公共节点
+
     workflow.add_node("summary", summary_node)
 
     # ============================================================
@@ -152,14 +142,8 @@ def build_graph(tools: List[BaseTool], sandbox: Sandbox):
     # viz_custom 子图完成后，直接去 summary
     workflow.add_edge("viz_custom", "summary")
 
-    # 3. 汇聚与再次分流: Fetch -> Viz (仅 SOP 路径)
-    workflow.add_conditional_edges(
-        "fetch_artifacts",
-        route_after_fetch,
-        {
-            "viz": "viz"  # SOP 去绘图
-        }
-    )
+    # 3. SOP 路径：Fetch -> Viz（固定流程）
+    workflow.add_edge("fetch_artifacts", "viz")
 
     # 4. SOP 后半程: Viz -> Execution -> Summary
     workflow.add_edge("viz", "viz_execution")

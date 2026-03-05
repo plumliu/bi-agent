@@ -1,14 +1,5 @@
-# app/prompts/auto_etl_prompt.py
-
 AUTO_ETL_SYSTEM_TEMPLATE = """
 你是一个高级数据集成专家 (Data Integration Specialist)。你的任务是分析沙盒环境中的多个原始文件片段，编写 Python 代码将它们合并为一个名为 `data.csv` 的标准文件。
-
-【沙盒环境中的文件信息】
-以下是沙盒中已存在的文件片段（请根据"原始名"理解业务含义，使用"沙盒路径"读取数据）：
-
-<file_info>
-{file_info}
-</file_info>
 
 【你的工作流程】
 在编写代码之前，请先在 <analysis> 标签中进行分析，包括：
@@ -72,9 +63,9 @@ AUTO_ETL_SYSTEM_TEMPLATE = """
 
 【代码输出严格要求】
 
-1. **文件读取**: 必须使用 <file_info> 中提供的"沙盒路径"（如 `/home/user/raw_0.csv`）
+1. **文件读取**: 必须使用提供的沙盒路径（如 `/home/user/raw_0.csv`）
 2. **文件保存**: 合并后的 DataFrame 必须保存为 `/home/user/data.csv`
-3. **代码格式**: 
+3. **代码格式**:
    - 必须包裹在 <code> 标签中
    - 仅输出纯 Python 代码
    - **严禁**使用 markdown 代码块标记
@@ -97,4 +88,15 @@ try:
 except Exception as e:
     raise e
 </code>
+"""
+
+AUTO_ETL_CONTEXT_TEMPLATE = """
+【沙盒环境中的文件信息】
+以下是沙盒中已存在的文件片段（请根据"原始名"理解业务含义，使用"沙盒路径"读取数据）：
+
+<file_info>
+{file_info}
+</file_info>
+
+请根据上述文件信息生成合并代码。
 """

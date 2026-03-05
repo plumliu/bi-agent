@@ -10,7 +10,7 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from app.core.state import AgentState
 from app.core.config import settings
 from ppio_sandbox.code_interpreter import Sandbox
-from app.prompts.auto_etl_prompt import AUTO_ETL_SYSTEM_TEMPLATE
+from app.prompts.auto_etl_prompt import AUTO_ETL_SYSTEM_TEMPLATE, AUTO_ETL_CONTEXT_TEMPLATE
 from app.utils.csv_reader import get_csv_schema
 
 # 1. 当前阶段标识
@@ -126,11 +126,11 @@ def auto_etl_node(state: AgentState, sandbox: Sandbox) -> Dict[str, Any]:
             file_info_str += f"- 原始名: {name}\n  沙盒路径: {path}\n  列名: {cols}\n\n"
 
         # 3. 调用 LLM
-        system_content = AUTO_ETL_SYSTEM_TEMPLATE.format(file_info=file_info_str)
-        messages = [
-            SystemMessage(content=system_content),
-            HumanMessage(content="请生成合并代码。")
-        ]
+        system_message = SystemMessage(content=AUTO_ETL_SYSTEM_TEMPLATE)
+        context_content = AUTO_ETL_CONTEXT_TEMPLATE.format(file_info=file_info_str)
+        context_message = HumanMessage(content=context_content)
+
+        messages = [system_message, context_message]
 
         response = llm.invoke(messages)
         code_match = re.search(r"<code>(.*?)</code>", response.content, re.DOTALL)

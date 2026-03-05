@@ -6,9 +6,10 @@ role_definition: |
 
 viz_instruction: |
   ### 1. 输入上下文
-  - **分析摘要**: "{modeling_summary}"
-  - **最新元数据 (Schema)**: {columns}
-  - **统计产物 (Artifacts)**: {artifacts} (包含 `matrix_num_num`, `matrix_cat_cat`, `matrix_num_cat` 等相关性矩阵字典)
+  你将从下方的上下文消息中获得：
+  - **分析摘要**: 建模过程的总结
+  - **最新元数据 (Schema)**: 数据列信息
+  - **统计产物 (Artifacts)**: 包含 `matrix_num_num`, `matrix_cat_cat`, `matrix_num_cat` 等相关性矩阵字典
 
   ### 2. 目标图表与数据协议 (Strict Protocol)
   请阅读以下协议样例，根据 Artifacts 中是否存在对应数据生成配置。
@@ -113,3 +114,17 @@ viz_instruction: |
       }}
     }}
   }}
+# 新增：context_template（用于 HumanMessage）
+context_template: |
+  【输入上下文】
+  
+  【分析摘要】
+  {modeling_summary}
+  
+  【最新元数据 (Schema)】
+  {columns}
+  
+  【统计产物 (Artifacts)】
+  {artifacts}
+  
+  请根据上述信息生成可视化配置。

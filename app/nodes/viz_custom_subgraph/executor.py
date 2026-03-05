@@ -3,7 +3,7 @@ import json
 import time
 import yaml
 from typing import Dict, Any
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from ppio_sandbox.code_interpreter import Sandbox
 
@@ -92,10 +92,14 @@ def viz_executor_node(state: CustomVizState, sandbox: Sandbox) -> Dict[str, Any]
     # 5. 加载提示词配置
     prompts = load_prompts_config("viz", "custom")
     executor_instruction = prompts["executor_instruction"]
+    context_template = prompts["executor_context_template"]
 
-    # 6. 格式化提示词
+    # 6. SystemMessage 完全静态
+    system_message = SystemMessage(content=executor_instruction)
+
+    # 7. HumanMessage 包含动态上下文
     source_files_str = ", ".join(viz_task.get('source_files', []))
-    system_prompt = executor_instruction.format(
+    context_content = context_template.format(
         task_id=task_id,
         chart_type=chart_type,
         title=viz_task['title'],
@@ -104,9 +108,10 @@ def viz_executor_node(state: CustomVizState, sandbox: Sandbox) -> Dict[str, Any]
         file_columns_text=file_columns_text,
         chart_guide=chart_guide
     )
+    context_message = HumanMessage(content=context_content)
 
-    # 6. ReAct 循环
-    messages = [SystemMessage(content=system_prompt)]
+    # 8. ReAct 循环
+    messages = [system_message, context_message]
     max_iterations = 5
     iteration = 0
 

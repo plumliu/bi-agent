@@ -2,7 +2,7 @@ import os
 import json
 import yaml
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from app.core.prompts_config import load_prompts_config
 from app.core.state import AgentState
@@ -36,7 +36,6 @@ def summary_node(state: AgentState):
     # 2. 构造 Viz List String
     viz_config = state.get("viz_config")
     viz_list_str = ""
-    example_chart_name = ""
     if viz_config:
         charts_map = viz_config.get("charts")
         viz_list_items = []
@@ -46,20 +45,24 @@ def summary_node(state: AgentState):
                 viz_list_items.append(f"- **{key.capitalize()} Chart**: \"{title}\"")
 
         viz_list_str = "\n".join(viz_list_items) if viz_list_items else "无生成图表"
-        example_chart_name = list(charts_map.keys())[0].capitalize() if charts_map else "Chart"
 
-    # 3. 构造静态 System Prompt (移除 user_input)
+    # 3. 构造静态 System Prompt
     prompt_template = config.get("summary_instruction")
-    system_prompt = config.get("role_definition") + "\n\n" + prompt_template.format(
-        # user_input 被移除
+    context_template = config.get("context_template")
+
+    system_content = config.get("role_definition") + "\n\n" + prompt_template
+    system_message = SystemMessage(content=system_content)
+
+    # 4. HumanMessage 包含动态上下文
+    context_content = context_template.format(
         modeling_summary=modeling_summary,
         artifacts_summary=artifacts_str,
-        viz_list_str=viz_list_str,
-        example_chart_name=example_chart_name
+        viz_list_str=viz_list_str
     )
+    context_message = HumanMessage(content=context_content)
 
-    # 4. 组装 Messages：静态规则 + 全局对话历史
-    messages = [SystemMessage(content=system_prompt)] + state.get("messages", [])
+    # 5. 组装 Messages：静态规则 + 动态上下文 + 全局对话历史
+    messages = [system_message, context_message] + state.get("messages", [])
 
     print("--- [Summary] 思考中... ---")
     response = llm.invoke(messages)

@@ -1,5 +1,5 @@
 import time
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 
@@ -53,17 +53,22 @@ def executor_node(state: CustomModelingState, sandbox: Sandbox, config: Runnable
     scenario = state.get("scenario")
     config = load_prompts_config(step, scenario)
     instruction_template = config.get('executor_instruction')
+    context_template = config.get('executor_context_template')
 
-    # 构造核心 System Prompt
-    system_content = instruction_template.format(
+    # 5. SystemMessage 完全静态
+    system_message = SystemMessage(content=instruction_template)
+
+    # 6. HumanMessage 包含动态上下文
+    context_content = context_template.format(
         remote_file_path=remote_file_path,
         plan_str=plan_str
     )
+    context_message = HumanMessage(content=context_content)
 
-    # 5. 组装消息列表 (系统指令 + 对话历史记忆)
-    messages = [SystemMessage(content=system_content)] + state.get("messages", [])
+    # 7. 组装消息列表 (系统指令 + 动态上下文 + 对话历史记忆)
+    messages = [system_message, context_message] + state.get("messages", [])
 
-    # 6. 调用 LLM (大脑决策阶段)
+    # 8. 调用 LLM (大脑决策阶段)
     print("--- [Modeling Subgraph] Executor: 调用大模型中... ---")
     llm_start_time = time.perf_counter()
 
