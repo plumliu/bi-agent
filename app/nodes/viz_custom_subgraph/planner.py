@@ -39,6 +39,12 @@ def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
     user_input = state.get("user_input", "")
     generated_files = state.get("generated_data_files", [])
 
+    # 调试：打印接收到的 state
+    print(f"--- [Debug] Viz Planner 接收到的 state ---")
+    print(f"  modeling_summary: {modeling_summary[:100] if modeling_summary else 'EMPTY'}...")
+    print(f"  generated_files: {generated_files}")
+    print(f"  state keys: {list(state.keys())}")
+
     if not modeling_summary:
         raise RuntimeError("--- [Viz Subgraph] Planner: 错误! modeling_summary 为空 ---")
 

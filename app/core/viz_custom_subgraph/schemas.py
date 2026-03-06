@@ -4,7 +4,7 @@ from typing import Literal, Optional, List, Dict, Any
 
 class VizTaskSimple(BaseModel):
     """Planner 输出的简化任务结构（由代码组装成完整的 VizTask）"""
-    chart_type: Literal["scatter", "line", "bar", "pie", "radar", "heatmap", "boxplot", "table"] = Field(
+    chart_type: str = Field(
         ..., description="图表类型"
     )
     title: str = Field(..., description="图表标题")
@@ -20,7 +20,7 @@ class VizPlannerOutput(BaseModel):
 class VizTask(BaseModel):
     """完整的可视化任务（由代码组装，包含文件元信息）"""
     task_id: str = Field(..., description="任务唯一标识符，如 'viz_task_1'")
-    chart_type: Literal["scatter", "line", "bar", "pie", "radar", "heatmap", "boxplot", "table"] = Field(
+    chart_type: str = Field(
         ..., description="图表类型"
     )
     title: str = Field(..., description="图表标题")

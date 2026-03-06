@@ -20,15 +20,15 @@ def create_viz_agent(scenario: str):
     system_prompt = f"""
 {role_definition}
 
-【任务指南】
-{instruction}
-
 【工作流程】
 1. 分析建模产物和数据schema
 2. 生成可视化配置（JSON格式）
 3. 调用 viz_execution 工具验证配置
 4. 如果失败，根据错误信息调整配置并重试
 5. 成功后输出"可视化配置已完成。"
+
+【任务指南】
+{instruction}
 
 【重要提示】
 - 配置必须是有效的JSON格式

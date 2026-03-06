@@ -44,6 +44,7 @@ def planner_node(state: CustomModelingState):
     # 2. 从 State 中获取上下文
     scenario = state.get("scenario")
     remote_file_path = state.get("remote_file_path")
+    user_input = state.get("user_input", "")
 
     # 将 data_schema 字典转换为 JSON 字符串，方便 LLM 理解结构
     data_schema_obj = state.get("data_schema")
@@ -63,7 +64,8 @@ def planner_node(state: CustomModelingState):
     # 5. HumanMessage 包含动态上下文
     context_content = context_template.format(
         remote_file_path=remote_file_path,
-        data_schema=data_schema_str
+        data_schema=data_schema_str,
+        user_input=user_input
     )
     context_message = HumanMessage(content=context_content)
 

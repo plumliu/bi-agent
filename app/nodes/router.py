@@ -36,12 +36,16 @@ def router_node(state: WorkflowState) -> dict:
     """
     print("--- [Router] 分析用户的意图中... ---")
     data_schema = state.get("data_schema", "")
+    user_input = state.get("user_input", "")
 
     # 1. 构建静态 System Message
     system_message = SystemMessage(content=ROUTER_SYSTEM_TEMPLATE)
 
-    # 2. HumanMessage 包含动态上下文
-    context_content = ROUTER_CONTEXT_TEMPLATE.format(data_schema=data_schema)
+    # 2. HumanMessage 包含动态上下文（包括用户输入）
+    context_content = ROUTER_CONTEXT_TEMPLATE.format(
+        data_schema=data_schema,
+        user_input=user_input
+    )
     context_message = HumanMessage(content=context_content)
 
     # 3. 组装 Messages：静态规则 + 动态上下文
