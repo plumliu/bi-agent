@@ -1,0 +1,166 @@
+chart_type: boxplot
+description: 箱线图，用于异常检测可视化（箱线图 + 异常散点双层渲染）
+
+data_protocol: |
+  前端 Vue 组件需要的数据格式：
+  {
+    "type": "boxplot",
+    "data": {
+      "title": "图表标题",
+      "categories": [...],           // X 轴标签（特征名）
+      "series": [
+        {
+          "data": [                  // 箱线图统计数据（五数概括）
+            [min, Q1, median, Q3, max],
+            [min, Q1, median, Q3, max]
+          ],
+          "outliers": [              // 异常点数据（扁平化对象数组）
+            {
+              "value": [x索引, y值],
+              "任意字段": "任意值"    // 扩展字段（显示在 tooltip）
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+  【字段说明】
+  - categories: 数组，X 轴标签（特征名，如 ["销售额", "利润", "成本"]）
+  - series[0].data: 数组，每个元素是一个五元组 [min, Q1, median, Q3, max]
+    - min: 最小值（下边缘）
+    - Q1: 第一四分位数（25%）
+    - median: 中位数（50%）
+    - Q3: 第三四分位数（75%）
+    - max: 最大值（上边缘）
+  - series[0].outliers: 数组，每个元素是一个异常点对象
+    - value: **必填**，[x, y] 二维数组
+      - x: 整数，特征索引（0 到 len(categories)-1）
+      - y: 数值，异常程度（通常是标准差倍数）
+    - 其他字段: **可选**，任意扩展字段（如实体ID、原始值等）
+
+  【扩展字段机制（重要）】
+  组件会自动遍历 outliers 对象中除 value 外的所有字段，并在 tooltip 中显示：
+  - 当前检测维度会高亮显示（背景色 + 加粗）
+  - 其他字段正常显示
+  - 支持任意数量的扩展字段
+
+  【关键约束】
+  1. series[0].data 的长度必须等于 categories 的长度
+  2. 每个五元组必须满足：min <= Q1 <= median <= Q3 <= max
+  3. outliers[i].value[0] 必须在 [0, len(categories)-1] 范围内
+
+example: |
+  【示例：多特征异常检测】
+  {
+    "type": "boxplot",
+    "data": {
+      "title": "销售数据异常检测",
+      "categories": ["销售额", "利润", "成本"],
+      "series": [
+        {
+          "data": [
+            [50, 80, 100, 120, 150],    // 销售额统计
+            [10, 20, 30, 40, 50],       // 利润统计
+            [30, 50, 60, 70, 90]        // 成本统计
+          ],
+          "outliers": [
+            {
+              "value": [0, 3.5],        // 销售额异常点（3.5倍标准差）
+              "实体ID": "order_12345",
+              "销售额": 250,
+              "利润": 35,
+              "成本": 65,
+              "日期": "2024-01-15",
+              "异常类型": "超高值"
+            },
+            {
+              "value": [1, -2.8],       // 2.8倍标准差）
+              "实体ID": "order_67890",
+              "销售额": 120,
+              "利润": -10,
+              "成本": 80,
+              "日期": "2024-02-20",
+              "异常类型": "负利润"
+            },
+            {
+              "value": [2, 4.2],        // 成本异常点（4.2倍标准差）
+              "实体ID": "order_11111",
+              "销售额": 100,
+              "利润": 15,
+              "成本": 180,
+              "日期": "2024-03-10",
+              "异常类型": "成本过高"
+            }
+          ]
+        }
+      ]
+    }
+  }
+
+common_errors: |
+  【常见错误及解决方案】
+
+  1. 五元组格式错误
+     - 错误：data 不是 [min, Q1, median, Q3, max] 五元组
+     - 解决：严格按照五元组格式，使用 numpy.percentile 计算
+
+  2. 五元组顺序错误
+     - 错误：min > Q1 或 Q3 > max
+     - 解决：确保 min <= Q1 <= median <= Q3 <= max
+
+  3. outliers.value 格式错误
+     - 错误：value 不是 [x, y] 二维数组
+     - 解决：使用 [int(feature_index), float(anomaly_score)]
+
+  4. 特征索引越界
+     - 错误：outliers[i].value[0] 超出 categories 范围
+     - 解决：确保 x < len(categories)
+
+  5. 扩展字段缺失
+     - 错误：outliers 只有 value，没有其他字段
+     - 解决：添加实体ID、原始值等关键信息
+
+  6. Y 轴单位不统一
+     - 错误：不同特征的异常程度单位不同
+     - 解决：统一使用标准差倍数（Z-score）
+
+  【最佳实践】
+  - 特征数量：建议 3-10 个，不超过 15 个
+  - 异常点数量：建议不超过 50 个（过多会导致重叠）
+  - Y 轴单位：统一使用标准差倍数（如 ±3σ）
+  - 扩展字段选择：
+    - 必填：实体ID（用于追溯）
+    - 推荐：原始值、日期、异常类型
+    - 可选：其他业务字段
+  - 五元组计算：
+    - min/max: 使用 1.5*IQR 规则或 ±3σ
+    - Q1/Q3: numpy.percentile(data, [25, 75])
+    - median: numpy.median(data)
+
+  【组件特性】
+  - 双层渲染：箱线图（背景）+ 散点图（前景）
+
+  【tooltip 高亮逻辑】
+  组件会自动判断哪个字段与当前检测维度相关：
+  - 如果字段名 == 当前特征名（如 "销售额"）
+  - 或字段名包含当前特征名（如 "销售额_原始值"）
+  - 则该字段会高亮显示
+
+  【数据处理建议】
+  使用 IQR 方法计算箱线图边界：
+  ```python
+  Q1 = df[col].quantile(0.25)
+  Q3 = df[col].quantile(0.75)
+  IQR = Q3 - Q1
+  lower_bound = Q1 - 1.5 * IQR
+  upper_bound = Q3 + 1.5 * IQR
+  outliers = df[(df[col] < lower_bound) | (df[col] > upper_bound)]
+  ```
+
+  使用 Z-score 计算异常程度：
+  ```python
+  mean = df[col].mean()
+  std = df[col].std()
+  z_score = (value - mean) / std
+  ```
