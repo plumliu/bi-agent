@@ -174,7 +174,7 @@ async def run_workflow_stream(
 
             # payload 对应文档中的 data，原有业务逻辑保持不变
             # ==========================================
-            # 模态 1：实时捕获大模型的“打字机”输出
+            # 模态 1：实时捕获大模型的"打字机"输出
             # ==========================================
             if mode == "messages":
                 chunk, metadata = payload
@@ -185,14 +185,23 @@ async def run_workflow_stream(
                     continue
 
                 # 只拦截 AI 生成的增量消息
-                if chunk.type == "AIMessageChunk" and chunk.content:
+                if chunk.type == "AIMessageChunk":
+                    # 处理文本内容
+                    if chunk.content:
+                        content_to_yield = extract_text_from_content(chunk.content)
+                        if content_to_yield:
+                            yield format_sse("log_stream", content_to_yield)
 
-                    # 直接使用提炼好的通用解析工具！
-                    content_to_yield = extract_text_from_content(chunk.content)
-
-                    # 推送 log_stream 事件给前端
-                    if content_to_yield:
-                        yield format_sse("log_stream", content_to_yield)
+                    # 处理工具调用（过滤空的流式占位符）
+                    if hasattr(chunk, 'tool_calls') and chunk.tool_calls:
+                        for tool_call in chunk.tool_calls:
+                            tool_name = tool_call.get('name', '') or '未知工具'
+                            # 只推送有效的工具调用（过滤流式构建中的空占位符）
+                            if tool_name and tool_name != '未知工具':
+                                yield format_sse("tool_calling", {
+                                    "tool_name": tool_name,
+                                    "message": f"正在调用工具: {tool_name}"
+                                })
 
             # ==========================================
             # 模态 2：捕获节点执行完毕后的全局状态更新
