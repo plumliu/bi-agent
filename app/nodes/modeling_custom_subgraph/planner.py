@@ -130,7 +130,6 @@ def planner_node(state: CustomModelingState):
         new_task = Task(
             id=i + 1,  # 自动分配 ID: 1, 2, 3...
             description=desc,
-            status="pending"
         )
         initial_plan.append(new_task)
 
