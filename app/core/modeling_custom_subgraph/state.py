@@ -19,3 +19,6 @@ class CustomModelingState(TypedDict):
     modeling_summary: Optional[str]
     generated_data_files: Optional[List[str]]
     file_metadata: Optional[List[Dict[str, Any]]]
+
+    # Aggregator 生成（返回给主图）
+    modeling_artifacts: Optional[Dict[str, Any]]

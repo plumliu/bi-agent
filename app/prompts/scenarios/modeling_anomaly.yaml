@@ -102,6 +102,9 @@ code_example: |
   print("异常检测分析完成，产物已成功保存。")
 # 新增：context_template（用于 HumanMessage）
 context_template: |
+  【用户的原始需求】
+  {user_input}
+
   【当前任务的环境信息】
   数据路径: {remote_file_path}
 
@@ -109,5 +112,4 @@ context_template: |
   {data_schema}
 
   【重要说明】
-  下方的对话历史包含了用户的原始需求和系统的处理过程。
-  请结合上述环境信息和下方的对话历史中的用户需求，执行 {scenario} 任务。
+  请结合上述用户需求和环境信息，执行 {scenario} 任务。

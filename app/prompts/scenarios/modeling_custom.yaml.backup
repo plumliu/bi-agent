@@ -131,6 +131,19 @@ executor_instruction: |
 
   ---
 
+  【核心执行原则：逐个完成所有任务】
+  **重要**：Planner 已经为你制定了一份任务清单（通常包含 2-7 个任务）。你必须**按顺序逐个执行所有任务**，直到完成最后一个任务（"整理并输出产物概述"）。
+
+  **执行流程**：
+  1. 首先执行任务 1（EDA）
+  2. 观察 EDA 输出后，继续执行任务 2
+  3. 依次执行任务 3、4、5...
+  4. 最后执行"整理并输出产物概述"任务，输出产物交接清单
+
+  **禁止提前结束**：除非遇到无法解决的致命错误，否则不得在完成所有任务前停止执行。
+
+  ---
+
   【根据用户指令动态调整任务】
   你是真正接触底层数据的执行者，你需要参考 Planner 的计划，但不必盲从。
   但是你需要**完整地**完成用户所提出的任务，永远把满足用户需求放在心中！
@@ -219,56 +232,24 @@ executor_instruction: |
   ---
 
   【结束与交付】
-  当你确认所有有效计划都已解决，且所有的 Feather/JSON 产物都已妥善保存后。
-  你必须在最后一次回复中输出两部分内容：
+  当你确认所有任务都已完成后，你必须按照用户指定的输出格式要求输出最终答案。
 
-  **第一部分：业务总结**（自然语言）
-  用简洁的自然语言总结分析过程和关键发现：
-  1. **执行路径**：简要说明你执行了哪些任务（如 EDA、数据清洗、特征计算、模型训练等），每个任务的核心动作是什么
-  2. **关键发现**：每个任务的核心结论或重要观察（如发现的数据问题、计算的关键指标、模型的性能等）
-  3. **业务结论**：最终的分析结果和建议
+  **输出格式**：
+  严格按照用户在问题中指定的"输出格式要求"输出答案，格式通常为：
+  @key1[value1] @key2[value2] ...
 
-  **第二部分：产物交接清单**（结构化 JSON）
-  **这份清单至关重要**：它将直接传递给可视化规划器，必须是严格的 JSON 格式。
-
-  必须使用 Markdown JSON 代码块包裹，格式如下：
-
-  ```json
-  [
-    {{
-      "file_name": "task_table.feather",
-      "columns": [
-        {{ "name": "task_id", "description": "任务唯一标识" }},
-        {{ "name": "duration", "description": "原始工期" }},
-        {{ "name": "duration_num", "description": "数值化工期（新增）" }},
-        {{ "name": "ES", "description": "最早开始时间 Earliest Start（新增）" }},
-        {{ "name": "EF", "description": "最早完成时间 Earliest Finish（新增）" }}
-      ]
-    }},
-    {{
-      "file_name": "task_edges.feather",
-      "columns": [
-        {{ "name": "dep_task_id", "description": "前驱任务（边 dep_task_id -> task_id）" }},
-        {{ "name": "task_id", "description": "后继任务" }}
-      ]
-    }},
-    {{
-      "file_name": "project_metrics.json",
-      "columns": [
-        {{ "name": "n_tasks", "description": "任务数" }},
-        {{ "name": "project_duration", "description": "项目总工期（=49）" }},
-        {{ "name": "critical_path", "description": "一条关键路径任务序列" }}
-      ]
-    }}
-  ]
-  ```
+  **示例**：
+  - 如果要求格式为 "@mean_fare[mean_fare_value] where mean_fare_value is a floating-point number rounded to two decimal places"，则输出：@mean_fare[34.65]
+  - 如果要求格式为 "@correlation_coefficient[r_value] @p_value[p_value] where r_value is between -1 and 1, rounded to two decimal places; p_value is between 0 and 1, rounded to four decimal places"，则输出：@correlation_coefficient[0.99] @p_value[0.0000]
+  - 如果要求多个答案，按照格式要求的顺序输出，用空格或换行分隔
 
   **关键要求**：
-  1. 每个文件必须包含 `file_name` 和 `columns` 字段
-  2. `columns` 是数组，每个元素包含 `name` 和 `description`
-  3. 对于 `.feather` 文件，列出所有列名（特别标注新增列）
-  4. 对于 `.json` 文件，列出所有顶级键名
-  5. 必须是合法的 JSON 格式，不能有注释或额外文本
+  1. 必须严格按照用户指定的格式输出，不要遗漏任何要求的字段
+  2. 数值必须按照要求的精度四舍五入（通常是2位或4位小数）
+  3. 字符串值必须符合约束条件（如 "yes"/"no", "normal"/"not_normal" 等）
+  4. 不要输出任何额外的解释、前言、后语或自然语言总结
+  5. 只输出 @key[value] 格式的答案，每个答案之间用空格或换行分隔
+  6. 确保所有计算都已通过代码执行完成，不要猜测或估算数值
 
 # planner_context_template（用于 HumanMessage）
 planner_context_template: |
@@ -288,7 +269,7 @@ planner_context_template: |
 executor_context_template: |
   【当前任务的执行上下文】
 
-  用户原始需求：
+  【用户原始需求】
   {user_input}
 
   Planner 为你制定了以下任务清单：
@@ -297,7 +278,7 @@ executor_context_template: |
   原始数据文件路径：{remote_file_path}
 
   【执行要求】
-  你必须按顺序参考任务清单完成“用户原始需求”：
+  你必须按顺序参考【用户原始需求】逐个执行上述所有任务。执行流程如下：
   1. 首先执行任务 1（EDA）
   2. 执行完任务 1 观察结果并思考后，立即调用工具执行后续的任务
   3. ...依次执行剩下的任务
@@ -306,15 +287,7 @@ executor_context_template: |
   - 当前任务是否已完成？
   - 是否还有未完成的任务？
   - 你是否完成了用户的原始需求？
-  - 如果没有完成用户的原始需求，执行下一个任务
-  - 再次提醒，你处在一个**有状态**的 jupyter 沙箱中。在工具调用成功后：
-      1. 已加载的数据集、清洗结果、特征工程产物等变量均保留在内存
-      2. import 的库保持可用
-      3. 后续步骤应直接引用这些变量继续推进
-    除非出现以下情况之一，否则**禁止**重新读取原始数据文件或重复 EDA：
-      - 变量不存在/被覆盖（例如 NameError）
-      - 内存对象已被显式删除或会话重启
-      - 任务清单或用户明确要求重新加载/重新 EDA
+  - 如果没有完成用户的原始需求，立即继续执行下一个任务
 
   **禁止提前结束**：除非遇到无法解决的致命错误，否则不得在完成所有任务前停止执行。
 

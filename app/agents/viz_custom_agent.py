@@ -1,5 +1,6 @@
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
+from openai import APIError
 from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.agent_states import VizCustomAgentState
@@ -41,11 +42,20 @@ def create_viz_custom_agent(sandbox: Sandbox, task_id: str, chart_guide: str):
             api_key=settings.OPENAI_API_KEY,
             use_responses_api=settings.USE_RESPONSES_API,
             base_url=settings.OPENAI_API_BASE,
+            max_retries=5,
+            timeout=120,
         ),
         tools=[script_runner],
         system_prompt=system_prompt,
         state_schema=VizCustomAgentState,
         name=f"viz_custom_{task_id}"
+    )
+
+    # 添加智能重试机制
+    agent = agent.with_retry(
+        stop_after_attempt=5,
+        retry_if_exception_type=(APIError,),
+        wait_exponential_jitter=True,
     )
 
     return agent

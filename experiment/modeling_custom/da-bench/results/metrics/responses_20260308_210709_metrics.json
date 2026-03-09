@@ -1,0 +1,3763 @@
+{
+  "main_results": {
+    "ABQ": 0.8594,
+    "PSAQ": 0.8846,
+    "UASQ": 0.8901
+  },
+  "concept_accuracy": {
+    "Summary Statistics": 0.8444,
+    "Feature Engineering": 0.8367,
+    "Correlation Analysis": 0.9167,
+    "Machine Learning": 0.7895,
+    "Distribution Analysis": 0.8438,
+    "Outlier Detection": 0.7714,
+    "Comprehensive Data Preprocessing": 0.7727
+  },
+  "concept_count_accuracy": {
+    "1": 0.9133,
+    "2": 0.7708,
+    "3": 0.8889,
+    "4": 1.0
+  },
+  "two_or_more_concepts_accuracy": 0.783,
+  "detailed_results": [
+    {
+      "id": 0,
+      "label_answers": {
+        "mean_fare": "34.65"
+      },
+      "predicted_answers": {
+        "mean_fare": "34.65"
+      },
+      "correctness": {
+        "mean_fare": true
+      }
+    },
+    {
+      "id": 5,
+      "label_answers": {
+        "correlation_coefficient": "0.21"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.21"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 6,
+      "label_answers": {
+        "mean_fare_elderly": "43.47",
+        "mean_fare_teenager": "31.98",
+        "mean_fare_child": "31.09",
+        "mean_fare_adult": "35.17"
+      },
+      "predicted_answers": {
+        "mean_fare_child": "31.09",
+        "mean_fare_teenager": "31.98",
+        "mean_fare_adult": "35.17",
+        "mean_fare_elderly": "43.47"
+      },
+      "correctness": {
+        "mean_fare_elderly": true,
+        "mean_fare_teenager": true,
+        "mean_fare_child": true,
+        "mean_fare_adult": true
+      }
+    },
+    {
+      "id": 7,
+      "label_answers": {
+        "prediction_accuracy": "0.78"
+      },
+      "predicted_answers": {
+        "prediction_accuracy": "0.78"
+      },
+      "correctness": {
+        "prediction_accuracy": true
+      }
+    },
+    {
+      "id": 8,
+      "label_answers": {
+        "median_fare_class1": "69.30",
+        "median_fare_class2": "15.05",
+        "std_dev_fare_class1": "80.86",
+        "mean_fare_class3": "13.23",
+        "std_dev_fare_class2": "13.19",
+        "mean_fare_class2": "21.47",
+        "std_dev_fare_class3": "10.04",
+        "mean_fare_class1": "87.96"
+      },
+      "predicted_answers": {
+        "mean_fare_class1": "87.96",
+        "median_fare_class1": "69.30",
+        "std_dev_fare_class1": "80.64",
+        "mean_fare_class2": "21.47",
+        "median_fare_class2": "15.05",
+        "std_dev_fare_class2": "13.15",
+        "mean_fare_class3": "13.23",
+        "median_fare_class3": "8.05",
+        "std_dev_fare_class3": "10.03"
+      },
+      "correctness": {
+        "median_fare_class1": true,
+        "median_fare_class2": true,
+        "std_dev_fare_class1": false,
+        "mean_fare_class3": true,
+        "std_dev_fare_class2": false,
+        "mean_fare_class2": true,
+        "std_dev_fare_class3": false,
+        "mean_fare_class1": true
+      }
+    },
+    {
+      "id": 9,
+      "label_answers": {
+        "mean_close_price": "570.68"
+      },
+      "predicted_answers": {
+        "mean_close_price": "570.68"
+      },
+      "correctness": {
+        "mean_close_price": true
+      }
+    },
+    {
+      "id": 10,
+      "label_answers": {
+        "is_normal": "no"
+      },
+      "predicted_answers": {
+        "is_normal": "no"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 11,
+      "label_answers": {
+        "relationship_type": "linear",
+        "correlation_coefficient": "0.99"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.99",
+        "p_value": "0.0000",
+        "relationship_type": "linear"
+      },
+      "correctness": {
+        "relationship_type": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 14,
+      "label_answers": {
+        "price_range_mean": "16.65",
+        "price_range_std_dev": "6.72",
+        "price_range_median": "15.67"
+      },
+      "predicted_answers": {
+        "price_range_mean": "16.65",
+        "price_range_median": "15.67",
+        "price_range_std_dev": "6.72"
+      },
+      "correctness": {
+        "price_range_mean": true,
+        "price_range_std_dev": true,
+        "price_range_median": true
+      }
+    },
+    {
+      "id": 18,
+      "label_answers": {
+        "mean_mar_2019": "171.44",
+        "sd_mar_2019": "188.25"
+      },
+      "predicted_answers": {
+        "mean_mar_2019": "171.44",
+        "sd_mar_2019": "188.25"
+      },
+      "correctness": {
+        "mean_mar_2019": true,
+        "sd_mar_2019": true
+      }
+    },
+    {
+      "id": 19,
+      "label_answers": {
+        "is_normal": "No"
+      },
+      "predicted_answers": {
+        "is_normal": "No"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 23,
+      "label_answers": {
+        "Mean_Squared_Error": "11439.6"
+      },
+      "predicted_answers": {
+        "Mean_Squared_Error": "11439.60"
+      },
+      "correctness": {
+        "Mean_Squared_Error": true
+      }
+    },
+    {
+      "id": 24,
+      "label_answers": {
+        "mean_age": "39.21"
+      },
+      "predicted_answers": {
+        "mean_age": "39.21"
+      },
+      "correctness": {
+        "mean_age": true
+      }
+    },
+    {
+      "id": 25,
+      "label_answers": {
+        "bmi_distribution": "normal"
+      },
+      "predicted_answers": {
+        "bmi_distribution": "normal"
+      },
+      "correctness": {
+        "bmi_distribution": true
+      }
+    },
+    {
+      "id": 26,
+      "label_answers": {
+        "correlation_coefficient": "0.07"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.07"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 27,
+      "label_answers": {
+        "median_charges_outliers": "40974.16",
+        "mean_charges_outliers": "42103.95",
+        "total_outliers": "139"
+      },
+      "predicted_answers": {
+        "total_outliers": "139",
+        "mean_charges_outliers": "42103.95",
+        "median_charges_outliers": "40974.16"
+      },
+      "correctness": {
+        "median_charges_outliers": true,
+        "mean_charges_outliers": true,
+        "total_outliers": true
+      }
+    },
+    {
+      "id": 28,
+      "label_answers": {
+        "mean_smoker": "0.2048",
+        "mean_children": "0.2190",
+        "mean_sex": "0.5052",
+        "mean_age": "0.4610",
+        "mean_bmi": "0.3956",
+        "mean_charges": "0.1939"
+      },
+      "predicted_answers": {
+        "mean_age": "0.4610",
+        "mean_sex": "0.5052",
+        "mean_bmi": "0.3956",
+        "mean_children": "0.2190",
+        "mean_smoker": "0.2048",
+        "mean_region": "1.5157",
+        "mean_charges": "0.1939"
+      },
+      "correctness": {
+        "mean_smoker": true,
+        "mean_children": true,
+        "mean_sex": true,
+        "mean_age": true,
+        "mean_bmi": true,
+        "mean_charges": true
+      }
+    },
+    {
+      "id": 30,
+      "label_answers": {
+        "model_rmse": "11464.74"
+      },
+      "predicted_answers": {
+        "model_rmse": "11464.74"
+      },
+      "correctness": {
+        "model_rmse": true
+      }
+    },
+    {
+      "id": 32,
+      "label_answers": {
+        "importance_score_std": "0.01",
+        "importance_score_mean": "0.0"
+      },
+      "predicted_answers": {
+        "importance_score_mean": "0.00",
+        "importance_score_std": "0.01"
+      },
+      "correctness": {
+        "importance_score_std": true,
+        "importance_score_mean": true
+      }
+    },
+    {
+      "id": 33,
+      "label_answers": {
+        "normality_decision": "not normally distributed"
+      },
+      "predicted_answers": {
+        "ks_test_p_value": "0.0000",
+        "normality_decision": "not normally distributed"
+      },
+      "correctness": {
+        "normality_decision": true
+      }
+    },
+    {
+      "id": 34,
+      "label_answers": {
+        "p_value": "0.4058",
+        "relationship_type": "none",
+        "correlation_coefficient": "-0.04"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.04",
+        "p_value": "0.4058",
+        "relationship_type": "none"
+      },
+      "correctness": {
+        "p_value": true,
+        "relationship_type": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 35,
+      "label_answers": {
+        "removed_outliers_count": "0"
+      },
+      "predicted_answers": {
+        "removed_outliers_count": "0"
+      },
+      "correctness": {
+        "removed_outliers_count": true
+      }
+    },
+    {
+      "id": 39,
+      "label_answers": {
+        "is_normal": "0.0"
+      },
+      "predicted_answers": {
+        "is_normal": "0.0000",
+        "transformed_importance_score_mean": "-7.05",
+        "transformed_importance_score_std": "1.42"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 55,
+      "label_answers": {
+        "mean_cases": "2081990"
+      },
+      "predicted_answers": {
+        "mean_cases": "2081990"
+      },
+      "correctness": {
+        "mean_cases": true
+      }
+    },
+    {
+      "id": 56,
+      "label_answers": {
+        "max_deaths_country": "Nigeria",
+        "max_deaths_year": "2010"
+      },
+      "predicted_answers": {
+        "max_deaths_country": "Nigeria",
+        "max_deaths_year": "2010"
+      },
+      "correctness": {
+        "max_deaths_country": true,
+        "max_deaths_year": true
+      }
+    },
+    {
+      "id": 57,
+      "label_answers": {
+        "correlation_coefficient": "0.97"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.97"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 58,
+      "label_answers": {
+        "percentage_cases_min": "36.45",
+        "percentage_deaths_max": "38.79"
+      },
+      "predicted_answers": {
+        "percentage_cases_min": "36.45",
+        "percentage_deaths_max": "38.79"
+      },
+      "correctness": {
+        "percentage_cases_min": true,
+        "percentage_deaths_max": true
+      }
+    },
+    {
+      "id": 59,
+      "label_answers": {
+        "country_name": "Congo"
+      },
+      "predicted_answers": {
+        "country_name": "Congo"
+      },
+      "correctness": {
+        "country_name": true
+      }
+    },
+    {
+      "id": 62,
+      "label_answers": {
+        "mean_no_of_deaths_with_outliers": "10149.43",
+        "mean_no_of_deaths_without_outliers": "5949.08"
+      },
+      "predicted_answers": {
+        "no_of_countries_with_outliers": "5",
+        "mean_no_of_deaths_with_outliers": "12960.45",
+        "mean_no_of_deaths_without_outliers": "6990.00"
+      },
+      "correctness": {
+        "mean_no_of_deaths_with_outliers": false,
+        "mean_no_of_deaths_without_outliers": false
+      }
+    },
+    {
+      "id": 64,
+      "label_answers": {
+        "std_wage": "4.66",
+        "mean_wage": "6.31"
+      },
+      "predicted_answers": {
+        "mean_wage": "6.31",
+        "std_wage": "4.66"
+      },
+      "correctness": {
+        "std_wage": true,
+        "mean_wage": true
+      }
+    },
+    {
+      "id": 66,
+      "label_answers": {
+        "correlation_coefficient": "0.23",
+        "relationship_type": "nonlinear"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.23",
+        "p_value": "0.0000",
+        "relationship_type": "nonlinear"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_type": true
+      }
+    },
+    {
+      "id": 69,
+      "label_answers": {
+        "correlation": "0.252"
+      },
+      "predicted_answers": {
+        "correlation": "0.252"
+      },
+      "correctness": {
+        "correlation": true
+      }
+    },
+    {
+      "id": 70,
+      "label_answers": {
+        "RMSE": "3.63"
+      },
+      "predicted_answers": {
+        "RMSE": "3.63"
+      },
+      "correctness": {
+        "RMSE": true
+      }
+    },
+    {
+      "id": 71,
+      "label_answers": {
+        "mean_volume": "22607406.19",
+        "std_dev_volume": "8254791.71"
+      },
+      "predicted_answers": {
+        "mean_volume": "22607406.19",
+        "std_dev_volume": "8254791.71"
+      },
+      "correctness": {
+        "mean_volume": true,
+        "std_dev_volume": true
+      }
+    },
+    {
+      "id": 72,
+      "label_answers": {
+        "normality_test_result": "Non-normal"
+      },
+      "predicted_answers": {
+        "normality_test_result": "Non-normal"
+      },
+      "correctness": {
+        "normality_test_result": true
+      }
+    },
+    {
+      "id": 73,
+      "label_answers": {
+        "correlation_coefficient": "1.0"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "1.00"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 75,
+      "label_answers": {
+        "daily_return_std": "0.94",
+        "daily_return_mean": "-0.14"
+      },
+      "predicted_answers": {
+        "daily_return_mean": "0.15",
+        "daily_return_std": "0.95"
+      },
+      "correctness": {
+        "daily_return_std": false,
+        "daily_return_mean": false
+      }
+    },
+    {
+      "id": 77,
+      "label_answers": {
+        "Highest_Monthly_Average_Close_Price": "1, 2018, 88.32"
+      },
+      "predicted_answers": {
+        "Highest_Monthly_Average_Close_Price": "1, 2018, 88.32"
+      },
+      "correctness": {
+        "Highest_Monthly_Average_Close_Price": true
+      }
+    },
+    {
+      "id": 105,
+      "label_answers": {
+        "correlation_coefficient": "0.49"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.49"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 108,
+      "label_answers": {
+        "mean_total_income": "6375.18",
+        "std_dev_total_income": "5199.42"
+      },
+      "predicted_answers": {
+        "mean_total_income": "6375.18",
+        "std_dev_total_income": "5199.42"
+      },
+      "correctness": {
+        "mean_total_income": true,
+        "std_dev_total_income": true
+      }
+    },
+    {
+      "id": 109,
+      "label_answers": {
+        "graduate_mean_loan": "141.36",
+        "not_graduate_mean_loan": "118.57",
+        "significance": "significant"
+      },
+      "predicted_answers": {
+        "graduate_mean_loan": "141.36",
+        "not_graduate_mean_loan": "118.57",
+        "significance": "significant"
+      },
+      "correctness": {
+        "graduate_mean_loan": true,
+        "not_graduate_mean_loan": true,
+        "significance": true
+      }
+    },
+    {
+      "id": 111,
+      "label_answers": {
+        "std_dev_loan": "60.96"
+      },
+      "predicted_answers": {
+        "mean_loan": "135.98",
+        "median_loan": "125.00",
+        "std_dev_loan": "60.96"
+      },
+      "correctness": {
+        "std_dev_loan": true
+      }
+    },
+    {
+      "id": 114,
+      "label_answers": {
+        "country_with_highest_score": "Switzerland"
+      },
+      "predicted_answers": {
+        "country_with_highest_score": "Switzerland"
+      },
+      "correctness": {
+        "country_with_highest_score": true
+      }
+    },
+    {
+      "id": 116,
+      "label_answers": {
+        "outlier_countries": ""
+      },
+      "predicted_answers": {
+        "outlier_countries": ""
+      },
+      "correctness": {
+        "outlier_countries": true
+      }
+    },
+    {
+      "id": 117,
+      "label_answers": {
+        "correlation_type": "negative",
+        "strongest_correlation_variable": "Happiness Rank"
+      },
+      "predicted_answers": {
+        "strongest_correlation_variable": "Happiness Rank",
+        "correlation_type": "negative"
+      },
+      "correctness": {
+        "correlation_type": true,
+        "strongest_correlation_variable": true
+      }
+    },
+    {
+      "id": 118,
+      "label_answers": {
+        "coefficient_determination": "0.67",
+        "model_fit": "poor fit"
+      },
+      "predicted_answers": {
+        "coefficient_determination": "0.67",
+        "model_fit": "poor fit"
+      },
+      "correctness": {
+        "coefficient_determination": true,
+        "model_fit": true
+      }
+    },
+    {
+      "id": 123,
+      "label_answers": {
+        "country_with_highest_average_daily_vaccinations": "Gibraltar"
+      },
+      "predicted_answers": {
+        "country_with_highest_average_daily_vaccinations": "Gibraltar"
+      },
+      "correctness": {
+        "country_with_highest_average_daily_vaccinations": true
+      }
+    },
+    {
+      "id": 124,
+      "label_answers": {
+        "significance_of_difference": "no"
+      },
+      "predicted_answers": {
+        "significance_of_difference": "yes",
+        "p_value": "0.0329"
+      },
+      "correctness": {
+        "significance_of_difference": false
+      }
+    },
+    {
+      "id": 125,
+      "label_answers": {
+        "significant_predictor": "yes,yes",
+        "r_squared": "0.6059"
+      },
+      "predicted_answers": {
+        "significant_predictor": "yes,yes",
+        "r_squared": "0.6059"
+      },
+      "correctness": {
+        "significant_predictor": true,
+        "r_squared": true
+      }
+    },
+    {
+      "id": 129,
+      "label_answers": {
+        "std_dev_fare": "49.67"
+      },
+      "predicted_answers": {
+        "mean_fare": "32.20",
+        "std_dev_fare": "49.67"
+      },
+      "correctness": {
+        "std_dev_fare": true
+      }
+    },
+    {
+      "id": 130,
+      "label_answers": {
+        "is_normal": "False"
+      },
+      "predicted_answers": {
+        "norm_test_pvalue": "0.0000",
+        "is_normal": "False"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 132,
+      "label_answers": {
+        "outlier_count": "20"
+      },
+      "predicted_answers": {
+        "outlier_count": "20"
+      },
+      "correctness": {
+        "outlier_count": true
+      }
+    },
+    {
+      "id": 133,
+      "label_answers": {
+        "median_age": "36.0",
+        "row_count": "204"
+      },
+      "predicted_answers": {
+        "row_count": "204",
+        "median_age": "28.0"
+      },
+      "correctness": {
+        "median_age": false,
+        "row_count": true
+      }
+    },
+    {
+      "id": 136,
+      "label_answers": {
+        "p_value_class_1": "0.0000",
+        "p_value_class_3": "0.0000",
+        "p_value_class_2": "0.0000"
+      },
+      "predicted_answers": {
+        "p_value_class_1": "0.0000",
+        "p_value_class_2": "0.0000",
+        "p_value_class_3": "0.0000"
+      },
+      "correctness": {
+        "p_value_class_1": true,
+        "p_value_class_3": true,
+        "p_value_class_2": true
+      }
+    },
+    {
+      "id": 137,
+      "label_answers": {
+        "model_score": "0.61"
+      },
+      "predicted_answers": {
+        "model_score": "0.64"
+      },
+      "correctness": {
+        "model_score": false
+      }
+    },
+    {
+      "id": 139,
+      "label_answers": {
+        "normality_status": "not normal"
+      },
+      "predicted_answers": {
+        "normality_status": "not normal"
+      },
+      "correctness": {
+        "normality_status": true
+      }
+    },
+    {
+      "id": 140,
+      "label_answers": {
+        "correlation_coefficient": "0.828",
+        "relationship_type": "linear"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.828",
+        "p_value": "0.0000",
+        "relationship_type": "linear"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_type": true
+      }
+    },
+    {
+      "id": 142,
+      "label_answers": {
+        "relationship_type": "none",
+        "correlation_coefficient": "0.02",
+        "p_value": "0.1704"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.02",
+        "p_value": "0.1704",
+        "relationship_type": "none"
+      },
+      "correctness": {
+        "relationship_type": true,
+        "correlation_coefficient": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 144,
+      "label_answers": {
+        "std_dev_dem": "0.153",
+        "mean_dem": "0.32",
+        "std_dev_gop": "0.156",
+        "mean_gop": "0.64"
+      },
+      "predicted_answers": {
+        "mean_dem": "31.76",
+        "mean_gop": "63.51",
+        "std_dev_dem": "15.298",
+        "std_dev_gop": "15.613",
+        "dist_dem": "Not Normal",
+        "dist_gop": "Not Normal"
+      },
+      "correctness": {
+        "std_dev_dem": false,
+        "mean_dem": false,
+        "std_dev_gop": false,
+        "mean_gop": false
+      }
+    },
+    {
+      "id": 174,
+      "label_answers": {
+        "fare_skewness": "4.79"
+      },
+      "predicted_answers": {
+        "fare_skewness": "4.79"
+      },
+      "correctness": {
+        "fare_skewness": true
+      }
+    },
+    {
+      "id": 175,
+      "label_answers": {
+        "outliers_count": "2"
+      },
+      "predicted_answers": {
+        "outliers_count": "2"
+      },
+      "correctness": {
+        "outliers_count": true
+      }
+    },
+    {
+      "id": 176,
+      "label_answers": {
+        "median_age": "31.5"
+      },
+      "predicted_answers": {
+        "median_age": "31.50"
+      },
+      "correctness": {
+        "median_age": true
+      }
+    },
+    {
+      "id": 177,
+      "label_answers": {
+        "significance": "Yes"
+      },
+      "predicted_answers": {
+        "p_value": "0.0000",
+        "significance": "Yes"
+      },
+      "correctness": {
+        "significance": true
+      }
+    },
+    {
+      "id": 178,
+      "label_answers": {
+        "sex_encoded_count": "314, 577",
+        "fare_after_scaling": "0.00, 1.00, 0.0629"
+      },
+      "predicted_answers": {
+        "sex_encoded_count": "314, 577",
+        "fare_after_scaling": "0.00, 1.00, 0.0629"
+      },
+      "correctness": {
+        "sex_encoded_count": true,
+        "fare_after_scaling": true
+      }
+    },
+    {
+      "id": 179,
+      "label_answers": {
+        "correlation_coefficient": "-0.123"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.123"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 180,
+      "label_answers": {
+        "class2_outliers": "7",
+        "class1_outliers": "3",
+        "class3_outliers": "14"
+      },
+      "predicted_answers": {
+        "class1_outliers": "3",
+        "class2_outliers": "7",
+        "class3_outliers": "14"
+      },
+      "correctness": {
+        "class2_outliers": true,
+        "class1_outliers": true,
+        "class3_outliers": true
+      }
+    },
+    {
+      "id": 207,
+      "label_answers": {
+        "missing_columns_in_object_type": "author, urlToImage"
+      },
+      "predicted_answers": {
+        "missing_columns_in_object_type": "author, urlToImage"
+      },
+      "correctness": {
+        "missing_columns_in_object_type": true
+      }
+    },
+    {
+      "id": 208,
+      "label_answers": {
+        "compound_mean": "0.141",
+        "compound_std": "0.899"
+      },
+      "predicted_answers": {
+        "compound_mean": "0.141",
+        "compound_std": "0.899"
+      },
+      "correctness": {
+        "compound_mean": true,
+        "compound_std": true
+      }
+    },
+    {
+      "id": 209,
+      "label_answers": {
+        "correlation_coefficient": "-0.24"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.24"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 210,
+      "label_answers": {
+        "mean_neg": "0.07",
+        "std_dev_neg": "0.04"
+      },
+      "predicted_answers": {
+        "mean_neg": "0.07",
+        "std_dev_neg": "0.04"
+      },
+      "correctness": {
+        "mean_neg": true,
+        "std_dev_neg": true
+      }
+    },
+    {
+      "id": 214,
+      "label_answers": {
+        "pos_length_corr": "-0.35",
+        "neu_length_corr": "0.42"
+      },
+      "predicted_answers": {
+        "neg_length_corr": "-0.11",
+        "neu_length_corr": "0.42",
+        "pos_length_corr": "-0.35"
+      },
+      "correctness": {
+        "pos_length_corr": true,
+        "neu_length_corr": true
+      }
+    },
+    {
+      "id": 216,
+      "label_answers": {
+        "std_dev": "1.50",
+        "mean": "4.61"
+      },
+      "predicted_answers": {
+        "mean": "4.61",
+        "std_dev": "1.50"
+      },
+      "correctness": {
+        "std_dev": true,
+        "mean": true
+      }
+    },
+    {
+      "id": 217,
+      "label_answers": {
+        "site_identifier": "57"
+      },
+      "predicted_answers": {
+        "site_identifier": "57"
+      },
+      "correctness": {
+        "site_identifier": true
+      }
+    },
+    {
+      "id": 218,
+      "label_answers": {
+        "correlation_coefficient": "0.08"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.08"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 219,
+      "label_answers": {
+        "outlier_values": "9.03,9.0",
+        "site_identifiers": "(HA2)121,326"
+      },
+      "predicted_answers": {
+        "site_identifiers": "(HA2)121,326",
+        "outlier_values": "9.03,9.00"
+      },
+      "correctness": {
+        "outlier_values": false,
+        "site_identifiers": true
+      }
+    },
+    {
+      "id": 222,
+      "label_answers": {
+        "skewness_value": "0.14"
+      },
+      "predicted_answers": {
+        "skewness_value": "0.14",
+        "kurtosis_value": "-0.29"
+      },
+      "correctness": {
+        "skewness_value": true
+      }
+    },
+    {
+      "id": 224,
+      "label_answers": {
+        "accuracy_score": "0.98"
+      },
+      "predicted_answers": {
+        "accuracy_score": "0.96"
+      },
+      "correctness": {
+        "accuracy_score": false
+      }
+    },
+    {
+      "id": 234,
+      "label_answers": {
+        "average_duration": "364"
+      },
+      "predicted_answers": {
+        "average_duration": "364"
+      },
+      "correctness": {
+        "average_duration": true
+      }
+    },
+    {
+      "id": 243,
+      "label_answers": {
+        "mean_batting_average": "0.258"
+      },
+      "predicted_answers": {
+        "mean_batting_average": "0.258"
+      },
+      "correctness": {
+        "mean_batting_average": true
+      }
+    },
+    {
+      "id": 244,
+      "label_answers": {
+        "normality_test": "not_normal"
+      },
+      "predicted_answers": {
+        "p_value": "0.0000",
+        "normality_test": "not_normal"
+      },
+      "correctness": {
+        "normality_test": true
+      }
+    },
+    {
+      "id": 247,
+      "label_answers": {
+        "average_runs_by_not_eligible_for_free_agency": "39.63",
+        "average_runs_by_eligible_for_free_agency": "57.41"
+      },
+      "predicted_answers": {
+        "average_runs_by_eligible_for_free_agency": "57.41",
+        "average_runs_by_not_eligible_for_free_agency": "39.63"
+      },
+      "correctness": {
+        "average_runs_by_not_eligible_for_free_agency": true,
+        "average_runs_by_eligible_for_free_agency": true
+      }
+    },
+    {
+      "id": 249,
+      "label_answers": {
+        "correlation_coefficient": "0.58"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.58",
+        "p_value": "0.0000"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 250,
+      "label_answers": {
+        "mean": "-0.07",
+        "std_dev": "0.03"
+      },
+      "predicted_answers": {
+        "mean": "-0.07",
+        "std_dev": "0.03"
+      },
+      "correctness": {
+        "mean": true,
+        "std_dev": true
+      }
+    },
+    {
+      "id": 252,
+      "label_answers": {
+        "highest_skewness_country": "Afghanistan"
+      },
+      "predicted_answers": {
+        "highest_skewness_country": "None"
+      },
+      "correctness": {
+        "highest_skewness_country": false
+      }
+    },
+    {
+      "id": 254,
+      "label_answers": {
+        "outlier_countries": "Kuwait, Saudi Arabia"
+      },
+      "predicted_answers": {
+        "outlier_countries": "\"Kuwait\", \"Saudi Arabia\""
+      },
+      "correctness": {
+        "outlier_countries": false
+      }
+    },
+    {
+      "id": 255,
+      "label_answers": {
+        "standard_deviation_gdp2007": "14154.94",
+        "mean_gdp2007": "12473.03"
+      },
+      "predicted_answers": {
+        "mean_gdp2007": "12473.03",
+        "standard_deviation_gdp2007": "14154.94"
+      },
+      "correctness": {
+        "standard_deviation_gdp2007": true,
+        "mean_gdp2007": true
+      }
+    },
+    {
+      "id": 268,
+      "label_answers": {
+        "normality_test_result": "Not Normal"
+      },
+      "predicted_answers": {
+        "normality_test_result": "Not Normal",
+        "p_value": "0.000"
+      },
+      "correctness": {
+        "normality_test_result": true
+      }
+    },
+    {
+      "id": 269,
+      "label_answers": {
+        "correlation_type": "Positive Correlation",
+        "correlation_coefficient": "0.99",
+        "p_value": "0.000"
+      },
+      "predicted_answers": {
+        "correlation_type": "Positive Correlation",
+        "correlation_coefficient": "0.99",
+        "p_value": "0.000"
+      },
+      "correctness": {
+        "correlation_type": true,
+        "correlation_coefficient": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 271,
+      "label_answers": {
+        "norm_TOTUSJZ": "0.107",
+        "log_MEANJZH": "-2.543",
+        "clean_entries": "1153"
+      },
+      "predicted_answers": {
+        "clean_entries": "1153",
+        "mean_USFLUX": "7463837954032957263872.00",
+        "log_MEANJZH": "-2.543",
+        "norm_TOTUSJZ": "0.107"
+      },
+      "correctness": {
+        "norm_TOTUSJZ": true,
+        "log_MEANJZH": true,
+        "clean_entries": true
+      }
+    },
+    {
+      "id": 272,
+      "label_answers": {
+        "mean_ratio": "22756785531.29",
+        "stddev_ratio": "969133356.79"
+      },
+      "predicted_answers": {
+        "mean_ratio": "22756785531.29",
+        "stddev_ratio": "969133356.79"
+      },
+      "correctness": {
+        "mean_ratio": true,
+        "stddev_ratio": true
+      }
+    },
+    {
+      "id": 273,
+      "label_answers": {
+        "correlation_coefficient": "0.922",
+        "outlier_count": "0",
+        "outlier_list": "["
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.922",
+        "outlier_count": "0",
+        "outlier_list": "["
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "outlier_count": true,
+        "outlier_list": true
+      }
+    },
+    {
+      "id": 275,
+      "label_answers": {
+        "duplicate_count": "0",
+        "new_feature_mean": "-89.04"
+      },
+      "predicted_answers": {
+        "duplicate_count": "0",
+        "usflux_mean": "7463837954032957128704.00",
+        "new_feature_mean": "-89.04",
+        "model_accuracy": "99.746"
+      },
+      "correctness": {
+        "duplicate_count": true,
+        "new_feature_mean": true
+      }
+    },
+    {
+      "id": 277,
+      "label_answers": {
+        "correlation_coefficient": "0.7366"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.7366"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 278,
+      "label_answers": {
+        "outliers_count": "0"
+      },
+      "predicted_answers": {
+        "outliers_count": "0"
+      },
+      "correctness": {
+        "outliers_count": true
+      }
+    },
+    {
+      "id": 282,
+      "label_answers": {
+        "number_of_outliers": "0",
+        "correlation_coefficient": "-0.17"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.17",
+        "number_of_outliers": "0"
+      },
+      "correctness": {
+        "number_of_outliers": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 297,
+      "label_answers": {
+        "mean_with_tree_notnull": "45.48",
+        "mean_with_tree_null": "4.58"
+      },
+      "predicted_answers": {
+        "mean_with_tree_null": "4.26",
+        "mean_with_tree_notnull": "43.31",
+        "pvalue": "0.0000"
+      },
+      "correctness": {
+        "mean_with_tree_notnull": false,
+        "mean_with_tree_null": false
+      }
+    },
+    {
+      "id": 298,
+      "label_answers": {
+        "is_normal": "yes"
+      },
+      "predicted_answers": {
+        "is_normal": "no",
+        "skewness": "-2.37",
+        "kurtosis": "5.18"
+      },
+      "correctness": {
+        "is_normal": false
+      }
+    },
+    {
+      "id": 300,
+      "label_answers": {
+        "correlation_coefficient": "0.54",
+        "correlation": "correlated"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.53",
+        "p_value": "0.0000",
+        "correlation": "correlated"
+      },
+      "correctness": {
+        "correlation_coefficient": false,
+        "correlation": true
+      }
+    },
+    {
+      "id": 304,
+      "label_answers": {
+        "normality_test_result": "False"
+      },
+      "predicted_answers": {
+        "normality_test_result": "False"
+      },
+      "correctness": {
+        "normality_test_result": true
+      }
+    },
+    {
+      "id": 308,
+      "label_answers": {
+        "average_fare_Mrs": "45.14",
+        "average_fare_Mr": "24.44"
+      },
+      "predicted_answers": {
+        "average_fare_Mr": "24.44",
+        "average_fare_Mrs": "45.14",
+        "average_fare_Miss": "43.80",
+        "average_fare_Master": "34.70"
+      },
+      "correctness": {
+        "average_fare_Mrs": true,
+        "average_fare_Mr": true
+      }
+    },
+    {
+      "id": 309,
+      "label_answers": {
+        "fare_kurtosis": "33.20",
+        "age_values_within_one_stdev": "516",
+        "fare_skewness": "4.78",
+        "fare_values_within_one_stdev": "818",
+        "age_skewness": "0.39",
+        "age_kurtosis": "0.17"
+      },
+      "predicted_answers": {
+        "age_skewness": "0.39",
+        "age_kurtosis": "0.17",
+        "age_values_within_one_stdev": "516",
+        "fare_skewness": "4.78",
+        "fare_kurtosis": "33.20",
+        "fare_values_within_one_stdev": "818"
+      },
+      "correctness": {
+        "fare_kurtosis": true,
+        "age_values_within_one_stdev": true,
+        "fare_skewness": true,
+        "fare_values_within_one_stdev": true,
+        "age_skewness": true,
+        "age_kurtosis": true
+      }
+    },
+    {
+      "id": 310,
+      "label_answers": {
+        "strongest_correlation_coefficient": "0.41"
+      },
+      "predicted_answers": {
+        "strongest_correlation_pair": "['SibSp', 'Parch'",
+        "strongest_correlation_coefficient": "0.41"
+      },
+      "correctness": {
+        "strongest_correlation_coefficient": true
+      }
+    },
+    {
+      "id": 320,
+      "label_answers": {
+        "mean_eventmsgtype": "3.98"
+      },
+      "predicted_answers": {
+        "mean_eventmsgtype": "3.78"
+      },
+      "correctness": {
+        "mean_eventmsgtype": false
+      }
+    },
+    {
+      "id": 321,
+      "label_answers": {
+        "outlier_count": "0"
+      },
+      "predicted_answers": {
+        "outlier_count": "0"
+      },
+      "correctness": {
+        "outlier_count": true
+      }
+    },
+    {
+      "id": 324,
+      "label_answers": {
+        "max_missing_values": "NEUTRALDESCRIPTION"
+      },
+      "predicted_answers": {
+        "max_missing_values": "NEUTRALDESCRIPTION"
+      },
+      "correctness": {
+        "max_missing_values": true
+      }
+    },
+    {
+      "id": 326,
+      "label_answers": {
+        "relationship": "none",
+        "correlation_coefficient": "0.08",
+        "p_value": "0.0749"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.08",
+        "p_value": "0.0749",
+        "relationship": "none"
+      },
+      "correctness": {
+        "relationship": true,
+        "correlation_coefficient": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 337,
+      "label_answers": {
+        "skewness_type": "Positive Skewness",
+        "skewness_coefficient": "0.08"
+      },
+      "predicted_answers": {
+        "skewness_coefficient": "0.08",
+        "skewness_type": "Positive Skewness"
+      },
+      "correctness": {
+        "skewness_type": true,
+        "skewness_coefficient": true
+      }
+    },
+    {
+      "id": 338,
+      "label_answers": {
+        "correlation_type": "Positive Correlation",
+        "correlation_coefficient": "0.178"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.178",
+        "correlation_type": "Positive Correlation"
+      },
+      "correctness": {
+        "correlation_type": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 349,
+      "label_answers": {
+        "mean_age": "1.1"
+      },
+      "predicted_answers": {
+        "mean_age": "1.10"
+      },
+      "correctness": {
+        "mean_age": true
+      }
+    },
+    {
+      "id": 350,
+      "label_answers": {
+        "is_normal": "False"
+      },
+      "predicted_answers": {
+        "is_normal": "False"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 351,
+      "label_answers": {
+        "correlation_coefficient": "0.32"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.32"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 352,
+      "label_answers": {
+        "fare_outliers": ""
+      },
+      "predicted_answers": {
+        "fare_outliers": "["
+      },
+      "correctness": {
+        "fare_outliers": false
+      }
+    },
+    {
+      "id": 354,
+      "label_answers": {
+        "average_familysize": "2.6"
+      },
+      "predicted_answers": {
+        "average_familysize": "2.6"
+      },
+      "correctness": {
+        "average_familysize": true
+      }
+    },
+    {
+      "id": 355,
+      "label_answers": {
+        "relationship_age": "not significant",
+        "relationship_pclass": "significant",
+        "coef_pclass": "-0.98",
+        "coef_age": "-0.05"
+      },
+      "predicted_answers": {
+        "coef_age": "-0.05",
+        "coef_pclass": "-0.98",
+        "relationship_age": "not significant",
+        "relationship_pclass": "significant"
+      },
+      "correctness": {
+        "relationship_age": true,
+        "relationship_pclass": true,
+        "coef_pclass": true,
+        "coef_age": true
+      }
+    },
+    {
+      "id": 359,
+      "label_answers": {
+        "skewness_value": "0.83",
+        "skewness_type": "positive"
+      },
+      "predicted_answers": {
+        "skewness_value": "0.75",
+        "skewness_type": "positive"
+      },
+      "correctness": {
+        "skewness_value": false,
+        "skewness_type": true
+      }
+    },
+    {
+      "id": 360,
+      "label_answers": {
+        "correlation_strength": "moderate",
+        "correlation_coefficient": "-0.64"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.64",
+        "correlation_strength": "moderate"
+      },
+      "correctness": {
+        "correlation_strength": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 361,
+      "label_answers": {
+        "outlier_count": "0"
+      },
+      "predicted_answers": {
+        "outlier_count": "97"
+      },
+      "correctness": {
+        "outlier_count": false
+      }
+    },
+    {
+      "id": 363,
+      "label_answers": {
+        "mean_squared_error": "1.18"
+      },
+      "predicted_answers": {
+        "mean_squared_error": "1.18"
+      },
+      "correctness": {
+        "mean_squared_error": true
+      }
+    },
+    {
+      "id": 372,
+      "label_answers": {
+        "mean": "21144.08"
+      },
+      "predicted_answers": {
+        "mean": "21144.08",
+        "median": "19711.00"
+      },
+      "correctness": {
+        "mean": true
+      }
+    },
+    {
+      "id": 375,
+      "label_answers": {
+        "skewness": "0.1520",
+        "kurtosis": "-1.1336",
+        "shapiro_w": "0.9543",
+        "p_value": "0.0027"
+      },
+      "predicted_answers": {
+        "shapiro_w": "0.9543",
+        "p_value": "0.0027",
+        "skewness": "0.1546",
+        "kurtosis": "-1.1296"
+      },
+      "correctness": {
+        "skewness": false,
+        "kurtosis": false,
+        "shapiro_w": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 376,
+      "label_answers": {
+        "trips_per_membership_median": "0.16",
+        "trips_per_day_mean": "21144.08",
+        "trips_per_membership_mean": "0.17"
+      },
+      "predicted_answers": {
+        "trips_per_membership_mean": "0.17",
+        "trips_per_membership_median": "0.16",
+        "trips_per_day_mean": "21144.08",
+        "trips_per_day_median": "19711.00"
+      },
+      "correctness": {
+        "trips_per_membership_median": true,
+        "trips_per_day_mean": true,
+        "trips_per_membership_mean": true
+      }
+    },
+    {
+      "id": 378,
+      "label_answers": {
+        "post_skewness": "0.15",
+        "pre_mean": "21144.08",
+        "pre_kurtosis": "-1.13",
+        "post_sd": "9889.93",
+        "pre_skewness": "0.15",
+        "post_kurtosis": "-1.13",
+        "post_mean": "21144.08",
+        "pre_sd": "9889.93"
+      },
+      "predicted_answers": {
+        "pre_mean": "21144.08",
+        "pre_median": "19711.00",
+        "pre_sd": "9889.93",
+        "pre_skewness": "0.15",
+        "pre_kurtosis": "-1.13",
+        "post_mean": "21144.08",
+        "post_median": "19711.00",
+        "post_sd": "9889.93",
+        "post_skewness": "0.15",
+        "post_kurtosis": "-1.13"
+      },
+      "correctness": {
+        "post_skewness": true,
+        "pre_mean": true,
+        "pre_kurtosis": true,
+        "post_sd": true,
+        "pre_skewness": true,
+        "post_kurtosis": true,
+        "post_mean": true,
+        "pre_sd": true
+      }
+    },
+    {
+      "id": 408,
+      "label_answers": {
+        "correlation_coefficient": "0.10",
+        "relationship_type": "nonlinear",
+        "p_value": "0.0102"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.10",
+        "p_value": "0.0102",
+        "relationship_type": "nonlinear"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_type": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 409,
+      "label_answers": {
+        "missing_values": "687"
+      },
+      "predicted_answers": {
+        "missing_values": "687"
+      },
+      "correctness": {
+        "missing_values": true
+      }
+    },
+    {
+      "id": 410,
+      "label_answers": {
+        "is_significantly_different": "True"
+      },
+      "predicted_answers": {
+        "is_significantly_different": "True"
+      },
+      "correctness": {
+        "is_significantly_different": true
+      }
+    },
+    {
+      "id": 411,
+      "label_answers": {
+        "outlier_range_high": "512.33",
+        "outlier_count": "116"
+      },
+      "predicted_answers": {
+        "outlier_count": "116.00",
+        "outlier_range_low": "66.60",
+        "outlier_range_high": "512.33"
+      },
+      "correctness": {
+        "outlier_range_high": true,
+        "outlier_count": true
+      }
+    },
+    {
+      "id": 412,
+      "label_answers": {
+        "mean_familysize_survived": "0.94",
+        "mean_familysize_did_not_survive": "0.88"
+      },
+      "predicted_answers": {
+        "mean_familysize_survived": "0.94",
+        "mean_familysize_did_not_survive": "0.88"
+      },
+      "correctness": {
+        "mean_familysize_survived": true,
+        "mean_familysize_did_not_survive": true
+      }
+    },
+    {
+      "id": 413,
+      "label_answers": {
+        "correlation_coefficient": "-0.53",
+        "relationship_significance": "significant",
+        "p_value": "0.0000"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.53",
+        "p_value": "0.0000",
+        "relationship_significance": "significant"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_significance": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 414,
+      "label_answers": {
+        "first_class_average_age": "38.23",
+        "second_class_average_age": "29.88",
+        "third_class_average_age": "25.14"
+      },
+      "predicted_answers": {
+        "first_class_average_age": "38.23",
+        "second_class_average_age": "29.88",
+        "third_class_average_age": "25.14"
+      },
+      "correctness": {
+        "first_class_average_age": true,
+        "second_class_average_age": true,
+        "third_class_average_age": true
+      }
+    },
+    {
+      "id": 415,
+      "label_answers": {
+        "survived_fare_mean": "40.82",
+        "not_survived_fare_std": "32.41",
+        "fare_difference_significance": "significant",
+        "not_survived_fare_mean": "21.96",
+        "survived_fare_std": "71.36"
+      },
+      "predicted_answers": {
+        "survived_fare_mean": "40.82",
+        "survived_fare_std": "71.36",
+        "not_survived_fare_mean": "21.96",
+        "not_survived_fare_std": "32.41",
+        "fare_difference_significance": "significant"
+      },
+      "correctness": {
+        "survived_fare_mean": true,
+        "not_survived_fare_std": true,
+        "fare_difference_significance": true,
+        "not_survived_fare_mean": true,
+        "survived_fare_std": true
+      }
+    },
+    {
+      "id": 418,
+      "label_answers": {
+        "outliers_count": "1"
+      },
+      "predicted_answers": {
+        "outliers_count": "1"
+      },
+      "correctness": {
+        "outliers_count": true
+      }
+    },
+    {
+      "id": 419,
+      "label_answers": {
+        "weekday_mean_price": "37.30",
+        "weekend_mean_price": "38.49",
+        "p_value": "0.8463",
+        "significance": "No"
+      },
+      "predicted_answers": {
+        "weekday_mean_price": "37.30",
+        "weekend_mean_price": "38.49",
+        "p_value": "0.8463",
+        "significance": "No"
+      },
+      "correctness": {
+        "weekday_mean_price": true,
+        "weekend_mean_price": true,
+        "p_value": true,
+        "significance": true
+      }
+    },
+    {
+      "id": 421,
+      "label_answers": {
+        "mean_volume": "2260508.04"
+      },
+      "predicted_answers": {
+        "mean_volume": "2260508.04",
+        "median_volume": "808585.00"
+      },
+      "correctness": {
+        "mean_volume": true
+      }
+    },
+    {
+      "id": 423,
+      "label_answers": {
+        "relationship_type": "none",
+        "correlation_coefficient": "-0.09"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.09",
+        "relationship_type": "none"
+      },
+      "correctness": {
+        "relationship_type": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 424,
+      "label_answers": {
+        "feature2": "High"
+      },
+      "predicted_answers": {
+        "accuracy": "1.00",
+        "feature1": "Open",
+        "feature2": "High",
+        "feature3": "Low"
+      },
+      "correctness": {
+        "feature2": true
+      }
+    },
+    {
+      "id": 425,
+      "label_answers": {
+        "missing_values_count": "24"
+      },
+      "predicted_answers": {
+        "missing_values_count": "24"
+      },
+      "correctness": {
+        "missing_values_count": true
+      }
+    },
+    {
+      "id": 426,
+      "label_answers": {
+        "max_wind_speed": "156.42"
+      },
+      "predicted_answers": {
+        "max_wind_speed": "156.42"
+      },
+      "correctness": {
+        "max_wind_speed": true
+      }
+    },
+    {
+      "id": 427,
+      "label_answers": {
+        "null_entries_count": "101"
+      },
+      "predicted_answers": {
+        "null_entries_count": "101"
+      },
+      "correctness": {
+        "null_entries_count": true
+      }
+    },
+    {
+      "id": 428,
+      "label_answers": {
+        "p_value": "0.4911",
+        "difference_type": "none"
+      },
+      "predicted_answers": {
+        "average_damage": "68264737.00, 52942.35, 176452857.43, 300651809.62, 3823701562.62, 5830548387.23, 50464500.30, 201529294.18, 2909141764.94, 5291818.45, 351946905.10",
+        "p_value": "0.4911",
+        "difference_type": "none"
+      },
+      "correctness": {
+        "p_value": true,
+        "difference_type": true
+      }
+    },
+    {
+      "id": 429,
+      "label_answers": {
+        "correlation_coefficient": "0.19",
+        "relationship_type": "nonlinear",
+        "p_value": "0.0"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.19",
+        "p_value": "0.0000",
+        "relationship_type": "nonlinear"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_type": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 431,
+      "label_answers": {
+        "high_damage_relationship_type": "linear",
+        "high_damage_correlation_coefficient": "0.56",
+        "high_damage_p_value": "0.0000"
+      },
+      "predicted_answers": {
+        "high_damage_correlation_coefficient": "0.57",
+        "high_damage_p_value": "0.0000",
+        "high_damage_relationship_type": "linear",
+        "low_damage_correlation_coefficient": "0.61",
+        "low_damage_p_value": "0.0000",
+        "low_damage_relationship_type": "linear"
+      },
+      "correctness": {
+        "high_damage_relationship_type": true,
+        "high_damage_correlation_coefficient": false,
+        "high_damage_p_value": true
+      }
+    },
+    {
+      "id": 432,
+      "label_answers": {
+        "mean_squared_error": "263.1896"
+      },
+      "predicted_answers": {
+        "mean_squared_error": "263.1896"
+      },
+      "correctness": {
+        "mean_squared_error": true
+      }
+    },
+    {
+      "id": 446,
+      "label_answers": {
+        "mean_windspeed": "5.979"
+      },
+      "predicted_answers": {
+        "mean_windspeed": "5.979"
+      },
+      "correctness": {
+        "mean_windspeed": true
+      }
+    },
+    {
+      "id": 447,
+      "label_answers": {
+        "number_of_outliers": "111"
+      },
+      "predicted_answers": {
+        "number_of_outliers": "111"
+      },
+      "correctness": {
+        "number_of_outliers": true
+      }
+    },
+    {
+      "id": 449,
+      "label_answers": {
+        "normal_distribution": "no"
+      },
+      "predicted_answers": {
+        "shapiro_wilk_pvalue": "0.0000",
+        "normal_distribution": "no"
+      },
+      "correctness": {
+        "normal_distribution": true
+      }
+    },
+    {
+      "id": 450,
+      "label_answers": {
+        "monthly_avg_windspeed": "{'month_1': 7.17, 'month_2': 6.53, 'month_3': 5.9, 'month_4': 6.69, 'month_5': 5.43, 'month_6': 5.82, 'month_7': 5.13, 'month_8': 5.72, 'month_9': 5.69, 'month_10': 6.57, 'month_11': 5.79, 'month_12': 5.52}"
+      },
+      "predicted_answers": {
+        "monthly_avg_windspeed": "{'month_1': 6.3, 'month_2': 5.88, 'month_3': 5.29, 'month_4': 5.37, 'month_5': 5.34, 'month_6': 5.08, 'month_7': 5.11, 'month_8': 6.04, 'month_9': 6.16, 'month_10': 5.41, 'month_11': 5.94, 'month_12': 5.13}"
+      },
+      "correctness": {
+        "monthly_avg_windspeed": false
+      }
+    },
+    {
+      "id": 451,
+      "label_answers": {
+        "missing_values_per_column": "{'DATE TIME': 0, 'WINDSPEED': 594, 'DIR': 0, 'GUSTS': 594, 'AT': 590, 'BARO': 594, 'RELHUM': 8736, 'VIS': 8736}"
+      },
+      "predicted_answers": {
+        "missing_values_per_column": "{'DATE TIME': 0, 'WINDSPEED': 594, 'DIR': 0, 'GUSTS': 594, 'AT': 590, 'BARO': 594, 'RELHUM': 8736, 'VIS': 8736}"
+      },
+      "correctness": {
+        "missing_values_per_column": true
+      }
+    },
+    {
+      "id": 452,
+      "label_answers": {
+        "relationship_type": "none",
+        "p_value": "0.6756",
+        "correlation_coefficient": "-0.08"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.08",
+        "p_value": "0.6756",
+        "relationship_type": "none"
+      },
+      "correctness": {
+        "relationship_type": true,
+        "p_value": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 453,
+      "label_answers": {
+        "mean_wind_pre": "5.98",
+        "mean_atmos_temp_pre": "52.47",
+        "mean_atmos_temp_post": "52.47",
+        "mean_wind_post": "5.85"
+      },
+      "predicted_answers": {
+        "mean_wind_pre": "5.98",
+        "mean_atmos_temp_pre": "52.47",
+        "mean_wind_post": "5.85",
+        "mean_atmos_temp_post": "52.47"
+      },
+      "correctness": {
+        "mean_wind_pre": true,
+        "mean_atmos_temp_pre": true,
+        "mean_atmos_temp_post": true,
+        "mean_wind_post": true
+      }
+    },
+    {
+      "id": 465,
+      "label_answers": {
+        "distribution_skew": "skewed_left"
+      },
+      "predicted_answers": {
+        "distribution_skew": "skewed_left"
+      },
+      "correctness": {
+        "distribution_skew": true
+      }
+    },
+    {
+      "id": 466,
+      "label_answers": {
+        "correlation_strength": "weak"
+      },
+      "predicted_answers": {
+        "correlation_strength": "weak"
+      },
+      "correctness": {
+        "correlation_strength": true
+      }
+    },
+    {
+      "id": 468,
+      "label_answers": {
+        "number_of_outliers": "0"
+      },
+      "predicted_answers": {
+        "number_of_outliers": "76"
+      },
+      "correctness": {
+        "number_of_outliers": false
+      }
+    },
+    {
+      "id": 472,
+      "label_answers": {
+        "mean_value": "2.58"
+      },
+      "predicted_answers": {
+        "mean_value": "2.58"
+      },
+      "correctness": {
+        "mean_value": true
+      }
+    },
+    {
+      "id": 473,
+      "label_answers": {
+        "outliers": ""
+      },
+      "predicted_answers": {
+        "outliers": "["
+      },
+      "correctness": {
+        "outliers": false
+      }
+    },
+    {
+      "id": 474,
+      "label_answers": {
+        "correlation_coefficient": "0.02"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.02"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 480,
+      "label_answers": {
+        "standard_deviation": "1.22"
+      },
+      "predicted_answers": {
+        "standard_deviation": "1.22"
+      },
+      "correctness": {
+        "standard_deviation": true
+      }
+    },
+    {
+      "id": 490,
+      "label_answers": {
+        "mean_value": "12.89"
+      },
+      "predicted_answers": {
+        "mean_value": "12.89"
+      },
+      "correctness": {
+        "mean_value": true
+      }
+    },
+    {
+      "id": 492,
+      "label_answers": {
+        "fields": "Health Professions"
+      },
+      "predicted_answers": {
+        "fields": "Health Professions"
+      },
+      "correctness": {
+        "fields": true
+      }
+    },
+    {
+      "id": 495,
+      "label_answers": {
+        "std_without_outliers": "9.57",
+        "mean_without_outliers": "33.69"
+      },
+      "predicted_answers": {
+        "outlier_years": "[",
+        "mean_without_outliers": "33.69",
+        "std_without_outliers": "9.57"
+      },
+      "correctness": {
+        "std_without_outliers": true,
+        "mean_without_outliers": true
+      }
+    },
+    {
+      "id": 496,
+      "label_answers": {
+        "range_STEM": "17.7",
+        "mean_STEM": "125.11"
+      },
+      "predicted_answers": {
+        "mean_STEM": "125.11",
+        "range_STEM": "17.70"
+      },
+      "correctness": {
+        "range_STEM": true,
+        "mean_STEM": true
+      }
+    },
+    {
+      "id": 506,
+      "label_answers": {
+        "average_reviews": "1013.53"
+      },
+      "predicted_answers": {
+        "average_reviews": "1013.53"
+      },
+      "correctness": {
+        "average_reviews": true
+      }
+    },
+    {
+      "id": 507,
+      "label_answers": {
+        "total_hotels": "46"
+      },
+      "predicted_answers": {
+        "total_hotels": "46"
+      },
+      "correctness": {
+        "total_hotels": true
+      }
+    },
+    {
+      "id": 508,
+      "label_answers": {
+        "correlation_coefficient": "0.176"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.176"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 510,
+      "label_answers": {
+        "brand_with_highest_average_star_rating": "Preferred Hotels & Resorts"
+      },
+      "predicted_answers": {
+        "brand_with_highest_average_star_rating": "Preferred Hotels & Resorts"
+      },
+      "correctness": {
+        "brand_with_highest_average_star_rating": true
+      }
+    },
+    {
+      "id": 513,
+      "label_answers": {
+        "above4_correlation": "-0.28",
+        "below3_correlation": "0.15",
+        "between3and4_correlation": "0.04"
+      },
+      "predicted_answers": {
+        "below3_correlation": "0.15",
+        "between3and4_correlation": "0.04",
+        "above4_correlation": "-0.28"
+      },
+      "correctness": {
+        "above4_correlation": true,
+        "below3_correlation": true,
+        "between3and4_correlation": true
+      }
+    },
+    {
+      "id": 514,
+      "label_answers": {
+        "lower_city_count": "4",
+        "higher_city_count": "0"
+      },
+      "predicted_answers": {
+        "higher_city_count": "0",
+        "lower_city_count": "4"
+      },
+      "correctness": {
+        "lower_city_count": true,
+        "higher_city_count": true
+      }
+    },
+    {
+      "id": 516,
+      "label_answers": {
+        "skewness_fare": "4.79"
+      },
+      "predicted_answers": {
+        "skewness_fare": "4.79"
+      },
+      "correctness": {
+        "skewness_fare": true
+      }
+    },
+    {
+      "id": 517,
+      "label_answers": {
+        "correlation_pclass_fare": "-0.55"
+      },
+      "predicted_answers": {
+        "correlation_pclass_fare": "-0.55"
+      },
+      "correctness": {
+        "correlation_pclass_fare": true
+      }
+    },
+    {
+      "id": 518,
+      "label_answers": {
+        "number_of_entries_left": "871"
+      },
+      "predicted_answers": {
+        "number_of_entries_left": "871"
+      },
+      "correctness": {
+        "number_of_entries_left": true
+      }
+    },
+    {
+      "id": 520,
+      "label_answers": {
+        "correlation_coefficient": "0.02"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.02"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 521,
+      "label_answers": {
+        "classifier_accuracy": "0.78"
+      },
+      "predicted_answers": {
+        "classifier_accuracy": "0.76"
+      },
+      "correctness": {
+        "classifier_accuracy": false
+      }
+    },
+    {
+      "id": 522,
+      "label_answers": {
+        "p_value": "0.0000"
+      },
+      "predicted_answers": {
+        "chi_square_statistic": "38.29",
+        "p_value": "0.0000"
+      },
+      "correctness": {
+        "p_value": true
+      }
+    },
+    {
+      "id": 523,
+      "label_answers": {
+        "child_count": "72",
+        "senior_count": "22"
+      },
+      "predicted_answers": {
+        "child_count": "91",
+        "teenager_count": "125",
+        "adult_count": "653",
+        "senior_count": "22"
+      },
+      "correctness": {
+        "child_count": false,
+        "senior_count": true
+      }
+    },
+    {
+      "id": 526,
+      "label_answers": {
+        "correlation_coefficient": "-0.58"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.58"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 527,
+      "label_answers": {
+        "average_age_male_class2": "30.94",
+        "average_age_female_class3": "23.07",
+        "average_age_female_class1": "41.33",
+        "average_age_female_class2": "24.38",
+        "average_age_male_class1": "40.52",
+        "average_age_male_class3": "24.53"
+      },
+      "predicted_answers": {
+        "average_age_male_class1": "40.52",
+        "average_age_male_class2": "30.94",
+        "average_age_male_class3": "24.53",
+        "average_age_female_class1": "41.33",
+        "average_age_female_class2": "24.38",
+        "average_age_female_class3": "23.07"
+      },
+      "correctness": {
+        "average_age_male_class2": true,
+        "average_age_female_class3": true,
+        "average_age_female_class1": true,
+        "average_age_female_class2": true,
+        "average_age_male_class1": true,
+        "average_age_male_class3": true
+      }
+    },
+    {
+      "id": 528,
+      "label_answers": {
+        "outlier_ids": "904, 916, 940, 945, 951, 956, 961, 966, 967, 973, 988, 1006, 1010, 1033, 1034, 1042, 1048, 1071, 1073, 1076, 1080, 1088, 1094, 1104, 1109, 1110, 1126, 1128, 1131, 1134, 1144, 1162, 1164, 1179, 1185, 1198, 1200, 1206, 1208, 1216, 1219, 1234, 1235, 1244, 1252, 1257, 1263, 1266, 1267, 1282, 1289, 1292, 1299, 1303, 1306",
+        "outlier_count": "55"
+      },
+      "predicted_answers": {
+        "outlier_count": "55",
+        "outlier_ids": "904, 916, 940, 945, 951, 956, 961, 966, 967, 973, 988, 1006, 1010, 1033, 1034, 1042, 1048, 1071, 1073, 1076, 1080, 1088, 1094, 1104, 1109, 1110, 1126, 1128, 1131, 1134, 1144, 1162, 1164, 1179, 1185, 1198, 1200, 1206, 1208, 1216, 1219, 1234, 1235, 1244, 1252, 1257, 1263, 1266, 1267, 1282, 1289, 1292, 1299, 1303, 1306"
+      },
+      "correctness": {
+        "outlier_ids": true,
+        "outlier_count": true
+      }
+    },
+    {
+      "id": 529,
+      "label_answers": {
+        "correlation_coefficient": "0.31",
+        "relationship_type": "nonlinear",
+        "p_value": "0.0000"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.31",
+        "p_value": "0.0000",
+        "relationship_type": "nonlinear"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_type": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 530,
+      "label_answers": {
+        "correlation_coefficient_male": "0.31",
+        "relationship_type_male": "nonlinear",
+        "relationship_type_female": "nonlinear",
+        "p_value_female": "0.0000",
+        "correlation_coefficient_female": "0.39",
+        "p_value_male": "0.0000"
+      },
+      "predicted_answers": {
+        "correlation_coefficient_male": "0.31",
+        "p_value_male": "0.0000",
+        "relationship_type_male": "nonlinear",
+        "correlation_coefficient_female": "0.39",
+        "p_value_female": "0.0000",
+        "relationship_type_female": "nonlinear"
+      },
+      "correctness": {
+        "correlation_coefficient_male": true,
+        "relationship_type_male": true,
+        "relationship_type_female": true,
+        "p_value_female": true,
+        "correlation_coefficient_female": true,
+        "p_value_male": true
+      }
+    },
+    {
+      "id": 542,
+      "label_answers": {
+        "mean_length": "0.52"
+      },
+      "predicted_answers": {
+        "mean_length": "523.99"
+      },
+      "correctness": {
+        "mean_length": false
+      }
+    },
+    {
+      "id": 543,
+      "label_answers": {
+        "correlation_coefficient": "0.57",
+        "relationship_status": "correlate"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.57",
+        "relationship_status": "correlate"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_status": true
+      }
+    },
+    {
+      "id": 549,
+      "label_answers": {
+        "volume_feature_model_rmse": "2.2092",
+        "correlation_coefficient": "0.9253",
+        "original_model_rmse": "2.2192"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.9252",
+        "original_model_rmse": "2.6218",
+        "volume_feature_model_rmse": "2.5974"
+      },
+      "correctness": {
+        "volume_feature_model_rmse": false,
+        "correlation_coefficient": false,
+        "original_model_rmse": false
+      }
+    },
+    {
+      "id": 550,
+      "label_answers": {
+        "distribution_type": "\"Non-Normal\"",
+        "min_max_scaler_scale": "\"0-1\"",
+        "missing_values_handled": "\"Yes\""
+      },
+      "predicted_answers": {
+        "missing_values_handled": "\"Yes\"",
+        "min_max_scaler_scale": "\"0-1\"",
+        "distribution_type": "\"Non-Normal\""
+      },
+      "correctness": {
+        "distribution_type": true,
+        "min_max_scaler_scale": true,
+        "missing_values_handled": true
+      }
+    },
+    {
+      "id": 551,
+      "label_answers": {
+        "mean_dbh_cm": "37.96"
+      },
+      "predicted_answers": {
+        "mean_dbh_cm": "37.96"
+      },
+      "correctness": {
+        "mean_dbh_cm": true
+      }
+    },
+    {
+      "id": 552,
+      "label_answers": {
+        "relationship_type": "linear",
+        "correlation_coefficient": "0.806"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.806",
+        "relationship_type": "linear"
+      },
+      "correctness": {
+        "relationship_type": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 553,
+      "label_answers": {
+        "outliers_count": "3131"
+      },
+      "predicted_answers": {
+        "outliers_count": "3131"
+      },
+      "correctness": {
+        "outliers_count": true
+      }
+    },
+    {
+      "id": 554,
+      "label_answers": {
+        "median_ht_m": "nan"
+      },
+      "predicted_answers": {
+        "median_ht_m": "nan"
+      },
+      "correctness": {
+        "median_ht_m": true
+      }
+    },
+    {
+      "id": 555,
+      "label_answers": {
+        "unique_species_count": "29"
+      },
+      "predicted_answers": {
+        "unique_species_count": "29"
+      },
+      "correctness": {
+        "unique_species_count": true
+      }
+    },
+    {
+      "id": 572,
+      "label_answers": {
+        "max_SPX_date": "2018-01-26",
+        "AAPL_price_percentage_change": "0.23"
+      },
+      "predicted_answers": {
+        "max_SPX_date": "2018-01",
+        "AAPL_price_percentage_change": "0.23"
+      },
+      "correctness": {
+        "max_SPX_date": false,
+        "AAPL_price_percentage_change": true
+      }
+    },
+    {
+      "id": 574,
+      "label_answers": {
+        "MSFT_VIX_correlation": "-0.43",
+        "SPY_VIX_correlation": "-0.58",
+        "MSFT_SPY_correlation": "0.94"
+      },
+      "predicted_answers": {
+        "MSFT_SPY_correlation": "0.94",
+        "MSFT_VIX_correlation": "-0.43",
+        "SPY_VIX_correlation": "-0.58"
+      },
+      "correctness": {
+        "MSFT_VIX_correlation": true,
+        "SPY_VIX_correlation": true,
+        "MSFT_SPY_correlation": true
+      }
+    },
+    {
+      "id": 575,
+      "label_answers": {
+        "relationship_type_relation": "linear",
+        "p_value_pval": "0.0000",
+        "correlation_coefficient_corr": "0.91"
+      },
+      "predicted_answers": {
+        "correlation_coefficient_corr": "0.91",
+        "p_value_pval": "0.0000",
+        "relationship_type_relation": "linear"
+      },
+      "correctness": {
+        "relationship_type_relation": true,
+        "p_value_pval": true,
+        "correlation_coefficient_corr": true
+      }
+    },
+    {
+      "id": 578,
+      "label_answers": {
+        "mean_volume": "51032080.71"
+      },
+      "predicted_answers": {
+        "mean_volume": "51032080.71"
+      },
+      "correctness": {
+        "mean_volume": true
+      }
+    },
+    {
+      "id": 586,
+      "label_answers": {
+        "total_abandoned_calls": "9"
+      },
+      "predicted_answers": {
+        "total_abandoned_calls": "9"
+      },
+      "correctness": {
+        "total_abandoned_calls": true
+      }
+    },
+    {
+      "id": 587,
+      "label_answers": {
+        "correlation_coefficient": "0.639"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.639"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 588,
+      "label_answers": {
+        "num_of_outliers": "2"
+      },
+      "predicted_answers": {
+        "num_of_outliers": "2"
+      },
+      "correctness": {
+        "num_of_outliers": true
+      }
+    },
+    {
+      "id": 589,
+      "label_answers": {
+        "abandonment_rate": "6.25"
+      },
+      "predicted_answers": {
+        "abandonment_rate": "6.25"
+      },
+      "correctness": {
+        "abandonment_rate": true
+      }
+    },
+    {
+      "id": 590,
+      "label_answers": {
+        "predicted_agents": "4"
+      },
+      "predicted_answers": {
+        "predicted_agents": "4"
+      },
+      "correctness": {
+        "predicted_agents": true
+      }
+    },
+    {
+      "id": 593,
+      "label_answers": {
+        "is_normal": "False"
+      },
+      "predicted_answers": {
+        "waiting_ratio_skewness": "1.28",
+        "is_normal": "False"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 602,
+      "label_answers": {
+        "normality_status": "Not Normal"
+      },
+      "predicted_answers": {
+        "normality_status": "Not Normal"
+      },
+      "correctness": {
+        "normality_status": true
+      }
+    },
+    {
+      "id": 604,
+      "label_answers": {
+        "std_dev_after_removal": "0.019",
+        "outlier_count": "73",
+        "mean_after_removal": "0.994"
+      },
+      "predicted_answers": {
+        "outlier_count": "73",
+        "mean_after_removal": "0.994",
+        "std_dev_after_removal": "0.019"
+      },
+      "correctness": {
+        "std_dev_after_removal": true,
+        "outlier_count": true,
+        "mean_after_removal": true
+      }
+    },
+    {
+      "id": 618,
+      "label_answers": {
+        "correlation": "0.423"
+      },
+      "predicted_answers": {
+        "correlation": "0.423"
+      },
+      "correctness": {
+        "correlation": true
+      }
+    },
+    {
+      "id": 619,
+      "label_answers": {
+        "std_dev_new": "2514.65",
+        "mean_new": "1253.61"
+      },
+      "predicted_answers": {
+        "mean_new": "2706.62",
+        "std_dev_new": "5136.21"
+      },
+      "correctness": {
+        "std_dev_new": false,
+        "mean_new": false
+      }
+    },
+    {
+      "id": 643,
+      "label_answers": {
+        "std_volume": "36218.68",
+        "min_volume": "4440",
+        "max_volume": "478003",
+        "mean_volume": "32529.47"
+      },
+      "predicted_answers": {
+        "mean_volume": "32529.47",
+        "std_volume": "36218.68",
+        "min_volume": "4440.00",
+        "max_volume": "478003.00"
+      },
+      "correctness": {
+        "std_volume": true,
+        "min_volume": true,
+        "max_volume": true,
+        "mean_volume": true
+      }
+    },
+    {
+      "id": 644,
+      "label_answers": {
+        "result": "Not a normal distribution"
+      },
+      "predicted_answers": {
+        "p_value": "0.0000",
+        "result": "Not a normal distribution"
+      },
+      "correctness": {
+        "result": true
+      }
+    },
+    {
+      "id": 647,
+      "label_answers": {
+        "price_range_mean": "0.32",
+        "is_normal": "no",
+        "price_range_stddev": "0.26"
+      },
+      "predicted_answers": {
+        "price_range_mean": "0.32",
+        "price_range_stddev": "0.26",
+        "price_range_p_value": "0.0000",
+        "is_normal": "no"
+      },
+      "correctness": {
+        "price_range_mean": true,
+        "is_normal": true,
+        "price_range_stddev": true
+      }
+    },
+    {
+      "id": 649,
+      "label_answers": {
+        "mean_x": "-259162995.016",
+        "std_dev_x": "53529181.172"
+      },
+      "predicted_answers": {
+        "mean_x": "-259162995.016",
+        "std_dev_x": "53447767.921"
+      },
+      "correctness": {
+        "mean_x": true,
+        "std_dev_x": false
+      }
+    },
+    {
+      "id": 650,
+      "label_answers": {
+        "correlation_coefficient": "-0.868"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.868"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 651,
+      "label_answers": {
+        "outlier_count": "0"
+      },
+      "predicted_answers": {
+        "outlier_count": "0"
+      },
+      "correctness": {
+        "outlier_count": true
+      }
+    },
+    {
+      "id": 652,
+      "label_answers": {
+        "normal_distribution": "False",
+        "normality_test_p_value": "0.0"
+      },
+      "predicted_answers": {
+        "normality_test_p_value": "0.0000",
+        "normal_distribution": "False"
+      },
+      "correctness": {
+        "normal_distribution": true,
+        "normality_test_p_value": true
+      }
+    },
+    {
+      "id": 655,
+      "label_answers": {
+        "correlation_XZ": "0.83",
+        "correlation_XY": "-0.87"
+      },
+      "predicted_answers": {
+        "correlation_XY": "-0.87",
+        "correlation_XZ": "0.83"
+      },
+      "correctness": {
+        "correlation_XZ": true,
+        "correlation_XY": true
+      }
+    },
+    {
+      "id": 656,
+      "label_answers": {
+        "number_of_outliers": "0",
+        "new_mean": "-259162995.02",
+        "new_standard_deviation": "53529181.17"
+      },
+      "predicted_answers": {
+        "number_of_outliers": "0",
+        "new_mean": "-259162995.02",
+        "new_standard_deviation": "53529181.17"
+      },
+      "correctness": {
+        "number_of_outliers": true,
+        "new_mean": true,
+        "new_standard_deviation": true
+      }
+    },
+    {
+      "id": 657,
+      "label_answers": {
+        "median_close": "3599.77",
+        "std_close": "4113.51",
+        "mean_close": "4349.27"
+      },
+      "predicted_answers": {
+        "mean_close": "4349.27",
+        "median_close": "3599.77",
+        "std_close": "4113.51"
+      },
+      "correctness": {
+        "median_close": true,
+        "std_close": true,
+        "mean_close": true
+      }
+    },
+    {
+      "id": 658,
+      "label_answers": {
+        "result_ks_test": "not_normal"
+      },
+      "predicted_answers": {
+        "result_ks_test": "not_normal"
+      },
+      "correctness": {
+        "result_ks_test": true
+      }
+    },
+    {
+      "id": 659,
+      "label_answers": {
+        "correlation_high_low": "1.0"
+      },
+      "predicted_answers": {
+        "correlation_high_low": "1.00"
+      },
+      "correctness": {
+        "correlation_high_low": true
+      }
+    },
+    {
+      "id": 662,
+      "label_answers": {
+        "stddev_price_change": "284.61",
+        "median_price_change": "1.31"
+      },
+      "predicted_answers": {
+        "median_price_change": "1.30",
+        "stddev_price_change": "284.61"
+      },
+      "correctness": {
+        "stddev_price_change": true,
+        "median_price_change": false
+      }
+    },
+    {
+      "id": 663,
+      "label_answers": {
+        "correlation_coefficient": "1.0"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "1.00"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 665,
+      "label_answers": {
+        "high_count": "544",
+        "low_proportion": "0.25",
+        "low_count": "544",
+        "medium_proportion": "0.50",
+        "medium_count": "1088",
+        "high_proportion": "0.25"
+      },
+      "predicted_answers": {
+        "high_count": "544",
+        "high_proportion": "0.25",
+        "medium_count": "1088",
+        "medium_proportion": "0.50",
+        "low_count": "544",
+        "low_proportion": "0.25"
+      },
+      "correctness": {
+        "high_count": true,
+        "low_proportion": true,
+        "low_count": true,
+        "medium_proportion": true,
+        "medium_count": true,
+        "high_proportion": true
+      }
+    },
+    {
+      "id": 666,
+      "label_answers": {
+        "std_dev": "1.2210",
+        "mean_value": "2.1226"
+      },
+      "predicted_answers": {
+        "mean_value": "2.1226",
+        "std_dev": "1.2210"
+      },
+      "correctness": {
+        "std_dev": true,
+        "mean_value": true
+      }
+    },
+    {
+      "id": 667,
+      "label_answers": {
+        "distribution_type": "not normal"
+      },
+      "predicted_answers": {
+        "p_value": "0.0000",
+        "distribution_type": "not normal"
+      },
+      "correctness": {
+        "distribution_type": true
+      }
+    },
+    {
+      "id": 668,
+      "label_answers": {
+        "correlation_coefficient": "0.13",
+        "p_value": "0.0324",
+        "significant_correlation": "true"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.13",
+        "p_value": "0.0324",
+        "significant_correlation": "true"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "p_value": true,
+        "significant_correlation": true
+      }
+    },
+    {
+      "id": 669,
+      "label_answers": {
+        "standard_deviation": "1.54",
+        "mean": "3.73"
+      },
+      "predicted_answers": {
+        "mean": "3.73",
+        "standard_deviation": "1.54"
+      },
+      "correctness": {
+        "standard_deviation": true,
+        "mean": true
+      }
+    },
+    {
+      "id": 671,
+      "label_answers": {
+        "mse": "0.653"
+      },
+      "predicted_answers": {
+        "mse": "0.653"
+      },
+      "correctness": {
+        "mse": true
+      }
+    },
+    {
+      "id": 673,
+      "label_answers": {
+        "pearson_coefficient": "0.0382",
+        "mean_value": "2.1226"
+      },
+      "predicted_answers": {
+        "mean_value": "2.1226",
+        "standard_deviation": "1.2186",
+        "pearson_coefficient": "0.0382"
+      },
+      "correctness": {
+        "pearson_coefficient": true,
+        "mean_value": true
+      }
+    },
+    {
+      "id": 674,
+      "label_answers": {
+        "pearson_coefficient": "0.6419",
+        "mean_absolute_error": "0.6426"
+      },
+      "predicted_answers": {
+        "mean_absolute_error": "0.6426",
+        "pearson_coefficient": "0.6419"
+      },
+      "correctness": {
+        "pearson_coefficient": true,
+        "mean_absolute_error": true
+      }
+    },
+    {
+      "id": 683,
+      "label_answers": {
+        "mean_temperature": "29.14"
+      },
+      "predicted_answers": {
+        "mean_temperature": "29.14"
+      },
+      "correctness": {
+        "mean_temperature": true
+      }
+    },
+    {
+      "id": 684,
+      "label_answers": {
+        "distribution_type": "normal",
+        "shapiro_p_value": "0.9166"
+      },
+      "predicted_answers": {
+        "shapiro_p_value": "0.9166",
+        "distribution_type": "normal"
+      },
+      "correctness": {
+        "distribution_type": true,
+        "shapiro_p_value": true
+      }
+    },
+    {
+      "id": 685,
+      "label_answers": {
+        "correlation_coefficient": "0.34",
+        "relationship_significance": "not significant",
+        "p_value": "0.1023"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.34",
+        "p_value": "0.1023",
+        "relationship_significance": "not significant"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "relationship_significance": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 688,
+      "label_answers": {
+        "morning": "6",
+        "afternoon": "6"
+      },
+      "predicted_answers": {
+        "morning": "6",
+        "afternoon": "6",
+        "evening": "6",
+        "night": "6"
+      },
+      "correctness": {
+        "morning": true,
+        "afternoon": true
+      }
+    },
+    {
+      "id": 690,
+      "label_answers": {
+        "mean_wind_speed": "2.29",
+        "std_deviation_wind_speed": "1.15",
+        "number_of_outliers": "0"
+      },
+      "predicted_answers": {
+        "number_of_outliers": "0",
+        "mean_wind_speed": "2.29",
+        "std_deviation_wind_speed": "1.15"
+      },
+      "correctness": {
+        "mean_wind_speed": true,
+        "std_deviation_wind_speed": true,
+        "number_of_outliers": true
+      }
+    },
+    {
+      "id": 710,
+      "label_answers": {
+        "mean_wins": "2.6"
+      },
+      "predicted_answers": {
+        "mean_wins": "2.60"
+      },
+      "correctness": {
+        "mean_wins": true
+      }
+    },
+    {
+      "id": 715,
+      "label_answers": {
+        "missing_percentage": "95.12"
+      },
+      "predicted_answers": {
+        "missing_percentage": "95.12"
+      },
+      "correctness": {
+        "missing_percentage": true
+      }
+    },
+    {
+      "id": 716,
+      "label_answers": {
+        "stddev_wins": "1.17"
+      },
+      "predicted_answers": {
+        "mean_wins": "2.60",
+        "stddev_wins": "1.17"
+      },
+      "correctness": {
+        "stddev_wins": true
+      }
+    },
+    {
+      "id": 719,
+      "label_answers": {
+        "median_mpg": "22.75",
+        "mean_mpg": "23.45"
+      },
+      "predicted_answers": {
+        "mean_mpg": "23.45",
+        "median_mpg": "22.75"
+      },
+      "correctness": {
+        "median_mpg": true,
+        "mean_mpg": true
+      }
+    },
+    {
+      "id": 721,
+      "label_answers": {
+        "correlation_coefficient": "-0.83"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.83"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 722,
+      "label_answers": {
+        "highest_horsepower_vehicle": "1973",
+        "average_horsepower": "130.48",
+        "standard_deviation": "45.83"
+      },
+      "predicted_answers": {
+        "highest_horsepower_vehicle": "1973",
+        "average_horsepower": "130.47",
+        "standard_deviation": "45.83"
+      },
+      "correctness": {
+        "highest_horsepower_vehicle": true,
+        "average_horsepower": false,
+        "standard_deviation": true
+      }
+    },
+    {
+      "id": 723,
+      "label_answers": {
+        "mean_ratio": "0.03",
+        "std_ratio": "0.01"
+      },
+      "predicted_answers": {
+        "mean_ratio": "0.03",
+        "std_ratio": "0.01"
+      },
+      "correctness": {
+        "mean_ratio": true,
+        "std_ratio": true
+      }
+    },
+    {
+      "id": 724,
+      "label_answers": {
+        "std_acceleration": "2.68",
+        "mean_acceleration": "15.49"
+      },
+      "predicted_answers": {
+        "mean_acceleration": "15.49",
+        "std_acceleration": "2.68"
+      },
+      "correctness": {
+        "std_acceleration": true,
+        "mean_acceleration": true
+      }
+    },
+    {
+      "id": 725,
+      "label_answers": {
+        "median1": "28.0",
+        "mean1": "28.73"
+      },
+      "predicted_answers": {
+        "mean1": "28.73",
+        "median1": "28.00",
+        "mean2": "15.03",
+        "median2": "13.50",
+        "mean3": "31.42",
+        "median3": "30.50"
+      },
+      "correctness": {
+        "median1": true,
+        "mean1": true
+      }
+    },
+    {
+      "id": 726,
+      "label_answers": {
+        "mean_transformed_horsepower": "4.59",
+        "stddev_transformed_horsepower": "0.34"
+      },
+      "predicted_answers": {
+        "mean_transformed_horsepower": "4.59",
+        "stddev_transformed_horsepower": "0.34"
+      },
+      "correctness": {
+        "mean_transformed_horsepower": true,
+        "stddev_transformed_horsepower": true
+      }
+    },
+    {
+      "id": 727,
+      "label_answers": {
+        "test_mse": "17.66"
+      },
+      "predicted_answers": {
+        "test_mse": "17.66"
+      },
+      "correctness": {
+        "test_mse": true
+      }
+    },
+    {
+      "id": 729,
+      "label_answers": {
+        "distribution_normality": "not normal"
+      },
+      "predicted_answers": {
+        "distribution_normality": "not normal"
+      },
+      "correctness": {
+        "distribution_normality": true
+      }
+    },
+    {
+      "id": 730,
+      "label_answers": {
+        "p_value": "0.2909",
+        "correlation_coefficient": "-0.03"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "-0.03",
+        "p_value": "0.2909"
+      },
+      "correctness": {
+        "p_value": true,
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 732,
+      "label_answers": {
+        "number_of_missing_values_in_lifeexp_after": "0"
+      },
+      "predicted_answers": {
+        "number_of_missing_values_in_lifeexp_before": "0",
+        "number_of_missing_values_in_lifeexp_after": "0"
+      },
+      "correctness": {
+        "number_of_missing_values_in_lifeexp_after": true
+      }
+    },
+    {
+      "id": 733,
+      "label_answers": {
+        "has_nan_values_in_new_feature": "False",
+        "new_feature_mean": "3.54",
+        "new_feature_std": "0.54"
+      },
+      "predicted_answers": {
+        "has_nan_values_in_new_feature": "False",
+        "new_feature_mean": "3.54",
+        "new_feature_std": "0.54"
+      },
+      "correctness": {
+        "has_nan_values_in_new_feature": true,
+        "new_feature_mean": true,
+        "new_feature_std": true
+      }
+    },
+    {
+      "id": 734,
+      "label_answers": {
+        "correlation_coefficient": "0.56",
+        "correlation_significance": "non-significant"
+      },
+      "predicted_answers": {
+        "continent_name": "oceania",
+        "correlation_coefficient": "0.96",
+        "p_value": "0.0000",
+        "correlation_significance": "significant"
+      },
+      "correctness": {
+        "correlation_coefficient": false,
+        "correlation_significance": false
+      }
+    },
+    {
+      "id": 736,
+      "label_answers": {
+        "is_normal": "no"
+      },
+      "predicted_answers": {
+        "is_normal": "no"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 737,
+      "label_answers": {
+        "mean_income": "45.22",
+        "std_dev_income": "35.24"
+      },
+      "predicted_answers": {
+        "mean_income": "45.22",
+        "std_dev_income": "35.24"
+      },
+      "correctness": {
+        "mean_income": true,
+        "std_dev_income": true
+      }
+    },
+    {
+      "id": 738,
+      "label_answers": {
+        "is_normal": "Not Normal"
+      },
+      "predicted_answers": {
+        "is_normal": "Not Normal"
+      },
+      "correctness": {
+        "is_normal": true
+      }
+    },
+    {
+      "id": 739,
+      "label_answers": {
+        "correlation_coefficient": "0.86"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "0.86"
+      },
+      "correctness": {
+        "correlation_coefficient": true
+      }
+    },
+    {
+      "id": 740,
+      "label_answers": {
+        "outliers": "1"
+      },
+      "predicted_answers": {
+        "outliers": "1"
+      },
+      "correctness": {
+        "outliers": true
+      }
+    },
+    {
+      "id": 741,
+      "label_answers": {
+        "addedfeature": "ratio"
+      },
+      "predicted_answers": {
+        "addedfeature": "0.09|0.14|0.08|0.10|0.07|0.14|0.06|0.12|0.08|0.20|0.17|0.00|0.04|0.16|0.04|0.00|0.00|0.08|0.14|0.16|0.03|0.15|0.00|0.08|0.00|0.16|0.18|0.10|0.13|0.16|0.15|0.00|0.07|0.00|0.00|0.16|0.12|0.17|0.14|0.10|0.02|0.15|0.08|0.16|0.18|0.13|0.25|0.18|0.00|0.20|0.13|0.05|0.11|0.18|0.00|0.00|0.08|0.03|0.10|0.10|0.12|0.03|0.00|0.04|0.00|0.14|0.14|0.17|0.15|0.16|0.09|0.15|0.13|0.13|0.18|0.01|0.16|0.04|0.06|0.00|0.05|0.02|0.11|0.00|0.00|0.15|0.13|0.00|0.13|0.16|0.18|0.13|0.00|0.17|0.00|0.00|0.26|0.05|0.13|0.15|0.08|0.18|0.21|0.11|0.16|0.07|0.00|0.00|0.04|0.09|0.01|0.00|0.16|0.12|0.08|0.11|0.00|0.15|0.00|0.00|0.00|0.06|0.13|0.00|0.00|0.00|0.25|0.00|0.15|0.07|0.23|0.00|0.17|0.17|0.14|0.00|0.02|0.05|0.00|0.15|0.24|0.09|0.09|0.15|0.02|0.14|0.16|0.00|0.00|0.00|0.10|0.11|0.07|0.00|0.00|0.00|0.10|0.18|0.12|0.00|0.17|0.00|0.14|0.00|0.09|0.13|0.00|0.00|0.00|0.18|0.00|0.07|0.02|0.15|0.15|0.00|0.00|0.10|0.10|0.16|0.12|0.10|0.12|0.00|0.12|0.10|0.05|0.00|0.12|0.03|0.10|0.18|0.09|0.14|0.00|0.15|0.10|0.02|0.00|0.14|0.16|0.14|0.00|0.21|0.09|0.16|0.00|0.28|0.05|0.08|0.03|0.15|0.07|0.12|0.13|0.06|0.02|0.18|0.12|0.13|0.22|0.14|0.25|0.12|0.09|0.19|0.15|0.09|0.03|0.14|0.13|0.14|0.14|0.00|0.16|0.07|0.10|0.09|0.02|0.05|0.04|0.00|0.01|0.13|0.00|0.00|0.06|0.00|0.00|0.06|0.00|0.04|0.16|0.04|0.16|0.03|0.00|0.00|0.00|0.18|0.07|0.11|0.11|0.04|0.13|0.11|0.00|0.16|0.00|0.14|0.04|0.09|0.20|0.27|0.16|0.06|0.06|0.11|0.04|0.09|0.10|0.00|0.16|0.14|0.00|0.00|0.00|0.00|0.16|0.12|0.05|0.08|0.09|0.15|0.00|0.00|0.06|0.04|0.00|0.14|0.13|0.05|0.06|0.08|0.12|0.00|0.02|0.00|0.15|0.13|0.21|0.16|0.16|0.11|0.12|0.12|0.16|0.03|0.00|0.00|0.00|0.03|0.08|0.14|0.14|0.14|0.13|0.15|0.03|0.11|0.23|0.12|0.07|0.05|0.12|0.06|0.16|0.00|0.11|0.11|0.08|0.11|0.07|0.11|0.12|0.00|0.17|0.11|0.00|0.10|0.00|0.06|0.08|0.09|0.11|0.12|0.16|0.00|0.08|0.14|0.12|0.08|0.14|0.09|0.13|0.12|0.16|0.06|0.06|0.15|0.16|0.00|0.22|0.19|0.12|0.18|0.11|0.00|0.15|0.00|0.09|0.11|0.25|0.12|0.00|0.16|0.10|0.00|0.17|0.11|0.13|0.11|0.00|0.00|0.13|0.14|0.13|0.03|0.00|0.17"
+      },
+      "correctness": {
+        "addedfeature": false
+      }
+    },
+    {
+      "id": 743,
+      "label_answers": {
+        "income_normalization": "10.35, 186.63, /mnt/data/Credit_Income_Normalized.csv"
+      },
+      "predicted_answers": {
+        "education_mode": "16",
+        "income_normalization": "10.35, 186.63, /home/user/income_normalized.csv",
+        "balance_normalization": "0.00, 1999.00, /home/user/balance_normalized.csv"
+      },
+      "correctness": {
+        "income_normalization": false
+      }
+    },
+    {
+      "id": 755,
+      "label_answers": {
+        "mean_TMAX_F": "56.38"
+      },
+      "predicted_answers": {
+        "mean_TMAX_F": "56.38"
+      },
+      "correctness": {
+        "mean_TMAX_F": true
+      }
+    },
+    {
+      "id": 756,
+      "label_answers": {
+        "correlation_coefficient": "1.00",
+        "p_value": "0.0000"
+      },
+      "predicted_answers": {
+        "correlation_coefficient": "1.00",
+        "p_value": "0.0000"
+      },
+      "correctness": {
+        "correlation_coefficient": true,
+        "p_value": true
+      }
+    },
+    {
+      "id": 757,
+      "label_answers": {
+        "outlier_count": "25"
+      },
+      "predicted_answers": {
+        "outlier_count": "25"
+      },
+      "correctness": {
+        "outlier_count": true
+      }
+    },
+    {
+      "id": 759,
+      "label_answers": {
+        "range_tmax": "125.82",
+        "median_tmax": "58.64"
+      },
+      "predicted_answers": {
+        "median_tmax": "\"58.64\"",
+        "median_tmin": "\"null\"",
+        "range_tmax": "\"125.82\"",
+        "range_tmin": "\"null\""
+      },
+      "correctness": {
+        "range_tmax": false,
+        "median_tmax": false
+      }
+    },
+    {
+      "id": 760,
+      "label_answers": {
+        "most_missing_station_name": "\"AGE00135039\"",
+        "most_missing_station_count": "0"
+      },
+      "predicted_answers": {
+        "most_missing_station_name": "\"AGE00135039\"",
+        "most_missing_station_count": "0"
+      },
+      "correctness": {
+        "most_missing_station_name": true,
+        "most_missing_station_count": true
+      }
+    }
+  ]
+}

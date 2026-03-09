@@ -6,13 +6,42 @@ from typing import Dict, Any
 from app.core.viz_custom_subgraph.state import CustomVizState
 
 
+def generate_viz_config_from_viz_data(viz_data: dict) -> dict:
+    """从 viz_data 生成 viz_config"""
+    charts_config = {}
+
+    echarts_list = viz_data.get("echarts", [])
+
+    for idx, chart_item in enumerate(echarts_list):
+        chart_type = chart_item.get("type", "unknown")
+        chart_data = chart_item.get("data", {})
+        title = chart_data.get("title", f"图表 {idx+1}")
+
+        # 生成唯一的 chart_key
+        if idx == 0:
+            chart_key = chart_type
+        else:
+            chart_key = f"{chart_type}_{idx+1}"
+
+        # 构造基础配置
+        charts_config[chart_key] = {
+            "type": chart_type,
+            "title": title
+        }
+
+    return {
+        "charts": charts_config
+    }
+
+
 def viz_aggregator_node(state: CustomVizState) -> Dict[str, Any]:
     """
     【Viz Aggregator 节点】
     职责：
     1. 收集所有 viz_executor 下载的本地文件
     2. 合并为统一的 viz_data.json 格式
-    3. 保存到 temp/viz_data.json
+    3. 生成 viz_config（新增）
+    4. 保存到 temp/viz_data.json
 
     注意：这是纯本地操作，不涉及沙箱交互
     """
@@ -63,7 +92,10 @@ def viz_aggregator_node(state: CustomVizState) -> Dict[str, Any]:
         "echarts": echarts_data
     }
 
-    # 4. 保存到 temp/viz_data.json
+    # 4. 生成 viz_config（新增）
+    viz_config = generate_viz_config_from_viz_data(viz_data)
+
+    # 5. 保存到 temp/viz_data.json
     try:
         os.makedirs("temp", exist_ok=True)
         output_path = "temp/viz_data.json"
@@ -77,9 +109,11 @@ def viz_aggregator_node(state: CustomVizState) -> Dict[str, Any]:
         if failed_tasks:
             print(f"--- [Viz Subgraph] Aggregator: 失败任务: {failed_tasks} ---")
 
-        # 5. 返回状态更新
+        # 6. 返回状态更新（新增 viz_config 和 viz_success）
         return {
-            "viz_data": viz_data
+            "viz_data": viz_data,
+            "viz_config": viz_config,
+            "viz_success": True
         }
 
     except Exception as e:

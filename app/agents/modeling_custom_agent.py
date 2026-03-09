@@ -1,5 +1,6 @@
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
+from openai import APIError
 from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.agent_states import ModelingCustomAgentState
@@ -28,11 +29,20 @@ def create_modeling_custom_agent(sandbox: Sandbox, scenario: str):
             temperature=0,
             api_key=settings.OPENAI_API_KEY,
             use_responses_api=settings.USE_RESPONSES_API,
+            max_retries=5,
+            timeout=120,
         ),
         tools=[code_tool],
         system_prompt=system_prompt,
         state_schema=ModelingCustomAgentState,
         name=f"modeling_custom_{scenario}"
+    )
+
+    # 添加智能重试机制
+    agent = agent.with_retry(
+        stop_after_attempt=5,
+        retry_if_exception_type=(APIError,),
+        wait_exponential_jitter=True,
     )
 
     return agent

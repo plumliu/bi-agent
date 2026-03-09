@@ -1,0 +1,257 @@
+{"id": 0, "response": "@mean_fare[34.65]"}
+{"id": 5, "response": "@correlation_coefficient[0.21]"}
+{"id": 6, "response": "@mean_fare_child[31.09], @mean_fare_teenager[31.98], @mean_fare_adult[35.17], @mean_fare_elderly[43.47]"}
+{"id": 7, "response": "@prediction_accuracy[0.78]"}
+{"id": 8, "response": "@mean_fare_class1[87.96], @median_fare_class1[69.30], @std_dev_fare_class1[80.64], @mean_fare_class2[21.47], @median_fare_class2[15.05], @std_dev_fare_class2[13.15], @mean_fare_class3[13.23], @median_fare_class3[8.05], @std_dev_fare_class3[10.03]"}
+{"id": 9, "response": "@mean_close_price[570.68]"}
+{"id": 10, "response": "@is_normal[no]"}
+{"id": 11, "response": "@correlation_coefficient[0.99] @p_value[0.0000] @relationship_type[linear]"}
+{"id": 14, "response": "@price_range_mean[16.65] @price_range_median[15.67] @price_range_std_dev[6.72]"}
+{"id": 18, "response": "@mean_mar_2019[171.44] @sd_mar_2019[188.25]"}
+{"id": 19, "response": "@is_normal[No]"}
+{"id": 23, "response": "@Mean_Squared_Error[11439.60]"}
+{"id": 24, "response": "@mean_age[39.21]"}
+{"id": 25, "response": "@bmi_distribution[normal]"}
+{"id": 26, "response": "@correlation_coefficient[0.07]"}
+{"id": 27, "response": "@total_outliers[139] \n@mean_charges_outliers[42103.95] \n@median_charges_outliers[40974.16]"}
+{"id": 28, "response": "@mean_age[0.4610]\n@mean_sex[0.5052]\n@mean_bmi[0.3956]\n@mean_children[0.2190]\n@mean_smoker[0.2048]\n@mean_region[1.5157]\n@mean_charges[0.1939]"}
+{"id": 30, "response": "@model_rmse[11464.74]"}
+{"id": 32, "response": "@importance_score_mean[0.00] @importance_score_std[0.01]"}
+{"id": 33, "response": "@ks_test_p_value[0.0000] @normality_decision[not normally distributed]"}
+{"id": 34, "response": "@correlation_coefficient[-0.04] @p_value[0.4058] @relationship_type[none]"}
+{"id": 35, "response": "@removed_outliers_count[0]"}
+{"id": 39, "response": "@is_normal[0.0000]\n@transformed_importance_score_mean[-7.05]\n@transformed_importance_score_std[1.42]"}
+{"id": 55, "response": "@mean_cases[2081990]"}
+{"id": 56, "response": "@max_deaths_country[Nigeria] @max_deaths_year[2010]"}
+{"id": 57, "response": "@correlation_coefficient[0.97]"}
+{"id": 58, "response": "@percentage_cases_min[36.45], @percentage_deaths_max[38.79]"}
+{"id": 59, "response": "@country_name[Congo]"}
+{"id": 62, "response": "@no_of_countries_with_outliers[5], @mean_no_of_deaths_with_outliers[12960.45], @mean_no_of_deaths_without_outliers[6990.00]"}
+{"id": 64, "response": "@mean_wage[6.31] @std_wage[4.66]"}
+{"id": 66, "response": "@correlation_coefficient[0.23] @p_value[0.0000] @relationship_type[nonlinear]"}
+{"id": 69, "response": "@correlation[0.252]"}
+{"id": 70, "response": "@RMSE[3.63]"}
+{"id": 71, "response": "@mean_volume[22607406.19]\n@std_dev_volume[8254791.71]"}
+{"id": 72, "response": "@normality_test_result[Non-normal]"}
+{"id": 73, "response": "@correlation_coefficient[1.00]"}
+{"id": 75, "response": "@daily_return_mean[0.15], @daily_return_std[0.95]"}
+{"id": 77, "response": "@Highest_Monthly_Average_Close_Price[1, 2018, 88.32]"}
+{"id": 105, "response": "@correlation_coefficient[0.49]"}
+{"id": 108, "response": "@mean_total_income[6375.18] @std_dev_total_income[5199.42]"}
+{"id": 109, "response": "@graduate_mean_loan[141.36], @not_graduate_mean_loan[118.57], @significance[significant]"}
+{"id": 111, "response": "@mean_loan[135.98], @median_loan[125.00], @std_dev_loan[60.96]"}
+{"id": 114, "response": "@country_with_highest_score[Switzerland]"}
+{"id": 116, "response": "@outlier_countries[]"}
+{"id": 117, "response": "@strongest_correlation_variable[Happiness Rank] @correlation_type[negative]"}
+{"id": 118, "response": "@coefficient_determination[0.67], @model_fit[poor fit]"}
+{"id": 123, "response": "@country_with_highest_average_daily_vaccinations[Gibraltar]"}
+{"id": 124, "response": "@significance_of_difference[yes]\n@p_value[0.0329]"}
+{"id": 125, "response": "@significant_predictor[yes,yes]\n@r_squared[0.6059]"}
+{"id": 129, "response": "@mean_fare[32.20] @std_dev_fare[49.67]"}
+{"id": 130, "response": "@norm_test_pvalue[0.0000] @is_normal[False]"}
+{"id": 132, "response": "@outlier_count[20]"}
+{"id": 133, "response": "@row_count[204]\n@median_age[28.0]"}
+{"id": 136, "response": "@p_value_class_1[0.0000], @p_value_class_2[0.0000], @p_value_class_3[0.0000]"}
+{"id": 137, "response": "@model_score[0.64]"}
+{"id": 139, "response": "@normality_status[not normal]"}
+{"id": 140, "response": "@correlation_coefficient[0.828]\n@p_value[0.0000]\n@relationship_type[linear]"}
+{"id": 142, "response": "@correlation_coefficient[0.02] @p_value[0.1704] @relationship_type[none]"}
+{"id": 144, "response": "@mean_dem[31.76]\n@mean_gop[63.51]\n@std_dev_dem[15.298]\n@std_dev_gop[15.613]\n@dist_dem[Not Normal]\n@dist_gop[Not Normal]"}
+{"id": 174, "response": "@fare_skewness[4.79]"}
+{"id": 175, "response": "@outliers_count[2]"}
+{"id": 176, "response": "@median_age[31.50]"}
+{"id": 177, "response": "@p_value[0.0000]\n@significance[Yes]"}
+{"id": 178, "response": "@sex_encoded_count[314, 577]\n@fare_after_scaling[0.00, 1.00, 0.0629]"}
+{"id": 179, "response": "@correlation_coefficient[-0.123]"}
+{"id": 180, "response": "@class1_outliers[3], @class2_outliers[7], @class3_outliers[14]"}
+{"id": 207, "response": "@missing_columns_in_object_type[author, urlToImage]"}
+{"id": 208, "response": "@compound_mean[0.141]\n@compound_std[0.899]"}
+{"id": 209, "response": "@correlation_coefficient[-0.24]"}
+{"id": 210, "response": "@mean_neg[0.07]\n@std_dev_neg[0.04]"}
+{"id": 214, "response": "@neg_length_corr[-0.11]\n@neu_length_corr[0.42]\n@pos_length_corr[-0.35]"}
+{"id": 216, "response": "@mean[4.61]\n@std_dev[1.50]"}
+{"id": 217, "response": "@site_identifier[57]"}
+{"id": 218, "response": "@correlation_coefficient[0.08]"}
+{"id": 219, "response": "@site_identifiers[(HA2)121,326] @outlier_values[9.03,9.00]"}
+{"id": 220, "response": ""}
+{"id": 222, "response": "@skewness_value[0.14] @kurtosis_value[-0.29] The abs_diffsel data is normally distributed; skewness = 0.14 (fairly symmetrical) and Fisher kurtosis = -0.29 (close to normal)."}
+{"id": 224, "response": "@accuracy_score[0.96]"}
+{"id": 234, "response": "@average_duration[364]"}
+{"id": 243, "response": "@mean_batting_average[0.258]"}
+{"id": 244, "response": "@p_value[0.0000] @normality_test[not_normal]"}
+{"id": 247, "response": "@average_runs_by_eligible_for_free_agency[57.41]\n@average_runs_by_not_eligible_for_free_agency[39.63]"}
+{"id": 249, "response": "@correlation_coefficient[0.58] @p_value[0.0000]"}
+{"id": 250, "response": "@mean[-0.07] @std_dev[0.03]"}
+{"id": 252, "response": "@highest_skewness_country[None]"}
+{"id": 254, "response": "@outlier_countries[\"Kuwait\", \"Saudi Arabia\"]"}
+{"id": 255, "response": "@mean_gdp2007[12473.03], @standard_deviation_gdp2007[14154.94]"}
+{"id": 268, "response": "@normality_test_result[Not Normal] @p_value[0.000]"}
+{"id": 269, "response": "@correlation_type[Positive Correlation] @correlation_coefficient[0.99] @p_value[0.000]"}
+{"id": 271, "response": "@clean_entries[1153] @mean_USFLUX[7463837954032957263872.00] @log_MEANJZH[-2.543] @norm_TOTUSJZ[0.107]"}
+{"id": 272, "response": "@mean_ratio[22756785531.29] @stddev_ratio[969133356.79]"}
+{"id": 273, "response": "@correlation_coefficient[0.922] @outlier_count[0] @outlier_list[[]]"}
+{"id": 275, "response": "@duplicate_count[0] @usflux_mean[7463837954032957128704.00] @new_feature_mean[-89.04] @model_accuracy[99.746]"}
+{"id": 277, "response": "@correlation_coefficient[0.7366]"}
+{"id": 278, "response": "@outliers_count[0]"}
+{"id": 282, "response": "@correlation_coefficient[-0.17]\n@number_of_outliers[0]"}
+{"id": 297, "response": "@mean_with_tree_null[4.26]\n@mean_with_tree_notnull[43.31]\n@pvalue[0.0000]"}
+{"id": 298, "response": "@is_normal[no]\n@skewness[-2.37]\n@kurtosis[5.18]"}
+{"id": 300, "response": "@correlation_coefficient[0.53]\n@p_value[0.0000]\n@correlation[correlated]"}
+{"id": 304, "response": "@normality_test_result[False]"}
+{"id": 308, "response": "@average_fare_Mr[24.44], @average_fare_Mrs[45.14], @average_fare_Miss[43.80], @average_fare_Master[34.70]"}
+{"id": 309, "response": "@age_skewness[0.39]\n@age_kurtosis[0.17]\n@age_values_within_one_stdev[516]\n@fare_skewness[4.78]\n@fare_kurtosis[33.20]\n@fare_values_within_one_stdev[818]"}
+{"id": 310, "response": "@strongest_correlation_pair[['SibSp', 'Parch']]\n@strongest_correlation_coefficient[0.41]"}
+{"id": 320, "response": "@mean_eventmsgtype[3.78]"}
+{"id": 321, "response": "@outlier_count[0]"}
+{"id": 324, "response": "@max_missing_values[NEUTRALDESCRIPTION]"}
+{"id": 326, "response": "@correlation_coefficient[0.08]\n@p_value[0.0749]\n@relationship[none]"}
+{"id": 337, "response": "@skewness_coefficient[0.08]\n@skewness_type[Positive Skewness]"}
+{"id": 338, "response": "@correlation_coefficient[0.178]\n@correlation_type[Positive Correlation]"}
+{"id": 349, "response": "@mean_age[1.10]"}
+{"id": 350, "response": "@is_normal[False]"}
+{"id": 351, "response": "@correlation_coefficient[0.32]"}
+{"id": 352, "response": "@fare_outliers[[]]"}
+{"id": 354, "response": "@average_familysize[2.6]"}
+{"id": 355, "response": "@coef_age[-0.05]\n@coef_pclass[-0.98]\n@relationship_age[not significant]\n@relationship_pclass[significant]"}
+{"id": 359, "response": "@skewness_value[0.75]\n@skewness_type[positive]"}
+{"id": 360, "response": "@correlation_coefficient[-0.64]\n@correlation_strength[moderate]"}
+{"id": 361, "response": "@outlier_count[97]"}
+{"id": 363, "response": "@mean_squared_error[1.18]"}
+{"id": 372, "response": "@mean[21144.08] @median[19711.00]"}
+{"id": 375, "response": "@shapiro_w[0.9543], @p_value[0.0027], @skewness[0.1546], @kurtosis[-1.1296]"}
+{"id": 376, "response": "@trips_per_membership_mean[0.17], @trips_per_membership_median[0.16], @trips_per_day_mean[21144.08], @trips_per_day_median[19711.00]"}
+{"id": 378, "response": "@pre_mean[21144.08]\n@pre_median[19711.00]\n@pre_sd[9889.93]\n@pre_skewness[0.15]\n@pre_kurtosis[-1.13]\n@post_mean[21144.08]\n@post_median[19711.00]\n@post_sd[9889.93]\n@post_skewness[0.15]\n@post_kurtosis[-1.13]"}
+{"id": 408, "response": "@correlation_coefficient[0.10]\n@p_value[0.0102]\n@relationship_type[nonlinear]"}
+{"id": 409, "response": "@missing_values[687]"}
+{"id": 410, "response": "@is_significantly_different[True]"}
+{"id": 411, "response": "@outlier_count[116.00] @outlier_range_low[66.60] @outlier_range_high[512.33]"}
+{"id": 412, "response": "@mean_familysize_survived[0.94] @mean_familysize_did_not_survive[0.88]"}
+{"id": 413, "response": "@correlation_coefficient[-0.53]\n@p_value[0.0000]\n@relationship_significance[significant]"}
+{"id": 414, "response": "@first_class_average_age[38.23]\n@second_class_average_age[29.88]\n@third_class_average_age[25.14]"}
+{"id": 415, "response": "@survived_fare_mean[40.82]\n@survived_fare_std[71.36]\n@not_survived_fare_mean[21.96]\n@not_survived_fare_std[32.41]\n@fare_difference_significance[significant]"}
+{"id": 418, "response": "@outliers_count[1]"}
+{"id": 419, "response": "@weekday_mean_price[37.30] @weekend_mean_price[38.49] @p_value[0.8463] @significance[No]"}
+{"id": 421, "response": "@mean_volume[2260508.04] @median_volume[808585.00]"}
+{"id": 423, "response": "@correlation_coefficient[-0.09], @relationship_type[none]"}
+{"id": 424, "response": "@accuracy[1.00], @feature1[Open], @feature2[High], @feature3[Low]"}
+{"id": 425, "response": "@missing_values_count[24]"}
+{"id": 426, "response": "@max_wind_speed[156.42]"}
+{"id": 427, "response": "@null_entries_count[101]"}
+{"id": 428, "response": "@average_damage[68264737.00, 52942.35, 176452857.43, 300651809.62, 3823701562.62, 5830548387.23, 50464500.30, 201529294.18, 2909141764.94, 5291818.45, 351946905.10]\n@p_value[0.4911]\n@difference_type[none]"}
+{"id": 429, "response": "@correlation_coefficient[0.19]\n@p_value[0.0000]\n@relationship_type[nonlinear]"}
+{"id": 431, "response": "@high_damage_correlation_coefficient[0.57]\n@high_damage_p_value[0.0000]\n@high_damage_relationship_type[linear]\n@low_damage_correlation_coefficient[0.61]\n@low_damage_p_value[0.0000]\n@low_damage_relationship_type[linear]"}
+{"id": 432, "response": "@mean_squared_error[263.1896]"}
+{"id": 446, "response": "@mean_windspeed[5.979]"}
+{"id": 447, "response": "@number_of_outliers[111]"}
+{"id": 449, "response": "@shapiro_wilk_pvalue[0.0000] @normal_distribution[no]"}
+{"id": 450, "response": "@monthly_avg_windspeed[{'month_1': 6.3, 'month_2': 5.88, 'month_3': 5.29, 'month_4': 5.37, 'month_5': 5.34, 'month_6': 5.08, 'month_7': 5.11, 'month_8': 6.04, 'month_9': 6.16, 'month_10': 5.41, 'month_11': 5.94, 'month_12': 5.13}]"}
+{"id": 451, "response": "@missing_values_per_column[{'DATE TIME': 0, 'WINDSPEED': 594, 'DIR': 0, 'GUSTS': 594, 'AT': 590, 'BARO': 594, 'RELHUM': 8736, 'VIS': 8736}]"}
+{"id": 452, "response": "@correlation_coefficient[-0.08]\n@p_value[0.6756]\n@relationship_type[none]"}
+{"id": 453, "response": "@mean_wind_pre[5.98]\n@mean_atmos_temp_pre[52.47]\n@mean_wind_post[5.85]\n@mean_atmos_temp_post[52.47]"}
+{"id": 465, "response": "@distribution_skew[skewed_left]"}
+{"id": 466, "response": "@correlation_strength[weak]"}
+{"id": 468, "response": "@number_of_outliers[76]"}
+{"id": 472, "response": "@mean_value[2.58]"}
+{"id": 473, "response": "@outliers[[]]"}
+{"id": 474, "response": "@correlation_coefficient[0.02]"}
+{"id": 480, "response": "@standard_deviation[1.22]"}
+{"id": 490, "response": "@mean_value[12.89]"}
+{"id": 492, "response": "@fields[Health Professions]"}
+{"id": 495, "response": "@outlier_years[[]] @mean_without_outliers[33.69] @std_without_outliers[9.57]"}
+{"id": 496, "response": "@mean_STEM[125.11]\n@range_STEM[17.70]"}
+{"id": 506, "response": "@average_reviews[1013.53]"}
+{"id": 507, "response": "@total_hotels[46]"}
+{"id": 508, "response": "@correlation_coefficient[0.176]"}
+{"id": 510, "response": "@brand_with_highest_average_star_rating[Preferred Hotels & Resorts]"}
+{"id": 513, "response": "@below3_correlation[0.15], @between3and4_correlation[0.04], @above4_correlation[-0.28]"}
+{"id": 514, "response": "@higher_city_count[0], @lower_city_count[4]"}
+{"id": 516, "response": "@skewness_fare[4.79]"}
+{"id": 517, "response": "@correlation_pclass_fare[-0.55]"}
+{"id": 518, "response": "@number_of_entries_left[871]"}
+{"id": 520, "response": "@correlation_coefficient[0.02]"}
+{"id": 521, "response": "@classifier_accuracy[0.76]"}
+{"id": 522, "response": "@chi_square_statistic[38.29]\n@p_value[0.0000]"}
+{"id": 523, "response": "@child_count[91]\n@teenager_count[125]\n@adult_count[653]\n@senior_count[22]"}
+{"id": 526, "response": "@correlation_coefficient[-0.58]"}
+{"id": 527, "response": "@average_age_male_class1[40.52], @average_age_male_class2[30.94], @average_age_male_class3[24.53], @average_age_female_class1[41.33], @average_age_female_class2[24.38], @average_age_female_class3[23.07]"}
+{"id": 528, "response": "@outlier_count[55], @outlier_ids[904, 916, 940, 945, 951, 956, 961, 966, 967, 973, 988, 1006, 1010, 1033, 1034, 1042, 1048, 1071, 1073, 1076, 1080, 1088, 1094, 1104, 1109, 1110, 1126, 1128, 1131, 1134, 1144, 1162, 1164, 1179, 1185, 1198, 1200, 1206, 1208, 1216, 1219, 1234, 1235, 1244, 1252, 1257, 1263, 1266, 1267, 1282, 1289, 1292, 1299, 1303, 1306]"}
+{"id": 529, "response": "@correlation_coefficient[0.31], @p_value[0.0000], @relationship_type[nonlinear]"}
+{"id": 530, "response": "@correlation_coefficient_male[0.31]\n@p_value_male[0.0000]\n@relationship_type_male[nonlinear]\n@correlation_coefficient_female[0.39]\n@p_value_female[0.0000]\n@relationship_type_female[nonlinear]"}
+{"id": 542, "response": "@mean_length[523.99]"}
+{"id": 543, "response": "@correlation_coefficient[0.57]\n@relationship_status[correlate]"}
+{"id": 549, "response": "@correlation_coefficient[0.9252], @original_model_rmse[2.6218], @volume_feature_model_rmse[2.5974]"}
+{"id": 550, "response": "@missing_values_handled[\"Yes\"] @min_max_scaler_scale[\"0-1\"] @distribution_type[\"Non-Normal\"]"}
+{"id": 551, "response": "@mean_dbh_cm[37.96]"}
+{"id": 552, "response": "@correlation_coefficient[0.806] @relationship_type[linear]"}
+{"id": 553, "response": "@outliers_count[3131]"}
+{"id": 554, "response": "@median_ht_m[nan]"}
+{"id": 555, "response": "@unique_species_count[29]"}
+{"id": 572, "response": "@max_SPX_date[2018-01]\n@AAPL_price_percentage_change[0.23]"}
+{"id": 574, "response": "@MSFT_SPY_correlation[0.94]\n@MSFT_VIX_correlation[-0.43]\n@SPY_VIX_correlation[-0.58]"}
+{"id": 575, "response": "@correlation_coefficient_corr[0.91]\n@p_value_pval[0.0000]\n@relationship_type_relation[linear]"}
+{"id": 578, "response": "@mean_volume[51032080.71]"}
+{"id": 586, "response": "@total_abandoned_calls[9]"}
+{"id": 587, "response": "@correlation_coefficient[0.639]"}
+{"id": 588, "response": "@num_of_outliers[2]"}
+{"id": 589, "response": "@abandonment_rate[6.25]"}
+{"id": 590, "response": "@predicted_agents[4]"}
+{"id": 593, "response": "@waiting_ratio_skewness[1.28]\n@is_normal[False]"}
+{"id": 602, "response": "@normality_status[Not Normal]"}
+{"id": 604, "response": "@outlier_count[73]\n@mean_after_removal[0.994]\n@std_dev_after_removal[0.019]"}
+{"id": 618, "response": "@correlation[0.423]"}
+{"id": 619, "response": "@mean_new[2706.62] @std_dev_new[5136.21]"}
+{"id": 643, "response": "@mean_volume[32529.47]\n@std_volume[36218.68]\n@min_volume[4440.00]\n@max_volume[478003.00]"}
+{"id": 644, "response": "@p_value[0.0000]\n@result[Not a normal distribution]"}
+{"id": 647, "response": "@price_range_mean[0.32] @price_range_stddev[0.26] @price_range_p_value[0.0000] @is_normal[no]"}
+{"id": 649, "response": "@mean_x[-259162995.016] @std_dev_x[53447767.921]"}
+{"id": 650, "response": "@correlation_coefficient[-0.868]"}
+{"id": 651, "response": "@outlier_count[0]"}
+{"id": 652, "response": "@normality_test_p_value[0.0000] @normal_distribution[False]"}
+{"id": 655, "response": "@correlation_XY[-0.87]\n@correlation_XZ[0.83]"}
+{"id": 656, "response": "@number_of_outliers[0]\n@new_mean[-259162995.02]\n@new_standard_deviation[53529181.17]"}
+{"id": 657, "response": "@mean_close[4349.27], @median_close[3599.77], @std_close[4113.51]"}
+{"id": 658, "response": "@result_ks_test[not_normal]"}
+{"id": 659, "response": "@correlation_high_low[1.00]"}
+{"id": 662, "response": "@median_price_change[1.30] @stddev_price_change[284.61]"}
+{"id": 663, "response": "@correlation_coefficient[1.00]"}
+{"id": 665, "response": "@high_count[544] @high_proportion[0.25]\n@medium_count[1088] @medium_proportion[0.50]\n@low_count[544] @low_proportion[0.25]"}
+{"id": 666, "response": "@mean_value[2.1226], @std_dev[1.2210]"}
+{"id": 667, "response": "@p_value[0.0000], @distribution_type[not normal]"}
+{"id": 668, "response": "@correlation_coefficient[0.13], @p_value[0.0324], @significant_correlation[true]"}
+{"id": 669, "response": "@mean[3.73] @standard_deviation[1.54]"}
+{"id": 671, "response": "@mse[0.653]"}
+{"id": 673, "response": "@mean_value[2.1226] \n@standard_deviation[1.2186] \n@pearson_coefficient[0.0382]"}
+{"id": 674, "response": "@mean_absolute_error[0.6426]\n@pearson_coefficient[0.6419]"}
+{"id": 683, "response": "@mean_temperature[29.14]"}
+{"id": 684, "response": "@shapiro_p_value[0.9166] @distribution_type[normal]"}
+{"id": 685, "response": "@correlation_coefficient[0.34] @p_value[0.1023] @relationship_significance[not significant]"}
+{"id": 688, "response": "@morning[6], @afternoon[6], @evening[6], @night[6]"}
+{"id": 690, "response": "@number_of_outliers[0] @mean_wind_speed[2.29] @std_deviation_wind_speed[1.15]"}
+{"id": 710, "response": "@mean_wins[2.60]"}
+{"id": 715, "response": "@missing_percentage[95.12]"}
+{"id": 716, "response": "@mean_wins[2.60]\n@stddev_wins[1.17]"}
+{"id": 719, "response": "@mean_mpg[23.45], @median_mpg[22.75]"}
+{"id": 721, "response": "@correlation_coefficient[-0.83]"}
+{"id": 722, "response": "@highest_horsepower_vehicle[1973]\n@average_horsepower[130.47]\n@standard_deviation[45.83]"}
+{"id": 723, "response": "@mean_ratio[0.03]\n@std_ratio[0.01]"}
+{"id": 724, "response": "@mean_acceleration[15.49]\n@std_acceleration[2.68]"}
+{"id": 725, "response": "@mean1[28.73], @median1[28.00]\n@mean2[15.03], @median2[13.50]\n@mean3[31.42], @median3[30.50]"}
+{"id": 726, "response": "@mean_transformed_horsepower[4.59]\n@stddev_transformed_horsepower[0.34]"}
+{"id": 727, "response": "@test_mse[17.66]"}
+{"id": 729, "response": "@distribution_normality[not normal]"}
+{"id": 730, "response": "@correlation_coefficient[-0.03]\n@p_value[0.2909]"}
+{"id": 732, "response": "@number_of_missing_values_in_lifeexp_before[0]\n@number_of_missing_values_in_lifeexp_after[0]"}
+{"id": 733, "response": "@has_nan_values_in_new_feature[False] @new_feature_mean[3.54] @new_feature_std[0.54]"}
+{"id": 734, "response": "@continent_name[africa]\n@correlation_coefficient[0.43]\n@p_value[0.0000]\n@correlation_significance[non-significant]\n\n@continent_name[americas]\n@correlation_coefficient[0.56]\n@p_value[0.0000]\n@correlation_significance[significant]\n\n@continent_name[asia]\n@correlation_coefficient[0.38]\n@p_value[0.0000]\n@correlation_significance[non-significant]\n\n@continent_name[europe]\n@correlation_coefficient[0.78]\n@p_value[0.0000]\n@correlation_significance[significant]\n\n@continent_name[oceania]\n@correlation_coefficient[0.96]\n@p_value[0.0000]\n@correlation_significance[significant]"}
+{"id": 736, "response": "@is_normal[no]"}
+{"id": 737, "response": "@mean_income[45.22], @std_dev_income[35.24]"}
+{"id": 738, "response": "@is_normal[Not Normal]"}
+{"id": 739, "response": "@correlation_coefficient[0.86]"}
+{"id": 740, "response": "@outliers[1]"}
+{"id": 741, "response": "@addedfeature[0.09|0.14|0.08|0.10|0.07|0.14|0.06|0.12|0.08|0.20|0.17|0.00|0.04|0.16|0.04|0.00|0.00|0.08|0.14|0.16|0.03|0.15|0.00|0.08|0.00|0.16|0.18|0.10|0.13|0.16|0.15|0.00|0.07|0.00|0.00|0.16|0.12|0.17|0.14|0.10|0.02|0.15|0.08|0.16|0.18|0.13|0.25|0.18|0.00|0.20|0.13|0.05|0.11|0.18|0.00|0.00|0.08|0.03|0.10|0.10|0.12|0.03|0.00|0.04|0.00|0.14|0.14|0.17|0.15|0.16|0.09|0.15|0.13|0.13|0.18|0.01|0.16|0.04|0.06|0.00|0.05|0.02|0.11|0.00|0.00|0.15|0.13|0.00|0.13|0.16|0.18|0.13|0.00|0.17|0.00|0.00|0.26|0.05|0.13|0.15|0.08|0.18|0.21|0.11|0.16|0.07|0.00|0.00|0.04|0.09|0.01|0.00|0.16|0.12|0.08|0.11|0.00|0.15|0.00|0.00|0.00|0.06|0.13|0.00|0.00|0.00|0.25|0.00|0.15|0.07|0.23|0.00|0.17|0.17|0.14|0.00|0.02|0.05|0.00|0.15|0.24|0.09|0.09|0.15|0.02|0.14|0.16|0.00|0.00|0.00|0.10|0.11|0.07|0.00|0.00|0.00|0.10|0.18|0.12|0.00|0.17|0.00|0.14|0.00|0.09|0.13|0.00|0.00|0.00|0.18|0.00|0.07|0.02|0.15|0.15|0.00|0.00|0.10|0.10|0.16|0.12|0.10|0.12|0.00|0.12|0.10|0.05|0.00|0.12|0.03|0.10|0.18|0.09|0.14|0.00|0.15|0.10|0.02|0.00|0.14|0.16|0.14|0.00|0.21|0.09|0.16|0.00|0.28|0.05|0.08|0.03|0.15|0.07|0.12|0.13|0.06|0.02|0.18|0.12|0.13|0.22|0.14|0.25|0.12|0.09|0.19|0.15|0.09|0.03|0.14|0.13|0.14|0.14|0.00|0.16|0.07|0.10|0.09|0.02|0.05|0.04|0.00|0.01|0.13|0.00|0.00|0.06|0.00|0.00|0.06|0.00|0.04|0.16|0.04|0.16|0.03|0.00|0.00|0.00|0.18|0.07|0.11|0.11|0.04|0.13|0.11|0.00|0.16|0.00|0.14|0.04|0.09|0.20|0.27|0.16|0.06|0.06|0.11|0.04|0.09|0.10|0.00|0.16|0.14|0.00|0.00|0.00|0.00|0.16|0.12|0.05|0.08|0.09|0.15|0.00|0.00|0.06|0.04|0.00|0.14|0.13|0.05|0.06|0.08|0.12|0.00|0.02|0.00|0.15|0.13|0.21|0.16|0.16|0.11|0.12|0.12|0.16|0.03|0.00|0.00|0.00|0.03|0.08|0.14|0.14|0.14|0.13|0.15|0.03|0.11|0.23|0.12|0.07|0.05|0.12|0.06|0.16|0.00|0.11|0.11|0.08|0.11|0.07|0.11|0.12|0.00|0.17|0.11|0.00|0.10|0.00|0.06|0.08|0.09|0.11|0.12|0.16|0.00|0.08|0.14|0.12|0.08|0.14|0.09|0.13|0.12|0.16|0.06|0.06|0.15|0.16|0.00|0.22|0.19|0.12|0.18|0.11|0.00|0.15|0.00|0.09|0.11|0.25|0.12|0.00|0.16|0.10|0.00|0.17|0.11|0.13|0.11|0.00|0.00|0.13|0.14|0.13|0.03|0.00|0.17]"}
+{"id": 743, "response": "@education_mode[16]\n@income_normalization[10.35, 186.63, /home/user/income_normalized.csv]\n@balance_normalization[0.00, 1999.00, /home/user/balance_normalized.csv]"}
+{"id": 755, "response": "@mean_TMAX_F[56.38]"}
+{"id": 756, "response": "@correlation_coefficient[1.00] @p_value[0.0000]"}
+{"id": 757, "response": "@outlier_count[25]"}
+{"id": 759, "response": "@@median_tmax[\"58.64\"]\n@median_tmin[\"null\"]\n@range_tmax[\"125.82\"]\n@range_tmin[\"null\"]"}
+{"id": 760, "response": "@most_missing_station_name[\"AGE00135039\"]\n@most_missing_station_count[0]"}

@@ -17,6 +17,7 @@ def create_modeling_node(sandbox: Sandbox):
         scenario = state.get("scenario")
         data_schema = state.get("data_schema")
         remote_file_path = state.get("remote_file_path")
+        user_input = state.get("user_input", "")
 
         # 动态创建 agent
         agent = create_modeling_agent(sandbox, scenario)
@@ -27,7 +28,8 @@ def create_modeling_node(sandbox: Sandbox):
         context_content = context_template.format(
             remote_file_path=remote_file_path,
             data_schema=json.dumps(data_schema, ensure_ascii=False),
-            scenario=scenario
+            scenario=scenario,
+            user_input=user_input
         )
 
         # 调用 agent

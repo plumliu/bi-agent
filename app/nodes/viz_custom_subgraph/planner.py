@@ -4,6 +4,7 @@ import re
 import time
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
+from openai import APIError
 
 from app.core.config import settings
 from app.core.prompts_config import load_prompts_config
@@ -19,6 +20,15 @@ llm = ChatOpenAI(
     base_url=settings.OPENAI_API_BASE,
     use_responses_api=settings.USE_RESPONSES_API,
     streaming=True,  # responses API 需要流式调用
+    max_retries=5,
+    timeout=120,
+)
+
+# 添加智能重试机制
+llm = llm.with_retry(
+    stop_after_attempt=5,
+    retry_if_exception_type=(APIError,),
+    wait_exponential_jitter=True,
 )
 
 

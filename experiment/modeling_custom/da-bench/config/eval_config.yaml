@@ -1,0 +1,12 @@
+sandbox:
+  max_concurrent: 45
+  timeout: 300
+
+benchmark:
+  data_dir: ../../../infiagent-DABench
+  questions_file: da-dev-questions.jsonl
+  labels_file: da-dev-labels.jsonl
+
+output:
+  results_dir: ./results
+  save_intermediate: true

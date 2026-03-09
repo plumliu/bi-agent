@@ -6,6 +6,7 @@ from typing import Dict, Any, List, Union
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from openai import APIError
 
 from app.core.state import WorkflowState
 from app.core.config import settings
@@ -26,6 +27,15 @@ llm = ChatOpenAI(
     temperature=0.1,
     api_key=settings.OPENAI_API_KEY,
     use_responses_api=settings.USE_RESPONSES_API,
+    max_retries=5,
+    timeout=120,
+)
+
+# 添加智能重试机制
+llm = llm.with_retry(
+    stop_after_attempt=5,
+    retry_if_exception_type=(APIError,),
+    wait_exponential_jitter=True,
 )
 
 

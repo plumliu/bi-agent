@@ -3,6 +3,7 @@ import json
 import yaml
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from openai import APIError
 
 from app.core.prompts_config import load_prompts_config
 from app.core.state import WorkflowState
@@ -17,6 +18,15 @@ llm = ChatOpenAI(
     api_key=settings.OPENAI_API_KEY_FLASH,
     use_responses_api=settings.USE_RESPONSES_API_FLASH,
     base_url=settings.OPENAI_API_BASE_FLASH,
+    max_retries=5,
+    timeout=120,
+)
+
+# 添加智能重试机制
+llm = llm.with_retry(
+    stop_after_attempt=5,
+    retry_if_exception_type=(APIError,),
+    wait_exponential_jitter=True,
 )
 
 def summary_node(state: WorkflowState):
@@ -30,6 +40,7 @@ def summary_node(state: WorkflowState):
 
     # 1. 提取信息
     modeling_summary = state.get("modeling_summary", "")
+    user_input = state.get("user_input")
     artifacts = state.get("modeling_artifacts", {})
     artifacts_str = json.dumps(artifacts, ensure_ascii=False)
 
@@ -55,6 +66,7 @@ def summary_node(state: WorkflowState):
 
     # 4. HumanMessage 包含动态上下文
     context_content = context_template.format(
+        user_input=user_input,
         modeling_summary=modeling_summary,
         artifacts_summary=artifacts_str,
         viz_list_str=viz_list_str
