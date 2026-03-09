@@ -44,13 +44,16 @@ summary_instruction: |
   - 必须根据 `artifacts_summary` 中实际存在的矩阵来撰写，如果某个矩阵为空，则跳过对应部分的分析。
 # 新增：context_template（用于 HumanMessage）
 context_template: |
-  【建模分析摘要】
+  【用户原始需求 / 业务目标】
+  {user_input}
+
+  【分析过程回顾（Modeling Summary）】
   {modeling_summary}
 
-  【关键统计指标 (JSON)】
+  【关键计算指标（Artifacts Summary）】
   {artifacts_summary}
 
-  【可用图表清单】
+  【图表产出状态（Visualization Summary）】
   {viz_list_str}
 
-  请根据上述信息撰写关联分析报告。
+  请基于以上信息，输出最终结果。
