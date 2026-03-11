@@ -1,144 +1,109 @@
 import json
-import re
 from typing import Dict, Any
-from langchain_core.messages import HumanMessage
+
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
 from ppio_sandbox.code_interpreter import Sandbox
 
-from app.core.config import settings
-from app.core.prompts_config import load_prompts_config
 from app.core.modeling_custom_subgraph.state import CustomModelingState
-from app.agents.modeling_custom_agent import create_modeling_custom_agent
-from app.utils.extract_text_from_content import extract_text_from_content
-
+from app.core.prompts_config import load_prompts_config
+from app.tools.python_interpreter import create_code_interpreter_tool
+from app.utils.llm_factory import create_llm, apply_retry
 
 def create_executor_node(sandbox: Sandbox):
-    """创建 executor 节点（工厂函数）"""
+    """创建 Executor 节点（工厂函数）"""
+
+    # Initialize LLM with tools (主模型使用Anthropic)
+    # 先bind_tools，再apply_retry
+    llm_with_tools = apply_retry(
+        create_llm(use_flash=False).bind_tools([create_code_interpreter_tool(sandbox)])
+    )
 
     def executor_node(state: CustomModelingState) -> Dict[str, Any]:
-        print("--- [Modeling Subgraph] Executor: 开始执行任务 ---")
+        print("--- [Executor] 开始执行当前任务 ---")
 
-        # 获取上下文
-        scenario = state.get("scenario")
-        remote_file_path = state.get("remote_file_path", "")
-        plan = state.get("plan")
-        user_input = state.get("user_input", "")  # 添加：获取用户原始需求
+        # Load executor instruction
+        prompts = load_prompts_config("modeling", "custom")
+        executor_instruction = prompts["executor_instruction"]
 
-        if not plan or len(plan) == 0:
-            raise RuntimeError("Executor: plan 为空")
+        # Construct messages array
+        messages = [SystemMessage(content=executor_instruction)]
 
-        # 将 plan 转换为文本
-        plan_str = "\n".join([f"任务 {i + 1}: {t.description}" for i, t in enumerate(plan)])
+        # Add successful execution history from execution_trace
+        execution_trace = state.get("execution_trace") or []
+        print(f"--- [Executor DEBUG] execution_trace长度: {len(execution_trace)} ---")
+        for i, trace in enumerate(execution_trace):
+            ai_msg = trace["ai_message"]
+            tool_msg = trace["tool_message"]
+            print(f"--- [Executor DEBUG] Trace {i}: ai_msg类型={type(ai_msg).__name__}, tool_msg类型={type(tool_msg).__name__} ---")
+            # Reconstruct message objects if they were serialized to dicts
+            if isinstance(ai_msg, dict):
+                print(f"--- [Executor DEBUG] ai_msg是dict，keys={list(ai_msg.keys())} ---")
+                ai_msg = AIMessage(**ai_msg)
+            if isinstance(tool_msg, dict):
+                print(f"--- [Executor DEBUG] tool_msg是dict，keys={list(tool_msg.keys())} ---")
+                tool_msg = ToolMessage(**tool_msg)
+            messages.append(ai_msg)
+            messages.append(tool_msg)
 
-        # 创建 agent
-        agent = create_modeling_custom_agent(sandbox, scenario)
+        # Add failed execution if retrying
+        last_error = state.get("last_error")
+        if last_error:
+            ai_msg = last_error["ai_message"]
+            tool_msg = last_error["tool_message"]
+            if isinstance(ai_msg, dict):
+                ai_msg = AIMessage(**ai_msg)
+            if isinstance(tool_msg, dict):
+                tool_msg = ToolMessage(**tool_msg)
+            messages.append(ai_msg)
+            messages.append(tool_msg)
 
-        # 构建动态上下文
-        config = load_prompts_config("modeling", scenario)
-        context_template = config.get('executor_context_template')
-        context_content = context_template.format(
-            remote_file_path=remote_file_path,
-            plan_str=plan_str,
-            user_input=user_input
-        )
+        # Construct current context HumanMessage
+        completed_tasks = state.get("completed_tasks") or []
+        confirmed_findings = state.get("confirmed_findings") or []
+        generated_files = state.get("generated_files") or {}
 
-        # 调用 agent（agent 内部会循环执行直到完成所有任务）
-        # 增加 recursion_limit 以支持多任务执行
-        invoke_config = {
-            "recursion_limit": 100  # 增加递归限制，支持执行多个任务
-        }
+        completed_str = "\n".join([f"- {t['description']}" for t in completed_tasks]) if completed_tasks else "无"
+        findings_str = "\n".join([f"- {f}" for f in confirmed_findings]) if confirmed_findings else "无"
 
-        agent_result = agent.invoke(
-            {
-                "remote_file_path": remote_file_path,
-                "plan": plan,
-                "messages": [HumanMessage(content=context_content)]
-            },
-            config=invoke_config
-        )
+        context = f"""当前任务: {state['current_task']}
 
-        # 提取结果
-        print("--- [Modeling Subgraph] Agent 执行完成，提取结果 ---")
+已完成任务:
+{completed_str}
 
-        # 从 agent_result 的 messages 中获取最后一条消息
-        messages = agent_result.get("messages", [])
+已确认发现:
+{findings_str}
 
-        # 调试：打印 messages 数量和类型
-        print(f"--- [Debug] Agent 返回了 {len(messages)} 条消息 ---")
-        for i, msg in enumerate(messages):
-            msg_type = type(msg).__name__
-            content_preview = str(msg.content)[:100] if hasattr(msg, 'content') else "N/A"
-            print(f"  Message {i+1}: {msg_type} - {content_preview}...")
+当前已登记文件:
+{json.dumps(generated_files, ensure_ascii=False, indent=2)}
+"""
 
-            # 检查是否有 tool_calls
-            if hasattr(msg, 'tool_calls'):
-                print(f"    tool_calls: {msg.tool_calls}")
-            if hasattr(msg, 'additional_kwargs'):
-                print(f"    additional_kwargs: {msg.additional_kwargs}")
+        if last_error:
+            context += "\n\n 当前的 jupyter code cell 执行失败！请重新编写当前任务的代码！"
 
-        # 打印最后一条消息的完整内容
-        if messages:
-            last_msg = messages[-1]
-            print(f"\n--- [Debug] 最后一条消息完整内容 ---")
-            print(f"Type: {type(last_msg).__name__}")
-            print(f"Content: {last_msg.content}")
-            if hasattr(last_msg, 'tool_calls'):
-                print(f"Tool calls: {last_msg.tool_calls}")
+        messages.append(HumanMessage(content=context))
 
-        if not messages:
-            return {
-                "modeling_summary": "执行完成",
-                "generated_data_files": [],
-                "file_metadata": []
-            }
+        # Call LLM
+        print(f"--- [Executor] 当前任务: {state['current_task']} ---")
+        print(f"--- [Executor DEBUG] Messages数组长度: {len(messages)} ---")
+        print(f"--- [Executor DEBUG] Messages类型: {[type(m).__name__ for m in messages]} ---")
+        print(f"--- [Executor DEBUG] 准备调用LLM... ---")
 
-        last_message = messages[-1]
-        answer = extract_text_from_content(last_message.content)
-
-        # 尝试从回复中提取 JSON 格式的产物清单
-        json_match = re.search(r'```json\s*(\[.*?\])\s*```', answer, re.DOTALL)
-
-        if json_match:
-            try:
-                json_str = json_match.group(1)
-                file_metadata = json.loads(json_str)
-                print(f"--- [Modeling Subgraph] 成功解析产物清单，包含 {len(file_metadata)} 个文件 ---")
-
-                return {
-                    "modeling_summary": answer,
-                    "generated_data_files": [item["file_name"] for item in file_metadata],
-                    "file_metadata": file_metadata
-                }
-            except json.JSONDecodeError:
-                print("--- [Modeling Subgraph] JSON 解析失败，回退到文件扫描 ---")
-
-        # 回退：扫描文件系统
         try:
-            ls_result = sandbox.commands.run("ls /home/user/*.feather /home/user/*.json 2>/dev/null || true")
-            if ls_result.stdout:
-                files = [f.split('/')[-1] for f in ls_result.stdout.strip().split('\n') if f and '/' in f]
-                print(f"--- [Modeling Subgraph] 发现 {len(files)} 个产物文件 ---")
-                result = {
-                    "modeling_summary": answer,
-                    "generated_data_files": files,
-                    "file_metadata": []
-                }
-                print(f"--- [Debug] Executor 返回结果（文件扫描）---")
-                print(f"  modeling_summary: {result['modeling_summary'][:100]}...")
-                print(f"  generated_data_files: {result['generated_data_files']}")
-                print(f"  file_metadata: {result['file_metadata']}")
-                return result
+            ai_response = llm_with_tools.invoke(messages)
+            print(f"--- [Executor DEBUG] LLM调用成功 ---")
         except Exception as e:
-            print(f"--- [Modeling Subgraph] 扫描文件失败: {e} ---")
+            print(f"--- [Executor ERROR] LLM调用失败: {type(e).__name__}: {str(e)} ---")
+            raise
 
-        result = {
-            "modeling_summary": answer,
-            "generated_data_files": [],
-            "file_metadata": []
+        # Extract code from tool calls
+        if not ai_response.tool_calls:
+            raise RuntimeError("Executor: LLM 未返回工具调用")
+
+        print(f"--- [Executor] 已生成代码 ---")
+
+        return {
+            "latest_ai_message": ai_response,
+            "last_error": None
         }
-        print(f"--- [Debug] Executor 返回结果（最终兜底）---")
-        print(f"  modeling_summary: {result['modeling_summary'][:100] if result['modeling_summary'] else 'EMPTY'}...")
-        print(f"  generated_data_files: {result['generated_data_files']}")
-        print(f"  file_metadata: {result['file_metadata']}")
-        return result
 
     return executor_node

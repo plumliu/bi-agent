@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Dict, Any
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
@@ -12,30 +13,40 @@ from app.utils.llm_factory import create_llm, apply_retry
 llm = apply_retry(create_llm(use_flash=False))
 
 
-def planner_node(state: CustomModelingState):
-    """
-    Planner 节点：根据用户需求和数据 Schema 生成初始任务计划
-    """
-    print("--- [Planner] 正在规划任务列表... ---")
+def replanner_node(state: CustomModelingState) -> Dict[str, Any]:
+    """Replanner 节点：重新规划剩余任务"""
+    print("--- [Replanner] 重新规划剩余任务 ---")
 
-    # Load prompts
+    # Load replanner instruction
     prompts = load_prompts_config("modeling", "custom")
-    planner_instruction = prompts["planner_instruction"]
+    replanner_instruction = prompts["replanner_instruction"]
 
     # Construct messages
-    system_message = SystemMessage(content=planner_instruction)
+    system_message = SystemMessage(content=replanner_instruction)
 
-    data_schema_str = json.dumps(state["data_schema"], ensure_ascii=False, indent=2)
-    human_content = f"""【用户的原始需求】
-{state['user_input']}
+    context = f"""用户需求: {state['user_input']}
 
-【当前任务的环境信息】
-数据路径: {state['remote_file_path']}
+初始计划: {json.dumps(state.get('initial_plan'), ensure_ascii=False, indent=2)}
 
-【数据结构】
-{data_schema_str}
+已完成任务:
+{json.dumps(state.get('completed_tasks'), ensure_ascii=False, indent=2)}
+
+旧剩余任务:
+{json.dumps(state.get('remaining_tasks'), ensure_ascii=False, indent=2)}
+
+已确认发现:
+{json.dumps(state.get('confirmed_findings'), ensure_ascii=False, indent=2)}
+
+问题池:
+{json.dumps(state.get('open_questions'), ensure_ascii=False, indent=2)}
+
+当前文件:
+{json.dumps(state.get('generated_files'), ensure_ascii=False, indent=2)}
+
+重规划原因: {state.get('replan_reason', '')}
 """
-    human_message = HumanMessage(content=human_content)
+
+    human_message = HumanMessage(content=context)
 
     # Call LLM
     response = llm.invoke([system_message, human_message])
@@ -43,7 +54,6 @@ def planner_node(state: CustomModelingState):
     # Parse JSON output
     raw_text = extract_text_from_content(response.content)
 
-    # Extract JSON
     match = re.search(r"```(?:json)?(.*?)```", raw_text, re.DOTALL)
     if match:
         content_str = match.group(1).strip()
@@ -57,22 +67,16 @@ def planner_node(state: CustomModelingState):
 
     parsed = json.loads(content_str)
     phase_tasks = parsed["phase_tasks"]
-    followup_playbook = parsed.get("followup_playbook", [])
+    followup_playbook = parsed.get("followup_playbook", state.get("followup_playbook", []))
 
-    print(f"--- [Planner] 生成了 {len(phase_tasks)} 个任务 ---")
+    print(f"--- [Replanner] 重新规划了 {len(phase_tasks)} 个任务 ---")
     for i, task in enumerate(phase_tasks, 1):
         print(f"  [Task {i}] {task['description']}")
 
-    # Initialize state
+    # Update state
     return {
-        "initial_plan": {"phase_tasks": phase_tasks, "followup_playbook": followup_playbook},
         "remaining_tasks": phase_tasks[1:] if len(phase_tasks) > 1 else [],
-        "completed_tasks": [],
         "current_task": phase_tasks[0]["description"] if phase_tasks else None,
         "followup_playbook": followup_playbook,
-        "confirmed_findings": [],
-        "open_questions": [],
-        "observer_history": [],
-        "execution_trace": [],
-        "generated_files": {},
+        "replan_reason": None  # Clear replan reason
     }

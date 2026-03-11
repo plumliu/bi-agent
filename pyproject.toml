@@ -8,6 +8,7 @@ dependencies = [
     "chardet>=5.2.0",
     "fastapi>=0.128.0",
     "langchain>=1.2.6",
+    "langchain-anthropic>=1.3.4",
     "langchain-openai>=1.1.7",
     "langgraph>=1.0.6",
     "lightgbm>=4.6.0",

@@ -1,54 +1,91 @@
-import os
 import json
 from typing import Dict, Any
+
 from ppio_sandbox.code_interpreter import Sandbox
+
 from app.core.modeling_custom_subgraph.state import CustomModelingState
 
 
 def create_modeling_aggregator_node(sandbox: Sandbox):
-    """创建 modeling aggregator 节点（工厂函数）"""
+    """创建 Aggregator 节点（工厂函数）"""
 
     def modeling_aggregator_node(state: CustomModelingState) -> Dict[str, Any]:
-        """
-        收集并合并 sandbox 中的所有 JSON 产物
-        """
-        print("--- [Modeling Subgraph] Aggregator: 正在收集产物... ---")
+        """收集并聚合所有产物"""
+        print("--- [Aggregator] 聚合产物 ---")
 
-        try:
-            # 扫描 sandbox 中的所有 JSON 文件
-            ls_result = sandbox.commands.run("ls /home/user/*.json 2>/dev/null || true")
+        generated_files = state.get("generated_files") or {}
+        completed_tasks = state.get("completed_tasks") or []
+        confirmed_findings = state.get("confirmed_findings") or []
+        observer_history = state.get("observer_history") or []
+        stop_reason = state.get("stop_reason", "")
 
-            if not ls_result.stdout or not ls_result.stdout.strip():
-                print("--- [Modeling Subgraph] Aggregator: 未发现 JSON 文件 ---")
-                return {"modeling_artifacts": {}}
-
-            json_files = [f.strip() for f in ls_result.stdout.strip().split('\n') if f.strip()]
-            print(f"--- [Modeling Subgraph] Aggregator: 发现 {len(json_files)} 个 JSON 文件 ---")
-
-            # 合并所有 JSON 文件
-            merged_artifacts = {}
-
-            for json_path in json_files:
+        # Collect JSON artifacts (exclude registered_files.json)
+        modeling_artifacts = {}
+        for file_name, file_info in generated_files.items():
+            if file_name.endswith('.json') and file_name != 'registered_files.json':
                 try:
-                    # 读取文件内容
-                    content = sandbox.files.read(json_path)
+                    content = sandbox.files.read(f"/home/user/{file_name}")
                     data = json.loads(content)
-
-                    # 使用文件名（不含扩展名）作为 key
-                    file_name = os.path.basename(json_path).replace('.json', '')
-                    merged_artifacts[file_name] = data
-
-                    print(f"  ✓ {file_name}.json")
-
+                    key = file_name.replace('.json', '')
+                    modeling_artifacts[key] = data
+                    print(f"  ✓ {file_name}")
                 except Exception as e:
-                    print(f"  ✗ 读取 {json_path} 失败: {e}")
+                    print(f"  ✗ 读取 {file_name} 失败: {e}")
 
-            print(f"--- [Modeling Subgraph] Aggregator: 成功合并 {len(merged_artifacts)} 个文件 ---")
+        # Extract file names
+        generated_data_files = list(generated_files.keys())
 
-            return {"modeling_artifacts": merged_artifacts}
+        # Use generated_files as file_metadata
+        file_metadata = [
+            {
+                "file_name": fname,
+                "description": finfo.get("description", ""),
+                "columns_desc": finfo.get("columns_desc", {}),
+                "type": finfo.get("type", "")
+            }
+            for fname, finfo in generated_files.items()
+        ]
 
-        except Exception as e:
-            print(f"--- [Modeling Subgraph] Aggregator: 错误 - {e} ---")
-            return {"modeling_artifacts": {}}
+        # Construct modeling_summary
+        summary_parts = []
+
+        if stop_reason:
+            summary_parts.append(f"停止原因: {stop_reason}\n")
+
+        summary_parts.append("已完成任务:")
+        for task in completed_tasks:
+            summary_parts.append(f"- {task['description']}")
+
+        summary_parts.append("\n已确认发现:")
+        for finding in confirmed_findings:
+            summary_parts.append(f"- {finding}")
+
+        summary_parts.append("\n执行历史:")
+        for history in observer_history:
+            summary_parts.append(f"- {history}")
+
+        summary_parts.append(f"\n生成文件: {len(generated_data_files)} 个")
+
+        modeling_summary = "\n".join(summary_parts)
+
+        print(f"--- [Aggregator] 完成: {len(modeling_artifacts)} 个 JSON 产物, {len(generated_data_files)} 个文件 ---")
+
+        # Print detailed aggregation results
+        print("=" * 80)
+        print("[Aggregator] 汇总详情:")
+        print(f"生成文件列表: {generated_data_files}")
+        print(f"JSON产物: {list(modeling_artifacts.keys())}")
+        print(f"文件元信息: {json.dumps(file_metadata, ensure_ascii=False, indent=2)}")
+        print(f"已完成任务数: {len(completed_tasks)}")
+        print(f"已确认发现数: {len(confirmed_findings)}")
+        print(f"\n完整Summary:\n{modeling_summary}")
+        print("=" * 80)
+
+        return {
+            "modeling_summary": modeling_summary,
+            "generated_data_files": generated_data_files,
+            "file_metadata": file_metadata,
+            "modeling_artifacts": modeling_artifacts
+        }
 
     return modeling_aggregator_node
