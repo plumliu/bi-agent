@@ -11,6 +11,7 @@ class CustomVizState(TypedDict):
     modeling_summary: str  # 添加：建模摘要
     generated_data_files: List[str]  # 添加：生成的数据文件列表
     file_metadata: List[Dict[str, Any]]
+    modeling_artifacts: Optional[Dict[str, Any]]  # 添加：JSON 产物内容
 
     # Planner 生成
     viz_tasks: Optional[List[Dict[str, Any]]]

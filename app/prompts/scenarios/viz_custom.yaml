@@ -11,7 +11,9 @@ planner_instruction: |
      - chart_type: 图表类型（scatter/line/bar/... 请注意，必须从下方的【支持的图表类型】来挑选图标类型！）
      - title: 业务化的图表标题
      - description: 清晰描述这张图要展示什么内容，给出建议（但不要指定具体的字段名）
-     - source_files: 数据源文件名数组（可以是多个文件）
+     - data_requirements: 数据需求数组，每个元素包含：
+       * file_name: 文件名
+       * required_columns: 对于 feather 文件，指定需要的列名数组；对于 JSON 文件，设为 null 表示使用全部数据
 
   【支持的图表类型】
   - scatter: 散点图，用于展示二维数据分布（支持按类别着色）
@@ -34,13 +36,34 @@ planner_instruction: |
         "chart_type": "scatter",
         "title": "客户分群分布图",
         "description": "展示客户在二维空间的分布，按聚类标签着色",
-        "source_files": ["clustered_data.feather"]
+        "data_requirements": [
+          {{
+            "file_name": "clustered_data.feather",
+            "required_columns": ["feature_1", "feature_2", "cluster_label"]
+          }}
+        ]
       }},
       {{
         "chart_type": "bar",
         "title": "各群组数量分布",
         "description": "展示每个聚类的客户数量",
-        "source_files": ["clustered_data.feather"]
+        "data_requirements": [
+          {{
+            "file_name": "clustered_data.feather",
+            "required_columns": ["cluster_label"]
+          }}
+        ]
+      }},
+      {{
+        "chart_type": "table",
+        "title": "聚类统计指标",
+        "description": "展示各聚类的统计指标",
+        "data_requirements": [
+          {{
+            "file_name": "cluster_metrics.json",
+            "required_columns": null
+          }}
+        ]
       }}
     ]
   }}
@@ -50,7 +73,9 @@ planner_instruction: |
   - 每个任务必须独立：不依赖其他任务的输出
   - 数据源必须存在：只能使用 modeling_summary 中提到的文件
   - description 只需要说明业务含义，不要指定具体的列名或前端数据格式
-  - source_files 是数组，可以包含多个文件（如果需要关联多个数据源）
+  - 对于 feather 文件：必须在 required_columns 中明确指定需要的列名（根据可用数据文件的列信息）
+  - 对于 JSON 文件：required_columns 设为 null，表示使用全部数据
+  - 只选择真正需要的列，避免传递冗余数据
 
 # 新增：context_template（用于 HumanMessage）
 planner_context_template: |
@@ -62,11 +87,13 @@ planner_context_template: |
   【用户原始需求】
   {user_input}
 
-  【可用数据文件】
-  {generated_files}
+  【可用数据文件及其列信息】
+  {file_metadata_text}
 
   【重要说明】
   请根据上述建模产物、用户需求和可用数据文件，规划可视化任务。
+  对于 feather 文件，请在 data_requirements 中明确指定需要的列名。
+  对于 JSON 文件，将 required_columns 设为 null。
 
 # ==============================================================================
 # Role: Viz Executor (可视化执行者)

@@ -3,33 +3,15 @@ import json
 import re
 import time
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_openai import ChatOpenAI
-from openai import APIError
 
-from app.core.config import settings
 from app.core.prompts_config import load_prompts_config
 from app.core.viz_custom_subgraph.state import CustomVizState
 from app.core.viz_custom_subgraph.schemas import VizTaskSimple, VizPlannerOutput
 from app.utils.extract_text_from_content import extract_text_from_content
+from app.utils.llm_factory import create_llm, apply_retry
 
-# 初始化 LLM
-llm = ChatOpenAI(
-    model=settings.LLM_MODEL_NAME,
-    temperature=0,
-    api_key=settings.OPENAI_API_KEY,
-    base_url=settings.OPENAI_API_BASE,
-    use_responses_api=settings.USE_RESPONSES_API,
-    streaming=True,  # responses API 需要流式调用
-    max_retries=5,
-    timeout=120,
-)
-
-# 添加智能重试机制
-llm = llm.with_retry(
-    stop_after_attempt=5,
-    retry_if_exception_type=(APIError,),
-    wait_exponential_jitter=True,
-)
+# 初始化 LLM (主模型使用Anthropic)
+llm = apply_retry(create_llm(use_flash=False))
 
 
 def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
@@ -47,30 +29,53 @@ def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
     # 2. 获取上下文
     modeling_summary = state.get("modeling_summary", "")
     user_input = state.get("user_input", "")
-    generated_files = state.get("generated_data_files", [])
+    file_metadata = state.get("file_metadata", [])
 
     # 调试：打印接收到的 state
     print(f"--- [Debug] Viz Planner 接收到的 state ---")
     print(f"  modeling_summary: {modeling_summary[:100] if modeling_summary else 'EMPTY'}...")
-    print(f"  generated_files: {generated_files}")
+    print(f"  file_metadata count: {len(file_metadata)}")
     print(f"  state keys: {list(state.keys())}")
 
     if not modeling_summary:
         raise RuntimeError("--- [Viz Subgraph] Planner: 错误! modeling_summary 为空 ---")
 
-    # 3. 加载提示词配置
+    # 3. 构造文件元信息文本
+    file_metadata_parts = []
+    for file_info in file_metadata:
+        file_name = file_info.get("file_name", "")
+        description = file_info.get("description", "")
+        file_type = file_info.get("type", "")
+        columns_desc = file_info.get("columns_desc", {})
+
+        file_metadata_parts.append(f"\n文件: {file_name}")
+        file_metadata_parts.append(f"类型: {file_type}")
+        file_metadata_parts.append(f"描述: {description}")
+
+        if file_type == "feather" and columns_desc:
+            file_metadata_parts.append("可用列:")
+            for col_name, col_desc in columns_desc.items():
+                file_metadata_parts.append(f"  - {col_name}: {col_desc}")
+        elif file_type == "json" and columns_desc:
+            file_metadata_parts.append("数据键:")
+            for key, desc in columns_desc.items():
+                file_metadata_parts.append(f"  - {key}: {desc}")
+
+    file_metadata_text = "\n".join(file_metadata_parts)
+
+    # 4. 加载提示词配置
     prompts = load_prompts_config("viz", "custom")
     planner_instruction = prompts["planner_instruction"]
     context_template = prompts["planner_context_template"]
 
-    # 4. SystemMessage 完全静态
+    # 5. SystemMessage 完全静态
     system_message = SystemMessage(content=planner_instruction)
 
-    # 5. HumanMessage 包含动态上下文
+    # 6. HumanMessage 包含动态上下文
     context_content = context_template.format(
         modeling_summary=modeling_summary,
         user_input=user_input,
-        generated_files=generated_files
+        file_metadata_text=file_metadata_text
     )
     context_message = HumanMessage(content=context_content)
 
@@ -95,24 +100,11 @@ def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
 
         print(f"--- [Viz Subgraph] Planner: 生成了 {len(planner_output.tasks)} 个可视化任务 ---")
 
-        # 6. 组装完整的 viz_tasks（添加 task_id 和文件元信息）
-        file_metadata = state.get("file_metadata", [])
+        # 6. 组装完整的 viz_tasks（添加 task_id）
         viz_tasks = []
 
         for idx, simple_task in enumerate(planner_output.tasks, start=1):
             task_id = f"viz_task_{idx}"
-
-            # 提取该任务所需文件的列信息
-            file_columns = []
-            for source_file in simple_task.source_files:
-                # 从 file_metadata 中查找对应的文件
-                for file_meta in file_metadata:
-                    if file_meta["file_name"] == source_file:
-                        file_columns.append({
-                            "file_name": source_file,
-                            "columns": file_meta["columns"]
-                        })
-                        break
 
             # 组装完整的 VizTask
             full_task = {
@@ -120,14 +112,14 @@ def viz_planner_node(state: CustomVizState) -> Dict[str, Any]:
                 "chart_type": simple_task.chart_type,
                 "title": simple_task.title,
                 "description": simple_task.description,
-                "source_files": simple_task.source_files,
-                "file_columns": file_columns
+                "data_requirements": [req.model_dump() for req in simple_task.data_requirements]
             }
 
             viz_tasks.append(full_task)
             print(f"  - {task_id}: {simple_task.chart_type} - {simple_task.title}")
-            print(f"    数据源: {simple_task.source_files}")
-            print(f"    透传列信息: {len(file_columns)} 个文件")
+            for req in simple_task.data_requirements:
+                cols_info = f"列: {req.required_columns}" if req.required_columns else "全部数据"
+                print(f"    数据源: {req.file_name} ({cols_info})")
 
         # 初始化 metrics
         viz_metrics = {"planner_llm_duration": llm_duration}

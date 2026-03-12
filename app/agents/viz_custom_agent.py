@@ -1,11 +1,9 @@
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
-from openai import APIError
 from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.agent_states import VizCustomAgentState
-from app.core.config import settings
 from app.tools.python_script_runner import create_python_script_runner
+from app.utils.llm_factory import create_llm, apply_retry
 
 
 def create_viz_custom_agent(sandbox: Sandbox, task_id: str, chart_guide: str):
@@ -34,17 +32,12 @@ def create_viz_custom_agent(sandbox: Sandbox, task_id: str, chart_guide: str):
     # 创建工具
     script_runner = create_python_script_runner(sandbox, task_id)
 
-    # 创建 agent
+    # 创建 LLM (主模型使用Anthropic)
+    llm = create_llm(use_flash=False)
+
+    # 创建 agent (先创建agent，再apply_retry)
     agent = create_agent(
-        model=ChatOpenAI(
-            model=settings.LLM_MODEL_NAME,
-            temperature=0,
-            api_key=settings.OPENAI_API_KEY,
-            use_responses_api=settings.USE_RESPONSES_API,
-            base_url=settings.OPENAI_API_BASE,
-            max_retries=5,
-            timeout=120,
-        ),
+        model=llm,
         tools=[script_runner],
         system_prompt=system_prompt,
         state_schema=VizCustomAgentState,
@@ -52,10 +45,6 @@ def create_viz_custom_agent(sandbox: Sandbox, task_id: str, chart_guide: str):
     )
 
     # 添加智能重试机制
-    agent = agent.with_retry(
-        stop_after_attempt=5,
-        retry_if_exception_type=(APIError,),
-        wait_exponential_jitter=True,
-    )
+    agent = apply_retry(agent)
 
     return agent
