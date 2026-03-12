@@ -15,17 +15,6 @@ class ModelingAgentState(AgentState[Any]):
     modeling_summary: NotRequired[str]
 
 
-class ModelingCustomAgentState(AgentState[Any]):
-    """Custom Modeling Executor Agent 状态"""
-    remote_file_path: NotRequired[str]
-    plan: NotRequired[List[Dict[str, Any]]]
-    current_task_index: NotRequired[int]
-    task_results: NotRequired[List[Dict[str, Any]]]
-    modeling_summary: NotRequired[str]
-    generated_data_files: NotRequired[List[str]]
-    file_metadata: NotRequired[List[Dict[str, Any]]]
-
-
 class VizAgentState(AgentState[Any]):
     """SOP Viz Agent 状态"""
     scenario: NotRequired[str]

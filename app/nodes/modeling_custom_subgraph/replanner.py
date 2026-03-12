@@ -24,6 +24,19 @@ def replanner_node(state: CustomModelingState) -> Dict[str, Any]:
     # Construct messages
     system_message = SystemMessage(content=replanner_instruction)
 
+    # Extract latest execution context
+    latest_execution = state.get('latest_execution')
+    execution_context = ""
+    if latest_execution:
+        execution_context = f"""
+触发重规划时的最后一轮执行（这可能是触发重规划的关键证据）:
+代码:
+{latest_execution.get('code', '')}
+
+输出:
+{latest_execution.get('stdout', '')}
+"""
+
     context = f"""用户需求: {state['user_input']}
 
 初始计划: {json.dumps(state.get('initial_plan'), ensure_ascii=False, indent=2)}
@@ -42,6 +55,8 @@ def replanner_node(state: CustomModelingState) -> Dict[str, Any]:
 
 当前文件:
 {json.dumps(state.get('generated_files'), ensure_ascii=False, indent=2)}
+
+{execution_context}
 
 重规划原因: {state.get('replan_reason', '')}
 """

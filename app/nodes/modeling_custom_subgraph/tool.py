@@ -14,8 +14,31 @@ def create_tool_node(sandbox: Sandbox):
         print("--- [Tool] 执行代码 ---")
 
         ai_message = state["latest_ai_message"]
-        code = ai_message.tool_calls[0]["args"]["code"]
-        tool_call_id = ai_message.tool_calls[0]["id"]
+
+        # Debug: print tool_calls structure
+        print(f"--- [Tool DEBUG] tool_calls: {ai_message.tool_calls}")
+
+        if not ai_message.tool_calls:
+            raise RuntimeError("Tool: ai_message 没有 tool_calls")
+
+        tool_call = ai_message.tool_calls[0]
+        # Extract args and tool_call_id
+        if isinstance(tool_call, dict):
+            args = tool_call.get("args", {})
+            tool_call_id = tool_call["id"]
+        else:
+            args = getattr(tool_call, "args", {})
+            tool_call_id = tool_call.id
+
+        # Smart code extraction: tool only has one param, match by key name with fallback
+        if "code" in args:
+            code = args["code"]
+        elif len(args) == 1:
+            actual_key = list(args.keys())[0]
+            code = list(args.values())[0]
+            print(f"--- [Tool] 警告: LLM 使用了非标准参数名 '{actual_key}'，已自动适配 ---")
+        else:
+            raise RuntimeError(f"Tool: 无法提取 code 参数，args={args}")
 
         # Print generated code
         print("=" * 80)
