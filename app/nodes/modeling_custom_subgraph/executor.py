@@ -60,10 +60,12 @@ def create_executor_node(sandbox: Sandbox):
         # Construct current context HumanMessage
         completed_tasks = state.get("completed_tasks") or []
         confirmed_findings = state.get("confirmed_findings") or []
+        working_hypotheses = state.get("working_hypotheses") or []
         generated_files = state.get("generated_files") or {}
 
         completed_str = "\n".join([f"- {t['description']}" for t in completed_tasks]) if completed_tasks else "无"
         findings_str = "\n".join([f"- {f}" for f in confirmed_findings]) if confirmed_findings else "无"
+        hypotheses_str = "\n".join([f"- {h}" for h in working_hypotheses]) if working_hypotheses else "无"
 
         context = f"""当前任务: {state['current_task']}
 
@@ -72,6 +74,9 @@ def create_executor_node(sandbox: Sandbox):
 
 已确认发现:
 {findings_str}
+
+当前工作假设（上一轮 Observer 的认知状态，仅供参考）:
+{hypotheses_str}
 
 当前已登记文件:
 {json.dumps(generated_files, ensure_ascii=False, indent=2)}

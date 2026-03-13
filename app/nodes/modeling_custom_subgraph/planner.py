@@ -25,15 +25,30 @@ def planner_node(state: CustomModelingState):
     # Construct messages
     system_message = SystemMessage(content=planner_instruction)
 
-    data_schema_str = json.dumps(state["data_schema"], ensure_ascii=False, indent=2)
+    files_metadata_str = json.dumps(state["files_metadata"], ensure_ascii=False, indent=2)
+
+    merge_recs_str = ""
+    if state.get("merge_recommendations"):
+        merge_recs_str = (
+            "\n\n【合并建议（Profiler 验证通过）】\n"
+            + json.dumps(state["merge_recommendations"], ensure_ascii=False, indent=2)
+        )
+
     human_content = f"""【用户的原始需求】
 {state['user_input']}
 
 【当前任务的环境信息】
-数据路径: {state['remote_file_path']}
+原始文件数量: {len(state.get('raw_file_paths', []))}
+原始文件路径: {state.get('raw_file_paths', [])}
+原始文件名: {state.get('original_filenames', [])}
 
-【数据结构】
-{data_schema_str}
+【文件元信息】
+{files_metadata_str}{merge_recs_str}
+
+注意：
+- 单文件时，files_metadata 长度为 1，无 merge_recommendations
+- 多文件时，files_metadata 包含所有文件的元信息，merge_recommendations 包含验证通过的合并建议
+- 合并建议仅供参考，executor 应基于 EDA 结果做最终决策
 """
     human_message = HumanMessage(content=human_content)
 
@@ -55,7 +70,14 @@ def planner_node(state: CustomModelingState):
         else:
             content_str = raw_text.strip()
 
-    parsed = json.loads(content_str)
+    try:
+        parsed = json.loads(content_str)
+    except json.JSONDecodeError as e:
+        print(f"[Planner] JSON 解析失败: {e}")
+        print(f"[Planner] LLM 原始响应（前2000字符）:\n{raw_text[:2000]}")
+        print(f"[Planner] 提取的 JSON 字符串（前2000字符）:\n{content_str[:2000]}")
+        raise RuntimeError(f"Planner JSON 解析失败: {e}") from e
+
     phase_tasks = parsed["phase_tasks"]
     followup_playbook = parsed.get("followup_playbook", [])
 
@@ -71,6 +93,7 @@ def planner_node(state: CustomModelingState):
         "current_task": phase_tasks[0]["description"] if phase_tasks else None,
         "followup_playbook": followup_playbook,
         "confirmed_findings": [],
+        "working_hypotheses": [],
         "open_questions": [],
         "observer_history": [],
         "execution_trace": [],

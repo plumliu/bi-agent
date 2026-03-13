@@ -39,6 +39,14 @@ def _parse_observer_output(text: str) -> Dict[str, Any]:
         if line.strip().startswith("-")
     ]
 
+    hypotheses_match = re.search(r"\[WORKING_HYPOTHESES\](.*?)(?:\[|$)", text, re.DOTALL)
+    hypotheses_text = hypotheses_match.group(1).strip() if hypotheses_match else ""
+    new_working_hypotheses = [
+        line.strip("- ").strip()
+        for line in hypotheses_text.split("\n")
+        if line.strip().startswith("-")
+    ]
+
     next_task_match = re.search(r"\[NEXT_TASK\](.*?)(?:\[|$)", text, re.DOTALL)
     next_task = next_task_match.group(1).strip() if next_task_match else ""
 
@@ -52,6 +60,7 @@ def _parse_observer_output(text: str) -> Dict[str, Any]:
         "decision": decision,
         "task_summary": task_summary,
         "findings_delta": findings_delta,
+        "new_working_hypotheses": new_working_hypotheses,
         "new_open_questions": new_open_questions,
         "next_task": next_task,
         "replan_reason": replan_reason,
@@ -106,6 +115,7 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
     followup_playbook = state.get("followup_playbook") or []
     open_questions = state.get("open_questions") or []
     confirmed_findings = state.get("confirmed_findings") or []
+    working_hypotheses = state.get("working_hypotheses") or []
     generated_files = state.get("generated_files") or {}
     latest_execution = state.get("latest_execution") or {}
 
@@ -127,6 +137,9 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
 
 已确认发现:
 {json.dumps(confirmed_findings, ensure_ascii=False, indent=2)}
+
+当前工作假设:
+{json.dumps(working_hypotheses, ensure_ascii=False, indent=2)}
 
 当前文件:
 {json.dumps(generated_files, ensure_ascii=False, indent=2)}
@@ -175,6 +188,7 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
     decision = parsed["decision"]
     task_summary = parsed["task_summary"]
     findings_delta = parsed["findings_delta"]
+    new_working_hypotheses = parsed["new_working_hypotheses"]
     new_open_questions = parsed["new_open_questions"]
 
     print(f"--- [Observer] 最终决策: {decision} ---")
@@ -183,6 +197,7 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
     result = {
         "latest_control_signal": decision,
         "confirmed_findings": confirmed_findings + findings_delta,
+        "working_hypotheses": new_working_hypotheses,
         "open_questions": new_open_questions,
         "observer_history": observer_history + [task_summary],
     }

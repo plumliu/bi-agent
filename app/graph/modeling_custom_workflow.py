@@ -20,8 +20,8 @@ def build_modeling_custom_subgraph(sandbox: Sandbox):
     # Upload helper functions to sandbox
     helpers_path = Path(__file__).parent.parent / "helpers" / "modeling_helpers.py"
     helpers_code = helpers_path.read_text(encoding='utf-8')
-    sandbox.files.write("/home/user/helpers.py", helpers_code)
-    sandbox.run_code("from helpers import *")
+    sandbox.files.write("/home/user/helper.py", helpers_code)
+    sandbox.run_code("from helper import *")
     print("--- [Workflow] Helper 函数已注入到 sandbox ---")
 
     # Build graph

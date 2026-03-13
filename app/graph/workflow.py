@@ -7,7 +7,7 @@ from ppio_sandbox.code_interpreter import Sandbox
 from app.core.state import WorkflowState
 
 # 导入节点
-from app.nodes.auto_etl import auto_etl_node
+from app.nodes.profiler import profiler_node
 from app.nodes.router import router_node
 from app.nodes.modeling import create_modeling_node  # SOP Modeling
 from app.nodes.fetch_artifacts import create_fetch_artifacts_node
@@ -56,7 +56,7 @@ def build_graph(sandbox: Sandbox):
     # ============================================================
     # 1. 注册节点
     # ============================================================
-    workflow.add_node("auto_etl", partial(auto_etl_node, sandbox=sandbox))
+    workflow.add_node("profiler", partial(profiler_node, sandbox=sandbox))
     workflow.add_node("router", router_node)
 
     # 分支 A: SOP Modeling 节点（使用 create_agent）
@@ -78,9 +78,9 @@ def build_graph(sandbox: Sandbox):
     # 2. 定义边
     # ============================================================
 
-    # 1. 预处理: Start -> Auto-ETL -> Router
-    workflow.add_edge(START, "auto_etl")
-    workflow.add_edge("auto_etl", "router")
+    # 1. 预处理: Start -> Profiler -> Router
+    workflow.add_edge(START, "profiler")
+    workflow.add_edge("profiler", "router")
 
     # 2. 核心分流: Router -> (SOP) / (Custom)
     workflow.add_conditional_edges(

@@ -8,9 +8,21 @@ class CustomModelingState(TypedDict):
     """
     # ========== InputState (从主图传入) ==========
     scenario: str
-    remote_file_path: str
-    data_schema: Dict[str, Any]
     user_input: str
+
+    # 原始文件路径列表（沙盒内）
+    raw_file_paths: List[str]
+    # 原始文件名列表
+    original_filenames: List[str]
+
+    # 文件元信息列表 (Profiler 输出)
+    files_metadata: List[Dict[str, Any]]
+    # 合并建议列表 (Profiler 输出，仅多文件时存在)
+    merge_recommendations: Optional[List[Dict[str, Any]]]
+
+    # [已废弃] 保留以向后兼容
+    remote_file_path: Optional[str]
+    data_schema: Optional[Dict[str, Any]]
 
     # ========== InternalState - Planning ==========
     initial_plan: Optional[Dict[str, Any]]
@@ -28,6 +40,7 @@ class CustomModelingState(TypedDict):
     # ========== InternalState - Observer ==========
     latest_control_signal: Optional[str]
     confirmed_findings: Optional[List[str]]
+    working_hypotheses: Optional[List[str]]
     open_questions: Optional[List[str]]
     observer_history: Optional[List[str]]
     replan_reason: Optional[str]

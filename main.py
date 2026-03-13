@@ -145,6 +145,9 @@ async def run_workflow_stream(
             user_input=user_query,
             raw_file_paths=raw_file_paths_in_sandbox,
             original_filenames=original_filenames,
+            local_file_paths=[item["local_path"] for item in upload_queue],
+            files_metadata=[],
+            merge_recommendations=None,
             remote_file_path=None,
             data_schema={},
             scenario=scenario,
@@ -210,9 +213,9 @@ async def run_workflow_stream(
                 event = payload
 
                 # 捕获 ETL 状态
-                if not etl_completed_flag and event.get("data_schema"):
+                if not etl_completed_flag and event.get("files_metadata"):
                     # 这里的 log 事件前端可以新起一行显示
-                    yield format_sse("log", "数据自动合并完成，Schema 已生成。")
+                    yield format_sse("log", "文件元信息收集完成。")
                     etl_completed_flag = True
 
                 # 捕获日志 (此时专注于拦截沙盒的执行结果)

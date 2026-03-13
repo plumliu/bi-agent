@@ -10,7 +10,7 @@ class WorkflowState(TypedDict):
     # 原始用户输入
     user_input: str
 
-    # 原始碎片文件在沙盒中的物理路径列表 (Auto-ETL 的输入)
+    # 原始碎片文件在沙盒中的物理路径列表 (Profiler 的输入)
     # 例如: ["/home/user/raw_0.csv", "/home/user/raw_1.csv"]
     raw_file_paths: List[str]
 
@@ -19,13 +19,26 @@ class WorkflowState(TypedDict):
     # 列表顺序必须与 raw_file_paths 一一对应
     original_filenames: List[str]
 
-    # 结构化字典，包含 'columns', 'dtypes', 'summary'
-    # 注意：初始化时为空字典 {}，由 Auto-ETL 节点运行后填充
+    # 本地临时文件路径列表 (用于 Profiler 本地元信息采集)
+    # 例如: ["temp/raw_session123_0.csv", "temp/raw_session123_1.csv"]
+    # 列表顺序必须与 raw_file_paths 一一对应
+    local_file_paths: List[str]
+
+    # 文件元信息列表 (Profiler 输出)
+    # 单文件时长度为 1，多文件时包含所有文件的元信息
+    # 格式: [{"file_index": 0, "original_filename": "...", "columns": [...], ...}]
+    files_metadata: List[Dict[str, Any]]
+
+    # 合并建议列表 (Profiler 输出，仅多文件时存在)
+    # 格式: [{"strategy": "concat", "involved_files": [0,1], "confidence": "high", ...}]
+    merge_recommendations: Optional[List[Dict[str, Any]]]
+
+    # [已废弃] 结构化字典，包含 'columns', 'dtypes', 'summary'
+    # 已被 files_metadata 替代，保留以向后兼容
     data_schema: Dict[str, Any]
 
-    # PPIO 沙盒中的最终合并文件路径
-    # 改为 Optional。因为图启动时该文件尚未生成。
-    # Auto-ETL 成功后，会被设置为 "/home/user/data.csv"
+    # [已废弃] PPIO 沙盒中的最终合并文件路径
+    # 已被 files_metadata 中的 remote_path 替代，保留以向后兼容
     remote_file_path: Optional[str]
 
     # --- 路由结果 (Router Node) ---
