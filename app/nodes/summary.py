@@ -1,33 +1,17 @@
 import os
 import json
 import yaml
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from openai import APIError
 
 from app.core.prompts_config import load_prompts_config
 from app.core.state import WorkflowState
-from app.core.config import settings
 from app.utils.extract_text_from_content import extract_text_from_content
+from app.utils.llm_factory import create_llm, apply_retry
 
 step = "summary"
 
-llm = ChatOpenAI(
-    model=settings.LLM_FLASH_MODEL_NAME,
-    temperature=0.25,
-    api_key=settings.OPENAI_API_KEY_FLASH,
-    use_responses_api=settings.USE_RESPONSES_API_FLASH,
-    base_url=settings.OPENAI_API_BASE_FLASH,
-    max_retries=5,
-    timeout=120,
-)
-
-# 添加智能重试机制
-llm = llm.with_retry(
-    stop_after_attempt=5,
-    retry_if_exception_type=(APIError,),
-    wait_exponential_jitter=True,
-)
+# 使用 FLASH 模型
+llm = apply_retry(create_llm(use_flash=True))
 
 def summary_node(state: WorkflowState):
     print("--- [Summary] 生成最终报告中 ---")

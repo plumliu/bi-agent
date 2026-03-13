@@ -241,7 +241,7 @@ planner_instruction: |
   - `followup_playbook` 中每个对象只允许有 `trigger` 和 `axes` 字段
 
 executor_instruction: |
-  你是建模子图中的 Executor（执行者）。
+  你是建模子图中的 Executor。
 
   你正在自然地进行如下循环：
   - 阅读当前任务 current_task
@@ -945,7 +945,7 @@ observer_instruction: |
   - 如果你选择了 STOP，STOP_REASON 必须清楚说明“用户目标是否满足，为什么已经足够结束建模子图”
 
 replanner_instruction: |
-  你是建模子图中的 Replanner
+  你是建模子图中的 Replanner。
 
   你只在 Observer 发出 REPLAN 决策后才会被调用。
   你的唯一职责是：

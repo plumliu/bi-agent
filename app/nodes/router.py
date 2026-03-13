@@ -1,14 +1,12 @@
 from typing import Literal
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain_openai import ChatOpenAI, OpenAI
-from openai import APIError
 from pydantic import BaseModel, Field
 import json
 import re
 
 from app.core.state import WorkflowState
-from app.core.config import settings
 from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE, ROUTER_CONTEXT_TEMPLATE
+from app.utils.llm_factory import create_llm, apply_retry
 
 # 1. 定义路由的输出结构 (保持不变)
 ScenarioType = Literal[
@@ -22,23 +20,8 @@ class RouterOutput(BaseModel):
     scenario: ScenarioType = Field(..., description="最适合用户需求的算法场景分类")
     reasoning: str = Field(..., description="选择该场景的理由，简短的一句话即可，用于调试或告知用户")
 
-# 2. 初始化 LLM
-llm = ChatOpenAI(
-    model=settings.LLM_FLASH_MODEL_NAME,
-    temperature=0.1,
-    api_key=settings.OPENAI_API_KEY_FLASH,
-    use_responses_api=settings.USE_RESPONSES_API_FLASH,
-    base_url=settings.OPENAI_API_BASE_FLASH,
-    max_retries=5,
-    timeout=120,
-)
-
-# 添加智能重试机制
-llm = llm.with_retry(
-    stop_after_attempt=5,
-    retry_if_exception_type=(APIError,),
-    wait_exponential_jitter=True,
-)
+# 2. 初始化 LLM（FLASH 模型）
+llm = apply_retry(create_llm(use_flash=True))
 
 def router_node(state: WorkflowState) -> dict:
     """

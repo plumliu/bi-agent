@@ -1,12 +1,10 @@
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
-from openai import APIError
 from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.agent_states import ModelingAgentState
-from app.core.config import settings
 from app.core.prompts_config import load_prompts_config
 from app.tools.python_interpreter import create_code_interpreter_tool
+from app.utils.llm_factory import create_llm, apply_retry
 
 
 def create_modeling_agent(sandbox: Sandbox, scenario: str):
@@ -17,7 +15,7 @@ def create_modeling_agent(sandbox: Sandbox, scenario: str):
 
     role_definition = config.get('role_definition')
     instruction = config.get('modeling_instruction')
-    code_example = config.get('code_example')
+  code_example = config.get('code_example')
 
     # 构建 system prompt
     system_prompt = f"""
@@ -42,16 +40,12 @@ def create_modeling_agent(sandbox: Sandbox, scenario: str):
     # 创建工具
     code_tool = create_code_interpreter_tool(sandbox)
 
-    # 创建 agent
+    # 创建 LLM（主模型）
+  llm = create_llm(use_flash=False)
+
+    # 创建 agent（先创建 agent，再 apply_retry）
     agent = create_agent(
-        model=ChatOpenAI(
-            model=settings.LLM_MODEL_NAME,
-            temperature=0,
-            api_key=settings.OPENAI_API_KEY,
-            use_responses_api=settings.USE_RESPONSES_API,
-            max_retries=5,
-            timeout=120,
-        ),
+        model=llm,
         tools=[code_tool],
         system_prompt=system_prompt,
         state_schema=ModelingAgentState,
@@ -59,10 +53,6 @@ def create_modeling_agent(sandbox: Sandbox, scenario: str):
     )
 
     # 添加智能重试机制
-    agent = agent.with_retry(
-        stop_after_attempt=5,
-        retry_if_exception_type=(APIError,),
-        wait_exponential_jitter=True,
-    )
+    agent = apply_retry(agent)
 
     return agent

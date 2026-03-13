@@ -4,15 +4,13 @@ import os
 import re
 from typing import Dict, Any, List, Union
 
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from openai import APIError
 
 from app.core.state import WorkflowState
-from app.core.config import settings
 from ppio_sandbox.code_interpreter import Sandbox
 from app.prompts.auto_etl_prompt import AUTO_ETL_SYSTEM_TEMPLATE, AUTO_ETL_CONTEXT_TEMPLATE
 from app.utils.csv_reader import get_csv_schema
+from app.utils.llm_factory import create_llm, apply_retry
 
 # 1. 当前阶段标识
 step = "auto_etl"
@@ -21,22 +19,8 @@ logger = logging.getLogger(__name__)
 # 定义本地留档路径 (与 main.py 中的 LOCAL_CSV_PATH 保持一致)
 LOCAL_CSV_PATH = "temp/temp_data.csv"
 
-# 2. 初始化 LLM
-llm = ChatOpenAI(
-    model=settings.LLM_MODEL_NAME,
-    temperature=0.1,
-    api_key=settings.OPENAI_API_KEY,
-    use_responses_api=settings.USE_RESPONSES_API,
-    max_retries=5,
-    timeout=120,
-)
-
-# 添加智能重试机制
-llm = llm.with_retry(
-    stop_after_attempt=5,
-    retry_if_exception_type=(APIError,),
-    wait_exponential_jitter=True,
-)
+# 2. 初始化 LLM（主模型）
+llm = apply_retry(create_llm(use_flash=False))
 
 
 # ==========================================

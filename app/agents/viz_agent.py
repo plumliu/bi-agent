@@ -1,11 +1,9 @@
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
-from openai import APIError
 
 from app.core.agent_states import VizAgentState
-from app.core.config import settings
 from app.core.prompts_config import load_prompts_config
 from app.tools.viz_execution_tool import viz_execution_tool
+from app.utils.llm_factory import create_llm, apply_retry
 
 
 def create_viz_agent(scenario: str):
@@ -37,17 +35,12 @@ def create_viz_agent(scenario: str):
 - 如果工具返回错误，仔细分析错误原因并调整
 """
 
-    # 创建 agent
+    # 创建 LLM（FLASH 模型）
+    llm = create_llm(use_flash=True)
+
+    # 创建 agent（先创建 agent，再 apply_retry）
     agent = create_agent(
-        model=ChatOpenAI(
-            model=settings.LLM_FLASH_MODEL_NAME,
-            temperature=0,
-            api_key=settings.OPENAI_API_KEY_FLASH,
-            use_responses_api=settings.USE_RESPONSES_API_FLASH,
-            base_url=settings.OPENAI_API_BASE_FLASH,
-            max_retries=5,
-            timeout=120,
-        ),
+        model=llm,
         tools=[viz_execution_tool],
         system_prompt=system_prompt,
         state_schema=VizAgentState,
@@ -55,10 +48,6 @@ def create_viz_agent(scenario: str):
     )
 
     # 添加智能重试机制
-    agent = agent.with_retry(
-        stop_after_attempt=5,
-        retry_if_exception_type=(APIError,),
-        wait_exponential_jitter=True,
-    )
+    agent = apply_retry(agent)
 
     return agent
