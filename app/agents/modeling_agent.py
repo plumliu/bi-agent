@@ -15,7 +15,7 @@ def create_modeling_agent(sandbox: Sandbox, scenario: str):
 
     role_definition = config.get('role_definition')
     instruction = config.get('modeling_instruction')
-  code_example = config.get('code_example')
+    code_example = config.get('code_example')
 
     # 构建 system prompt
     system_prompt = f"""
@@ -41,7 +41,7 @@ def create_modeling_agent(sandbox: Sandbox, scenario: str):
     code_tool = create_code_interpreter_tool(sandbox)
 
     # 创建 LLM（主模型）
-  llm = create_llm(use_flash=False)
+    llm = create_llm(use_flash=False)
 
     # 创建 agent（先创建 agent，再 apply_retry）
     agent = create_agent(
