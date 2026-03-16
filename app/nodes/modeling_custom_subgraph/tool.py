@@ -1,7 +1,7 @@
 import json
 from typing import Dict, Any
 
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import ToolMessage, AIMessage
 from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.modeling_custom_subgraph.state import CustomModelingState
@@ -15,11 +15,11 @@ def create_tool_node(sandbox: Sandbox):
 
         ai_message = state["latest_ai_message"]
 
-        # Debug: print tool_calls structure
-        print(f"--- [Tool DEBUG] tool_calls: {ai_message.tool_calls}")
-
         if not ai_message.tool_calls:
             raise RuntimeError("Tool: ai_message 没有 tool_calls")
+
+        # Debug: print tool_calls structure
+        print(f"--- [Tool DEBUG] tool_calls: {ai_message.tool_calls}")
 
         tool_call = ai_message.tool_calls[0]
         # Extract args and tool_call_id
@@ -38,7 +38,22 @@ def create_tool_node(sandbox: Sandbox):
             code = list(args.values())[0]
             print(f"--- [Tool] 警告: LLM 使用了非标准参数名 '{actual_key}'，已自动适配 ---")
         else:
-            raise RuntimeError(f"Tool: 无法提取 code 参数，args={args}")
+            # 参数为空或格式错误，路由回 executor 重试
+            print(f"--- [Tool] 工具调用参数错误，路由回 executor 重试: args={args} ---")
+            tool_message = ToolMessage(
+                content=(
+                    f"Error: 工具调用参数为空或格式错误。\n"
+                    f"当前 args={args}\n"
+                    f"请重新生成包含 'code' 参数的工具调用，格式为: python_interpreter(code='你的Python代码')"
+                ),
+                tool_call_id=tool_call_id,
+                status="error"
+            )
+            return {
+                "latest_execution": None,
+                "last_error": {"tool_message": tool_message},
+                "generated_files": state.get("generated_files") or {}
+            }
 
         # Print generated code
         print("=" * 80)
@@ -77,7 +92,6 @@ def create_tool_node(sandbox: Sandbox):
             )
 
             last_error = {
-                "ai_message": ai_message,
                 "tool_message": tool_message
             }
 
@@ -96,17 +110,13 @@ def create_tool_node(sandbox: Sandbox):
             tool_call_id=tool_call_id
         )
 
-        # Append to execution trace
-        execution_trace = state.get("execution_trace") or []
-        execution_trace.append({
-            "ai_message": ai_message,
-            "tool_message": tool_message
-        })
+        assert isinstance(ai_message, AIMessage), type(ai_message)
+        assert isinstance(tool_message, ToolMessage), type(tool_message)
 
         return {
             "latest_execution": latest_execution,
             "last_error": None,
-            "execution_trace": execution_trace,
+            "execution_trace": [ai_message, tool_message],
             "generated_files": generated_files
         }
 

@@ -1,0 +1,1389 @@
+[
+  {
+    "flag": "flag-20",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-20.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-20.json",
+    "insights_score": 0.45,
+    "summary_score": 0.8,
+    "combined_score": 0.555,
+    "insight_matches": [
+      {
+        "gt_insight": "Disproportionately High Rejection Rates for Travel Expenses",
+        "best_pred_insight": "Travel expenses have a 41.78% rejection rate—2.5× the overall dataset rejection rate—indicating a systemic policy or workflow misalignment specific to this category.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Variable Distribution of Expense Reports Across Categories",
+        "best_pred_insight": "Customer Support and Sales departments collectively account for 86.89% of all travel expense rejections, with rejection rates of 44.3% and 40.91% respectively, revealing a concentrated operational risk in two high-activity departments.",
+        "best_score": 0.1
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-13",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-13.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-13.json",
+    "insights_score": 0.44000000000000006,
+    "summary_score": 0.2,
+    "combined_score": 0.368,
+    "insight_matches": [
+      {
+        "gt_insight": "The time to resolution of incidents is uniform over time, so the overtime working of human agents is due to some other reason such increasing in number of incidents or complexity of incidents.",
+        "best_pred_insight": "Incident assignments increased 349% from first half (Jan–Jun 2023) to second half (Jul 2023–Jan 2024), with monthly counts accelerating from ≤35 to consistently ≥50 starting August 2023, indicating a structural and sustained operational pressure shift rather than a transient spike.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "The increase in volume of incidents is more or less uniform across all categories, but more pronounced in network followed by database followed by software",
+        "best_pred_insight": "Priority 2-High incidents drove 79.56% of total growth and grew 367% (69 → 322), while Network category (52.83% contribution) and Network assignment group (58.81% contribution) jointly account for over 110% of growth due to overlapping dominance—revealing a concentrated risk surface in high-priority network infrastructure issues.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "There is no correlation between the volume of incidents and the TTR. Unlike TTR, the number of incidents is increasing over time. This indicates that as the volume of incidents increases, while the TTR tends to be uniform",
+        "best_pred_insight": "Incident assignments increased 349% from first half (Jan–Jun 2023) to second half (Jul 2023–Jan 2024), with monthly counts accelerating from ≤35 to consistently ≥50 starting August 2023, indicating a structural and sustained operational pressure shift rather than a transient spike.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "The productivity is more or less uniform across all agents, and all of them manage to resolve incidents even though the volume increases over time",
+        "best_pred_insight": "All five agents experienced substantial workload growth (153–265%), with Beth Anglin (+265.4%) and Luke Wilson (+245.5%) most impacted—yet workload distribution remained balanced (average Gini = 0.15), confirming the surge is system-wide, not driven by internal redistribution or agent-specific bias.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "1. **Implement Scalable Solutions**: As the organization grows, ensure that infrastructure and support systems are scalable. Invest in technology and processes that can handle increased loads efficiently. 2. **Regular Updates and Maintenance**: Establish a routine for regular updates and maintenance of all systems and hardware. This can help prevent the uniform aging and degradation of infrastructure 3. **Proactive Monitoring and Predictive Maintenance**: Utilize tools for proactive monitoring and predictive maintenance to identify and address potential issues before they result in incidents. Machine learning models can predict failure points based on historical data. 4. **Continual Training and Development**: Keep training programs for staff up-to-date with the latest technologies and best practices. This helps ensure that all employees are equipped to handle the systems they work with effectively.",
+        "best_pred_insight": "Howard Johnson experienced the lowest growth (153.3%), yet his monthly share peaked at 40% in March 2023 before declining—suggesting early capacity absorption that did not scale with later surges, potentially indicating diminishing marginal returns or unmet resourcing needs during acceleration.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-3",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-3.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-3.json",
+    "insights_score": 0.7999999999999999,
+    "summary_score": 0.8,
+    "combined_score": 0.8,
+    "insight_matches": [
+      {
+        "gt_insight": "One agent is assigned significantly more incidents than others",
+        "best_pred_insight": "Fred Luddy handles 385 of 500 incidents (77%), while the other four agents collectively handle only 115 incidents — a systemic imbalance reflected in a Gini coefficient of 0.6112 and a max/min workload ratio of 24.06, indicating severe operational risk from single-point dependency.",
+        "best_score": 0.9
+      },
+      {
+        "gt_insight": "There is a specific agent who is assigned significantly more incidents than others",
+        "best_pred_insight": "Fred Luddy handles 385 of 500 incidents (77%), while the other four agents collectively handle only 115 incidents — a systemic imbalance reflected in a Gini coefficient of 0.6112 and a max/min workload ratio of 24.06, indicating severe operational risk from single-point dependency.",
+        "best_score": 0.9
+      },
+      {
+        "gt_insight": "The number of assignments for a specific agent is pretty unbalanced from the beginning of the time",
+        "best_pred_insight": "Fred Luddy handles 385 of 500 incidents (77%), while the other four agents collectively handle only 115 incidents — a systemic imbalance reflected in a Gini coefficient of 0.6112 and a max/min workload ratio of 24.06, indicating severe operational risk from single-point dependency.",
+        "best_score": 0.6
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-14",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-14.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-14.json",
+    "insights_score": 0.3666666666666667,
+    "summary_score": 0.6,
+    "combined_score": 0.43666666666666665,
+    "insight_matches": [
+      {
+        "gt_insight": "The number of incidents assigned to each agent, including Fred Luddy, remains uniform over time",
+        "best_pred_insight": "Workload volume does not explain Fred’s underperformance: his monthly ticket count shows no increase during degradation (e.g., 10 tickets in Jan 2023 vs. only 1 in Dec 2023), and correlation between his monthly ticket volume and resolution time is negative (r = −0.372), ruling out overload as the cause.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Continued linear increase in TTR if workload during leave periods is not balanced",
+        "best_pred_insight": "Fred Luddy’s schedule data covers only June 1–28, 2023 — yet his performance collapse began in July 2023 and intensified through December 2023, confirming that absence or scheduled unavailability is not the driver; instead, the degradation reflects an internal capability or process failure.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Fred Luddy's increasing TTR correlates with his PTO period",
+        "best_pred_insight": "Fred Luddy accounts for 30.4% of the total unresolved ticket backlog (7 of 23), all opened between December 2023 and January 2024 — coinciding precisely with his worst performance window (mean resolution time: 1016–1370 hours) and representing a critical service risk.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "The number of open incidents for Fred Luddy is increasing over time, coinciding with the period where his TTR began to increase linearly",
+        "best_pred_insight": "Fred Luddy accounts for 30.4% of the total unresolved ticket backlog (7 of 23), all opened between December 2023 and January 2024 — coinciding precisely with his worst performance window (mean resolution time: 1016–1370 hours) and representing a critical service risk.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Fred Luddy's TTR begins to increase linearly over time from a specific point of time (01-06-2023) compared to other agents who maintain a uniform TTR",
+        "best_pred_insight": "Fred Luddy's mean resolution time deteriorated 724% from 105.7 hours pre-July 2023 to 871.1 hours post-July 2023, while all other agents remained stable (−20.5% to +31.8% change), indicating a severe and isolated operational breakdown rather than systemic workload pressure.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Fred Luddy has a significantly higher average TTR compared to other agents",
+        "best_pred_insight": "Fred Luddy's mean resolution time deteriorated 724% from 105.7 hours pre-July 2023 to 871.1 hours post-July 2023, while all other agents remained stable (−20.5% to +31.8% change), indicating a severe and isolated operational breakdown rather than systemic workload pressure.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-2",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-2.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-2.json",
+    "insights_score": 0.65,
+    "summary_score": 0.8,
+    "combined_score": 0.6950000000000001,
+    "insight_matches": [
+      {
+        "gt_insight": "The time to resolution of incidents is increasing over time",
+        "best_pred_insight": "Resolution times increased dramatically from 141 hours (January 2023) to 2097 hours (October 2023), representing a ~15x growth and a statistically significant upward trend (slope = 7.2 hours/day, p < 0.05), indicating severe and accelerating service degradation over the period.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "The productivity is more or less uniform across all agents",
+        "best_pred_insight": "The increasing trend affects all incident types uniformly, pointing to systemic, cross-cutting root causes — such as process changes, resource constraints, tooling degradation, or governance shifts — rather than isolated operational or categorical failures.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "The increase in TTR is uniform across all categories",
+        "best_pred_insight": "The increasing trend affects all incident types uniformly, pointing to systemic, cross-cutting root causes — such as process changes, resource constraints, tooling degradation, or governance shifts — rather than isolated operational or categorical failures.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "There is a negative correlation between the volume of incidents and the TTR",
+        "best_pred_insight": "Monthly incident volume shows a statistically significant negative correlation with average resolution time (r = −0.64, p = 0.044), meaning higher-volume months are associated with *shorter*, not longer, resolution times — directly contradicting workload-driven bottleneck hypotheses.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-19",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-19.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-19.json",
+    "insights_score": 0.39999999999999997,
+    "summary_score": 0.8,
+    "combined_score": 0.52,
+    "insight_matches": [
+      {
+        "gt_insight": "Significant Variance in Expense Rejection Rates Across Departments",
+        "best_pred_insight": "IT’s elevated rejection rate is systemic and department-wide: all 5 IT users have rejection rates ≥33.33%, and all 4 expense categories show significant deviations above their respective category baselines (Assets +47.81pp, Services +20.98pp, Travel +19.36pp, Miscellaneous +15.68pp), confirming that the issue stems from department-level approval policies or workflow behavior—not individual users, categories, or submission patterns.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "No Correlation Between the Number of Expense Reports Submitted and Rejection Rates",
+        "best_pred_insight": "Non-driver analysis conclusively rules out expense amount (IT mean $4,318 vs non-IT $4,367), description quality (IT descriptions are longer and contain no urgency keywords), and timing (elevated rejection persists across all days, hours, and months)—eliminating common operational hypotheses and reinforcing that the root cause lies in unobserved department-level controls.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Concentration of Declined Expenses Among Specific Users in IT Department",
+        "best_pred_insight": "IT’s elevated rejection rate is systemic and department-wide: all 5 IT users have rejection rates ≥33.33%, and all 4 expense categories show significant deviations above their respective category baselines (Assets +47.81pp, Services +20.98pp, Travel +19.36pp, Miscellaneous +15.68pp), confirming that the issue stems from department-level approval policies or workflow behavior—not individual users, categories, or submission patterns.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-17",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-17.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-17.json",
+    "insights_score": 0.68,
+    "summary_score": 0.6,
+    "combined_score": 0.656,
+    "insight_matches": [
+      {
+        "gt_insight": "Excessive Number of Computers per User in HR Department",
+        "best_pred_insight": "Asset distribution across departments is highly uneven (Gini = 0.461, CV = 0.951), with Customer Support holding 184 assets (36.8% of total) while HR holds only 28—yet HR’s cost-per-asset is 2.5x higher than Customer Support’s, revealing misalignment between operational scale and infrastructure investment.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Concentration of High-End Assets in the HR Department Compared to Other Departments",
+        "best_pred_insight": "HR’s cost concentration stems from extreme overrepresentation in high-cost infrastructure (Web Server and Server), which constitute only 1.4% of all assets company-wide (13/500) but account for 21.2% of total cost—HR alone holds 9 of those 13 units.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Weak Correlation Between Number of Users and High Cost of Computer Assets in HR Department",
+        "best_pred_insight": "Asset distribution across departments is highly uneven (Gini = 0.461, CV = 0.951), with Customer Support holding 184 assets (36.8% of total) while HR holds only 28—yet HR’s cost-per-asset is 2.5x higher than Customer Support’s, revealing misalignment between operational scale and infrastructure investment.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "High Cost Contributions by Computers, Servers, and Web Servers in HR Department",
+        "best_pred_insight": "HR’s cost concentration stems from extreme overrepresentation in high-cost infrastructure (Web Server and Server), which constitute only 1.4% of all assets company-wide (13/500) but account for 21.2% of total cost—HR alone holds 9 of those 13 units.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Significantly Higher Asset Costs in HR Department",
+        "best_pred_insight": "Asset distribution across departments is highly uneven (Gini = 0.461, CV = 0.951), with Customer Support holding 184 assets (36.8% of total) while HR holds only 28—yet HR’s cost-per-asset is 2.5x higher than Customer Support’s, revealing misalignment between operational scale and infrastructure investment.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-12",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-12.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-12.json",
+    "insights_score": 0.325,
+    "summary_score": 0.6,
+    "combined_score": 0.4075,
+    "insight_matches": [
+      {
+        "gt_insight": "There is not a significant increase in hardware incidents over time, they are relatively stable and high compared to toher categories",
+        "best_pred_insight": "Hardware group’s closure rate (52.35%) is above average but significantly higher than Network (39.13%) and Service Desk (36.84%), suggesting group-level operational factors — not individual performance — drive resolution efficiency differences.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Most of the hardware incidents are related to printer issues",
+        "best_pred_insight": "Assignment group-level incident distribution shows severe imbalance (Gini=0.628), with Hardware group handling 81% of all incidents (405/500), indicating structural concentration rather than equitable workload allocation across groups.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "location is not specified in the dataset nor in the short description",
+        "best_pred_insight": "Quarterly Gini coefficients for assignee distribution remain tightly clustered (0.0479–0.1207), confirming the fairness of individual assignments is stable over time and unaffected by seasonal or temporal fluctuations in incident volume.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "hardware incidents is significantly higher than others",
+        "best_pred_insight": "The group-level imbalance is driven almost entirely by category dominance — Hardware accounts for 81.2% of all incidents, and all five assignees handle Hardware incidents proportionally (deviations ≤8.56 percentage points), ruling out assignee specialization or bias as causes.",
+        "best_score": 0.9
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-1",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-1.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-1.json",
+    "insights_score": 0.25000000000000006,
+    "summary_score": 0.2,
+    "combined_score": 0.23500000000000004,
+    "insight_matches": [
+      {
+        "gt_insight": "Specific hardware issues related Printer Malfucntioning are predominantly mentioned in incident descriptions",
+        "best_pred_insight": "Hardware dominates across all locations (38–88%), priorities (82.4% of critical, 68.3% of high), and assignees (62–70% of each agent’s workload), confirming the imbalance is systemic—not localized to geography, priority tier, or individual capacity.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Most of the hardware incidents are related to printer issues",
+        "best_pred_insight": "Hardware dominates across all locations (38–88%), priorities (82.4% of critical, 68.3% of high), and assignees (62–70% of each agent’s workload), confirming the imbalance is systemic—not localized to geography, priority tier, or individual capacity.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Printer with id 'Printer546' is causing the most issues",
+        "best_pred_insight": "Hardware accounts for 67.2% of all incidents (336 out of 500), with a Gini coefficient of 0.4952 and CR4 of 93.6%, confirming severe structural imbalance in category distribution rather than random variation.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "There is not a significant increase in hardware incidents over time, it is relatively stable and higher than others.",
+        "best_pred_insight": "Hardware accounts for 67.2% of all incidents (336 out of 500), with a Gini coefficient of 0.4952 and CR4 of 93.6%, confirming severe structural imbalance in category distribution rather than random variation.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "hardware incidents is significantly higher than others",
+        "best_pred_insight": "Hardware accounts for 67.2% of all incidents (336 out of 500), with a Gini coefficient of 0.4952 and CR4 of 93.6%, confirming severe structural imbalance in category distribution rather than random variation.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Most of the hardware incidents are occurring in the Australia location",
+        "best_pred_insight": "No assignee exhibits disproportionate workload or specialization: all five agents handle Hardware as their largest category share (62–70%), and Gini coefficients for workload distribution within each category range from 0.0631 (Hardware) to 0.1625 (Inquiry/Help), indicating equitable intra-category allocation.",
+        "best_score": 0.1
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-15",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-15.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-15.json",
+    "insights_score": 0.28571428571428575,
+    "summary_score": 0.6,
+    "combined_score": 0.38,
+    "insight_matches": [
+      {
+        "gt_insight": "Continued increase in assignments for Beth Anglin if the trend during leave periods is not addressed",
+        "best_pred_insight": "Agents without recorded leave periods (Luke Wilson and Beth Anglin) handle 53.2% of all incidents despite representing only 40% of the agent pool, indicating systemic workload concentration on agents with incomplete leave tracking.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "The distribution of incident assignments becomes uniform after the other agents return from their leave",
+        "best_pred_insight": "Agents with recorded leave periods (Fred Luddy, Howard Johnson, Charlie Whitherspoon) handle 46.8% of incidents but absorb 100% of assignments outside their narrow 1–2 month vacation windows — confirming schedule data reflects leave periods, not availability — and average 78 incidents each, 1.71x fewer than agents without leave records.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Beth Anglin and Luke Wilson have a higher number of incident assignments compared to other agents. Beth has 116 and Luke has 150 incidents, while the other agents have lower on average.",
+        "best_pred_insight": "Agents without recorded leave periods (Luke Wilson and Beth Anglin) handle 53.2% of all incidents despite representing only 40% of the agent pool, indicating systemic workload concentration on agents with incomplete leave tracking.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Beth Anglin and Luke Wilson received significantly higher incident assignments during a specific period",
+        "best_pred_insight": "The top two agents (Luke Wilson: 150 incidents, Beth Anglin: 116 incidents) collectively account for 53.2% of total workload, while the bottom three handle only 46.8%, revealing structural imbalance where workload is disproportionately assigned to agents lacking documented leave coverage.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "The resolution time (TTR) for Beth Anglin and Luke Wilson remains uniform over the entire timeline",
+        "best_pred_insight": "The 266 incidents assigned to agents without any schedule data (Luke Wilson and Beth Anglin) represent a critical blind spot: these agents bear the highest workload while being excluded from leave-aware routing, creating both fairness risk and operational fragility if unplanned absences occur.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "No significant change in the distribution of incident categories for Beth Anglin and Luke Wilson during the other agents' PTO,",
+        "best_pred_insight": "Agents without recorded leave periods (Luke Wilson and Beth Anglin) handle 53.2% of all incidents despite representing only 40% of the agent pool, indicating systemic workload concentration on agents with incomplete leave tracking.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Specific leave periods for Howard Johnson, Charlie Whitherspoon, and Fred Luddy were identified",
+        "best_pred_insight": "Agents with recorded leave periods (Fred Luddy, Howard Johnson, Charlie Whitherspoon) handle 46.8% of incidents but absorb 100% of assignments outside their narrow 1–2 month vacation windows — confirming schedule data reflects leave periods, not availability — and average 78 incidents each, 1.71x fewer than agents without leave records.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-21",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-21.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-21.json",
+    "insights_score": 0.5333333333333333,
+    "summary_score": 0.8,
+    "combined_score": 0.6133333333333333,
+    "insight_matches": [
+      {
+        "gt_insight": "Higher Expense Rejection Rates for Employees with Shorter Tenure",
+        "best_pred_insight": "The negative correlation between tenure and rejection probability (r = −0.356, p < 0.0001) is robust and clinically meaningful: median tenure for declined expenses is just 4 days versus 128.5 days for processed expenses, confirming that rejection risk is concentrated in the earliest employment phase.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Proportional Rejection Rates of New Hires Across Departments",
+        "best_pred_insight": "Travel and Assets categories drive the majority of early-tenure rejections, with new employees in Travel experiencing a 61.9% rejection rate (dropping to 16.7% after 90 days) and Assets showing 49.2% → 11.1%, both statistically significant (p < 0.005), revealing category-specific compliance gaps.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Linear Positive Correlation Between New Employee Start Dates and High Expense Rejection Rates",
+        "best_pred_insight": "New employees (0–90 days) face a 52.0% expense rejection rate—nearly four times higher than the 13.24% rate for employees with 91–180 days tenure—indicating a steep, policy-critical learning curve in the first three months.",
+        "best_score": 0.6
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-10",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-10.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-10.json",
+    "insights_score": 0.75,
+    "summary_score": 0.8,
+    "combined_score": 0.7649999999999999,
+    "insight_matches": [
+      {
+        "gt_insight": "The increase in TTR is uniform across all categories",
+        "best_pred_insight": "High/Critical priority tickets constitute 92.4% of all incidents, yet their TTR trends mirror the broader pattern — meaning severity escalation did not drive the increase, and the slowdown affects even the highest-priority work uniformly.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "The productivity is more or less uniform across all agents",
+        "best_pred_insight": "High/Critical priority tickets constitute 92.4% of all incidents, yet their TTR trends mirror the broader pattern — meaning severity escalation did not drive the increase, and the slowdown affects even the highest-priority work uniformly.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "There is a positive correlation between the volume of incidents and the TTR",
+        "best_pred_insight": "The largest absolute monthly TTR increase occurred in November 2023 (+3.37 days), coinciding with peak ticket volume (67 tickets), suggesting resource saturation may be amplifying an underlying systemic slowdown rather than causing it.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "The time to resolution of incidents is increasing over time",
+        "best_pred_insight": "TTR increased 10.5x from 3.4 days in January 2023 to 35.8 days in December 2023, with a near-perfect linear trend (R²=0.999), indicating a systemic, time-driven slowdown rather than episodic disruption.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-16",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-16.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-16.json",
+    "insights_score": 0.4000000000000001,
+    "summary_score": 0.2,
+    "combined_score": 0.34,
+    "insight_matches": [
+      {
+        "gt_insight": "Computers exhibit significantly longer warranty periods compared to other asset categories, which may reflect their higher cost and complexity.",
+        "best_pred_insight": "Storage Device assets deliver the highest procurement value at 3.201 days per dollar—over 36 times greater than Server (0.087 days/$) and Web Server (0.088 days/$), revealing a severe misalignment between high-cost infrastructure purchases and warranty coverage.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Servers and Web Servers are the most expensive asset categories on average, followed by computers.",
+        "best_pred_insight": "Storage Device assets deliver the highest procurement value at 3.201 days per dollar—over 36 times greater than Server (0.087 days/$) and Web Server (0.088 days/$), revealing a severe misalignment between high-cost infrastructure purchases and warranty coverage.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Strong positive correlation between the cost of computer assets and their warranty periods.",
+        "best_pred_insight": "The Computer category shows near-perfect cost-warranty correlation (0.9999998) yet delivers the fifth-worst value (0.361 days/$), confirming that longer absolute warranty periods do not translate to better value when costs are disproportionately high.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-18",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-18.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-18.json",
+    "insights_score": 0.39999999999999997,
+    "summary_score": 0.6,
+    "combined_score": 0.45999999999999996,
+    "insight_matches": [
+      {
+        "gt_insight": "Strong Positive Correlation Between Employee Start Dates and Asset Purchase Dates",
+        "best_pred_insight": "The near-zero counts in '31–90 days after' and '91–180 days after' purchase buckets confirm procurement is tightly clustered either pre-hire or immediately post-hire — with no meaningful mid-tenure refresh cadence.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Positive Correlation Between Asset Purchase Dates and Warranty Periods",
+        "best_pred_insight": "25.2% of assets have warranties expiring within one year of employee start date — a coverage gap that disproportionately affects HR (46%), Product Management (35%), and Server assets (39%), posing elevated risk of out-of-warranty failures during early tenure.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Linear Regression Model Predicts Warranty Periods Based on Purchase Dates",
+        "best_pred_insight": "Warranty duration strongly determines post-onboarding coverage length (correlation = 0.98 with days-from-start-to-warranty-end), confirming that short warranty periods—not timing misalignment—are the primary driver of early expiration risk.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-11",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-11.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-11.json",
+    "insights_score": 0.3666666666666667,
+    "summary_score": 0.2,
+    "combined_score": 0.31666666666666665,
+    "insight_matches": [
+      {
+        "gt_insight": "Specific time windows with elevated Hardware incidents identified",
+        "best_pred_insight": "Short-description keyword frequencies and incident type composition remained stable pre- and post-July 2023—'server' incidents declined slightly (20% → 15%), 'other' increased modestly (76% → 81%), and no new complex hardware terminology emerged—further supporting that the root cause lies outside incident nature or severity mix.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Hardware incidents predominantly occur in Australia during spikes from 2023-06 to 2023-08",
+        "best_pred_insight": "Location composition shifted dramatically in Hardware incidents: Australia’s share rose from 22% to 60% post-July 2023, yet its post-inflection mean resolution time (1651 hours) aligns closely with other locations (e.g., UK: 2178 hours, US: 1764 hours), confirming the increase is not driven by geographic complexity but by a shared process change.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Fluctuations observed in incident frequencies across categories and Increased Hardware incidents from 2023-06 to 2023-08",
+        "best_pred_insight": "Short-description keyword frequencies and incident type composition remained stable pre- and post-July 2023—'server' incidents declined slightly (20% → 15%), 'other' increased modestly (76% → 81%), and no new complex hardware terminology emerged—further supporting that the root cause lies outside incident nature or severity mix.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Specific system outage types identified as problematic during anomalies",
+        "best_pred_insight": "Short-description keyword frequencies and incident type composition remained stable pre- and post-July 2023—'server' incidents declined slightly (20% → 15%), 'other' increased modestly (76% → 81%), and no new complex hardware terminology emerged—further supporting that the root cause lies outside incident nature or severity mix.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Increase in TTR for Hardware incidents during anomaly periods",
+        "best_pred_insight": "Hardware category resolution time increased by 1726% from 149 hours in January 2023 to 2723 hours in January 2024, with a sharp inflection point in July 2023—indicating a systemic operational or procedural change rather than gradual degradation.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Linear Increase in TTR for Hardware incidents suspiciously from a particular time period",
+        "best_pred_insight": "Hardware category resolution time increased by 1726% from 149 hours in January 2023 to 2723 hours in January 2024, with a sharp inflection point in July 2023—indicating a systemic operational or procedural change rather than gradual degradation.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-22",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-22.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-22.json",
+    "insights_score": 0.575,
+    "summary_score": 0.8,
+    "combined_score": 0.6425000000000001,
+    "insight_matches": [
+      {
+        "gt_insight": "Uniform Processing Times Across Users and Departments for High-Cost Expenses",
+        "best_pred_insight": "Department does not significantly moderate the relationship (p = 0.742), but Product Management exhibits a notable equity concern: its single high-cost expense took 33.0 days — 8.76 days above the overall high-bracket average — suggesting either outlier behavior or systemic risk in high-value approvals for this department.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Longer Processing Times for Higher-Cost Expenses",
+        "best_pred_insight": "Low-cost expenses in Product Management (n=2) are processed in 2.5 days on average — 1.4 days faster than the overall low-bracket average — highlighting an inverse equity pattern where low-cost cases are expedited while high-cost ones face extreme delay, pointing to inconsistent application of review rigor.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Varied Processing Outcomes Across Expense Brackets",
+        "best_pred_insight": "Low-cost expenses in Product Management (n=2) are processed in 2.5 days on average — 1.4 days faster than the overall low-bracket average — highlighting an inverse equity pattern where low-cost cases are expedited while high-cost ones face extreme delay, pointing to inconsistent application of review rigor.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Positive Correlation Between Expense Amount and Processing Time, Lower-cost expenses are processed faster than higher-cost ones",
+        "best_pred_insight": "Low-cost expenses in Product Management (n=2) are processed in 2.5 days on average — 1.4 days faster than the overall low-bracket average — highlighting an inverse equity pattern where low-cost cases are expedited while high-cost ones face extreme delay, pointing to inconsistent application of review rigor.",
+        "best_score": 0.9
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-23",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-23.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-23.json",
+    "insights_score": 0.42500000000000004,
+    "summary_score": 0.8,
+    "combined_score": 0.5375000000000001,
+    "insight_matches": [
+      {
+        "gt_insight": "High Incidence of Repeated Identical Expense Claims",
+        "best_pred_insight": "Two duplicate patterns (Patterns 2 and 4) totaling $56,000 are classified as LIKELY_FRAUD because all claims were successfully processed with identical $8,000 Travel amounts and descriptions—indicating potential systematic reimbursement fraud with confirmed financial exposure.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Concentration of Repeated Claims in the Travel Category",
+        "best_pred_insight": "All duplicate claims occur within the Travel category and Product Management department, where Mamie Mcintee accounts for 28% of departmental claims and 100% of all duplicates—highlighting a critical control gap in high-value Travel expense oversight.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Significant Variance in Average Expenses Across Departments",
+        "best_pred_insight": "Four duplicate patterns (Patterns 1, 3, 5, and 8) totaling $136,000 show mixed claim states including multiple 'Declined' submissions followed by re-submissions, strongly suggesting policy misunderstanding rather than intentional fraud, particularly around Travel equipment eligibility and re-submission rules.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Significant Repetition in Expense Claims by a Single User",
+        "best_pred_insight": "All 28 duplicate expense claims (5.6% of total) belong exclusively to Mamie Mcintee, indicating a single-user concentration risk rather than systemic or widespread policy noncompliance.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-24",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-24.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-24.json",
+    "insights_score": 0.20000000000000004,
+    "summary_score": 0.2,
+    "combined_score": 0.2,
+    "insight_matches": [
+      {
+        "gt_insight": "Variability in Expense Processing Times Across Departments",
+        "best_pred_insight": "Category mix and expense amount ranges are statistically indistinguishable between Development and other departments, ruling out structural differences in expense type or scale as explanatory factors for its speed advantage.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Uniform Processing Times Across Expense Categories in Departments",
+        "best_pred_insight": "Category mix and expense amount ranges are statistically indistinguishable between Development and other departments, ruling out structural differences in expense type or scale as explanatory factors for its speed advantage.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Faster Processing for Lower Expense Brackets",
+        "best_pred_insight": "Category mix and expense amount ranges are statistically indistinguishable between Development and other departments, ruling out structural differences in expense type or scale as explanatory factors for its speed advantage.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-28",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-28.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-28.json",
+    "insights_score": 0.35000000000000003,
+    "summary_score": 0.4,
+    "combined_score": 0.365,
+    "insight_matches": [
+      {
+        "gt_insight": "Higher success rates in Critical and High priority goals within the IT department",
+        "best_pred_insight": "Employee Satisfaction goals are the highest-performing category enterprise-wide (50.8% completion), and IT excels most in this area (80.6% completion, 105% achievement ratio), suggesting both structural opportunity and replicable practice.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "IT department exhibits a higher number of both Critical and High priority goals compared to other departments",
+        "best_pred_insight": "IT department achieves a 65.1% goal completion rate—20+ percentage points higher than HR (44.1%), Finance (40.6%), and Marketing (44.6%)—demonstrating a department-level execution advantage rather than favorable goal selection or easier targets.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Significantly higher success rates in the IT department compared to other departments",
+        "best_pred_insight": "IT consistently outperforms across all five goal categories (52–81% completion) and all four metric types (61–68% completion), confirming that execution capability—not category/metric mix—is the dominant success factor.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Consistent higher success rates for Critical and High priority goals across departments",
+        "best_pred_insight": "Target difficulty is not the driver of IT’s success: its average target percentage (74.6%) is statistically identical to other departments (74.2–75.7%), yet its achievement ratio (0.985) far exceeds others (0.598–0.647), proving execution excellence closes the gap.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-31",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-31.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-31.json",
+    "insights_score": 0.6199999999999999,
+    "summary_score": 0.6,
+    "combined_score": 0.6139999999999999,
+    "insight_matches": [
+      {
+        "gt_insight": "Cost Reduction goals dominate the goal types in the Finance department",
+        "best_pred_insight": "The duration increase affects goals uniformly across all completion levels (0–25%, 25–50%, 50–75%, 75–100%), with slopes differing by less than 0.04 days/month — ruling out scope creep and confirming that delays accumulate at the workflow or approval stage, not within individual goal execution.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Finance department exhibits notably longer goal durations compared to other departments",
+        "best_pred_insight": "Cost Reduction goals take 2.8× longer on average than other Finance goals (258.9 vs 93.7 days) and 2.9× longer than non-Cost Reduction goals across all departments (263.0 vs 90.2 days), highlighting this category as a critical operational risk zone requiring targeted process intervention.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Continued linear increase in the duration of 'Cost Reduction' goals across all departments",
+        "best_pred_insight": "Cost Reduction goals across all departments show a uniform, systematic increase in duration of 18.05–18.52 days/month throughout 2022, with R² > 0.99 — indicating a category-wide process bottleneck rather than department- or goal-specific anomaly.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Increasing trend in the duration of 'Cost Reduction' goals over time",
+        "best_pred_insight": "Cost Reduction goals across all departments show a uniform, systematic increase in duration of 18.05–18.52 days/month throughout 2022, with R² > 0.99 — indicating a category-wide process bottleneck rather than department- or goal-specific anomaly.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Cost Reduction goals have the longest mean duration across all goal categories",
+        "best_pred_insight": "Cost Reduction goals take 2.8× longer on average than other Finance goals (258.9 vs 93.7 days) and 2.9× longer than non-Cost Reduction goals across all departments (263.0 vs 90.2 days), highlighting this category as a critical operational risk zone requiring targeted process intervention.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-27",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-27.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-27.json",
+    "insights_score": 0.6,
+    "summary_score": 0.8,
+    "combined_score": 0.66,
+    "insight_matches": [
+      {
+        "gt_insight": "Disproportionate Number of Reportees per Manager in the IT Department",
+        "best_pred_insight": "Ed Gompf’s CRITICAL risk score (77.10) stems primarily from extreme span-of-control pressure (76 reports), despite high location diversity and title mix; his overload poses immediate operational risk to IT service continuity and incident response capacity.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Disparity in Managerial Distribution Across Departments",
+        "best_pred_insight": "The imbalance is not driven by geographic or role-specific concentration—Ed Gompf oversees employees across 24 locations and all 5 IT titles, while Mariano Maury covers 13 locations and the same 5 titles—indicating broad organizational consolidation rather than localized misalignment.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Significant Disparity Among Managers in Terms of Reportee Numbers",
+        "best_pred_insight": "Data Analysts represent the highest-concentration risk vector: Ed manages 27 (35.5% of his team) versus Mariano’s 4 (16%), making this title the top-priority reassignment target in Phase 1 to rapidly de-escalate systemic overload.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-26",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-26.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-26.json",
+    "insights_score": 0.6,
+    "summary_score": 0.2,
+    "combined_score": 0.48,
+    "insight_matches": [
+      {
+        "gt_insight": "Servers and Web Servers are the most expensive asset categories on average, followed by computers.",
+        "best_pred_insight": "Computer category assets exhibit the worst cost-warranty value, with a mean cost-per-warranty-day of $16.54—36× higher than the best-value categories (Storage Device and Computer Peripheral) and 1.66× the overall mean, driven by short 363-day warranties despite high $3,345 average cost.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Computers exhibit significantly shorter warranty periods compared to other asset categories, which may not reflect their cost and complexity.",
+        "best_pred_insight": "17% of assets show cost-warranty discrepancies—8.4% are high-cost/short-warranty (predominantly Computers with 90-day warranties) and 8.6% are low-cost/long-warranty (predominantly Storage Devices and Computer Peripherals with 1096-day warranties)—indicating systemic misalignment between procurement spend and warranty protection.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Strong correlation between the cost of computer assets and their warranty periods.",
+        "best_pred_insight": "Computer category assets exhibit the worst cost-warranty value, with a mean cost-per-warranty-day of $16.54—36× higher than the best-value categories (Storage Device and Computer Peripheral) and 1.66× the overall mean, driven by short 363-day warranties despite high $3,345 average cost.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-4",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-4.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-4.json",
+    "insights_score": 0.42500000000000004,
+    "summary_score": 0.2,
+    "combined_score": 0.3575,
+    "insight_matches": [
+      {
+        "gt_insight": "Specific hardware issues are predominantly mentioned in incident descriptions",
+        "best_pred_insight": "The increasing trend is concentrated in '3 - Moderate' priority incidents, which contributed 80% of total growth (4 incidents), despite '2 - High' priority incidents accounting for 72% of total volume — indicating a shift toward less urgent but growing hardware-related issues.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "If the number of Hardware incidents over time is linearly increasing, it suggests a specific device issue or trend affecting the entire location or infrastructure. Here are some potential reasons why this might be happening and strategies to avoid or mitigate such trends: \\\n    1. **Aging Infrastructure**: Over time, systems and hardware can age and become more prone to failures, leading to a steady increase in incidents across all categories if regular updates and maintenance are not performed \\\n    2. **Lack of Proactive Maintenance**: Without proactive maintenance and updates, systems may deteriorate uniformly, leading to increased incidents.",
+        "best_pred_insight": "Hardware specialization is uniform across all five agents (57.6%–68.2% of each agent’s workload), meaning the growth pressure is broadly shared rather than isolated to a single specialist or bottlenecked team.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "The increase in volume of incidents is seen slightly, need to investigate further to understand the trend.",
+        "best_pred_insight": "November 2023 marked an anomalous low point (26 incidents, −39.5% MoM), followed by a sharp rebound in December (+69.2% MoM to 44 incidents), suggesting potential seasonal or operational volatility that may require short-term monitoring.",
+        "best_score": 0.4
+      },
+      {
+        "gt_insight": "The productivity is more or less uniform across all agents, and all of them manage to resolve incidents even though the volume increases over time",
+        "best_pred_insight": "Agent workload distribution remains highly balanced (Gini = 0.0528, max/min ratio = 1.31x), confirming no systemic overload or underutilization, even as Hardware incidents surged and were evenly distributed across agents (Hardware Gini = 0.0726).",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "The increase in volume of incidents is seen only for one particular categpry i.e. Hardware",
+        "best_pred_insight": "Hardware assignment group is the sole driver of the 13.51% overall increase in incident volume, contributing 620% of total growth (31 out of 5 net new incidents) with a 344% monthly growth rate (9→40 incidents), while all other groups declined significantly.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "The time to resolution of incidents is uniform over time",
+        "best_pred_insight": "Agent efficiency variation is modest (1.17x ratio between slowest and fastest agent), with resolution times ranging from 161.79 to 189.55 hours; no evidence suggests declining efficiency despite rising Hardware incident volume.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "There is a no correlation between the volume of incidents and the TTR",
+        "best_pred_insight": "Agent efficiency variation is modest (1.17x ratio between slowest and fastest agent), with resolution times ranging from 161.79 to 189.55 hours; no evidence suggests declining efficiency despite rising Hardware incident volume.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "1. **Regular Updates and Maintenance**: Establish a routine for regular updates and maintenance of all systems and hardware. This can help prevent the uniform aging and degradation of infrastructure.\\\n2. **Proactive Monitoring and Predictive Maintenance**: Utilize tools for proactive monitoring and predictive maintenance to identify and address potential issues before they result in incidents. Machine learning models can predict failure points based on historical data. \\\n3. **Effective diagnosis**: Identify the location and reason for Hardware failure. ",
+        "best_pred_insight": "November 2023 marked an anomalous low point (26 incidents, −39.5% MoM), followed by a sharp rebound in December (+69.2% MoM to 44 incidents), suggesting potential seasonal or operational volatility that may require short-term monitoring.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-32",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-32.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-32.json",
+    "insights_score": 0.44999999999999996,
+    "summary_score": 0.6,
+    "combined_score": 0.495,
+    "insight_matches": [
+      {
+        "gt_insight": "There is an increasing trend in the duration of 'Cost Reduction' goals over time",
+        "best_pred_insight": "The temporal gradient—where later-initiated Cost Reduction goals take progressively longer (187 days in Q1 → 354 days in Q4)—coincides with year-end operational cycles, suggesting embedded process dependencies (e.g., budget approvals, cross-functional sign-offs) that delay execution regardless of department or ownership.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "The cost reduction goals dominate the goal types in the Finance department",
+        "best_pred_insight": "Cost Reduction goals across all departments (Finance, Marketing, IT, HR) exhibit uniformly extended durations—averaging 256–285 days—2.14x longer than other goal categories (mean 121 days), confirming this is a category-level phenomenon, not Finance-specific.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Finance department exhibits notably longer goal durations compared to other departments",
+        "best_pred_insight": "The duration gap for Cost Reduction goals widens systematically by initiation quarter: Q1-initiated goals are 2.0x longer than other goals, rising to 3.7x longer for Q4-initiated goals, while other categories show stable durations (83–96 days) across all quarters.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Continued linear increase in the duration of 'Cost Reduction' goals across all departments",
+        "best_pred_insight": "Cost Reduction goals across all departments (Finance, Marketing, IT, HR) exhibit uniformly extended durations—averaging 256–285 days—2.14x longer than other goal categories (mean 121 days), confirming this is a category-level phenomenon, not Finance-specific.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Cost Reduction goals have the longest mean duration across all goal categories",
+        "best_pred_insight": "Cost Reduction goals across all departments (Finance, Marketing, IT, HR) exhibit uniformly extended durations—averaging 256–285 days—2.14x longer than other goal categories (mean 121 days), confirming this is a category-level phenomenon, not Finance-specific.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Finance department has the highest number of projects ending near the fiscal year-end.",
+        "best_pred_insight": "Cost Reduction goals are semantically distinct (64% contain 'expense', 59% 'cost', 66% 'reduce'), but this reflects tautological naming rather than actionable structural differentiation—priority distribution, metric type frequency, and owner assignment patterns are statistically indistinguishable from other categories.",
+        "best_score": 0.1
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-33",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-33.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-33.json",
+    "insights_score": 0.28,
+    "summary_score": 0.2,
+    "combined_score": 0.256,
+    "insight_matches": [
+      {
+        "gt_insight": "Continued linear increase in the duration of 'Cost Reduction' goals across all departments",
+        "best_pred_insight": "Cost Reduction objectives are 58 percentage points more likely to experience extended timelines than Efficiency objectives (58% vs 0%), with average durations of 259 days versus 95 days—indicating a structural mismatch between objective complexity and current planning assumptions.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Keywords in task descriptions do not significantly impact target percentages",
+        "best_pred_insight": "Objectives initiated in Q3 2022 show an extreme 97% extended timeline rate (29/30), 61 percentage points higher than other periods, signaling a severe organizational disruption—such as restructuring or resource reallocation—that critically impaired execution capacity.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The cost reduction goals dominate the goal types in the Finance department",
+        "best_pred_insight": "The top three owners with the highest extended timeline rates (user015, user007, user068) collectively account for 11 of the 63 extended objectives and exhibit median durations >260 days—suggesting owner-specific execution patterns or inconsistent support structures require targeted coaching or resourcing.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Cost Reduction goals have the longest mean duration across all goal categories",
+        "best_pred_insight": "Cost Reduction objectives are 58 percentage points more likely to experience extended timelines than Efficiency objectives (58% vs 0%), with average durations of 259 days versus 95 days—indicating a structural mismatch between objective complexity and current planning assumptions.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Finance department exhibits notably longer goal durations compared to other departments",
+        "best_pred_insight": "Low priority Cost Reduction objectives represent the highest-risk profile, with a 68% extended timeline rate (38 records), and when combined with Q3 2022 initiation, reach 100% extension (12/12)—revealing a compounding risk where governance, timing, and objective type converge to guarantee delay.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-25",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-25.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-25.json",
+    "insights_score": 0.35,
+    "summary_score": 0.8,
+    "combined_score": 0.485,
+    "insight_matches": [
+      {
+        "gt_insight": "Correlation Between Expense Amount and Processing Time, lower-cost expenses are processed slower than higher-cost ones",
+        "best_pred_insight": "The cost–processing time relationship is systematic and consistent across all 7 departments and 4 categories, confirming that no single operational unit drives the pattern—instead, it signals an enterprise-wide workflow design where expense amount directly governs processing priority.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Processing Time Trend Across Expense Brackets",
+        "best_pred_insight": "The cost–processing time relationship is systematic and consistent across all 7 departments and 4 categories, confirming that no single operational unit drives the pattern—instead, it signals an enterprise-wide workflow design where expense amount directly governs processing priority.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Uniform Processing Times Across Users and Departments for lower-Cost Expenses",
+        "best_pred_insight": "The cost–processing time relationship is systematic and consistent across all 7 departments and 4 categories, confirming that no single operational unit drives the pattern—instead, it signals an enterprise-wide workflow design where expense amount directly governs processing priority.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Varied Processing Outcomes Across Expense Brackets",
+        "best_pred_insight": "All three lowest cost brackets (0–100, 100–500, 500–1000) are systematically disadvantaged, with mean processing times exceeding the overall average (26.3 days) by >20%, while only the 5000+ bracket is advantaged—indicating structural inequity in resource allocation and queue management.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-29",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-29.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-29.json",
+    "insights_score": 0.8,
+    "summary_score": 0.9,
+    "combined_score": 0.8300000000000001,
+    "insight_matches": [
+      {
+        "gt_insight": "Higher number of Low and Medium priority goals in 'Cost Reduction' compared to other categories",
+        "best_pred_insight": "Cost Reduction stands out not because of unique category dynamics, but because it hosts the largest Low/Medium priority cohort (102 goals), amplifying the observed 89.22% success rate; its overall category-level success (81.58%) is 3.5× higher than the next-best category (Efficiency at 33.63%), underscoring how priority distribution skews category-level performance metrics.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Widespread high success rates for Low and Medium priority goals across all categories",
+        "best_pred_insight": "Priority level is the dominant structural driver of goal success across all categories: Low/Medium priorities consistently achieve 80–89% success rates regardless of category, while High/Critical priorities average only 12–16%, indicating that priority assignment — not category, department, owner workload, duration, or description characteristics — governs goal attainment outcomes.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Cost Reduction goals achieve significantly higher success rates compared to other categories",
+        "best_pred_insight": "Cost Reduction stands out not because of unique category dynamics, but because it hosts the largest Low/Medium priority cohort (102 goals), amplifying the observed 89.22% success rate; its overall category-level success (81.58%) is 3.5× higher than the next-best category (Efficiency at 33.63%), underscoring how priority distribution skews category-level performance metrics.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Unusually high success rates for Low and Medium priority 'Cost Reduction' goals compared to High and Critical",
+        "best_pred_insight": "Low/Medium priority Cost Reduction goals achieve an 89.22% success rate — the highest among all priority-category combinations — driven primarily by their systematically lower target_percentage thresholds (74.16% vs 73.20%) and, more critically, by a dramatically higher proportion of goals meeting or exceeding targets (85.19% vs 13.02% for High/Critical priorities).",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-30",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-30.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-30.json",
+    "insights_score": 0.625,
+    "summary_score": 0.6,
+    "combined_score": 0.6175,
+    "insight_matches": [
+      {
+        "gt_insight": "Uniform distribution of goal priorities in the Finance department",
+        "best_pred_insight": "Within all departments, Critical-priority goals are completed fastest overall (112.3 days), yet Finance executes them 47.1 days faster than others—demonstrating that its efficiency advantage is strongest where urgency and impact are highest.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Dominance of 'Cost Reduction' goals within the Finance department",
+        "best_pred_insight": "Cost Reduction is the fastest goal category overall (30.3 days), and Finance’s heavy concentration in this category (+26.0 percentage points vs others) accounts for nearly half of its speed advantage, while its underrepresentation in slower categories (e.g., Efficiency: −15.9 pp) further amplifies the composition effect.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Cost Reduction goals have significantly shorter average durations compared to other categories",
+        "best_pred_insight": "Finance's speed advantage is driven by both composition effect (45.5% of its completed goals are Cost Reduction—30.3-day average duration—versus only 19.4% for others) and efficiency effect (Finance is faster within 4/4 priority levels and 4/4 metric types, e.g., 94.0 days faster on Expense Ratio goals).",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Significantly shorter goal durations in the Finance department compared to HR, Marketing, and IT",
+        "best_pred_insight": "Within all departments, Critical-priority goals are completed fastest overall (112.3 days), yet Finance executes them 47.1 days faster than others—demonstrating that its efficiency advantage is strongest where urgency and impact are highest.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-35",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-35.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-35.json",
+    "insights_score": 0.4800000000000001,
+    "summary_score": 0.2,
+    "combined_score": 0.396,
+    "insight_matches": [
+      {
+        "gt_insight": "Higher number of Low and Medium priority goals in 'Cost Reduction' compared to other categories",
+        "best_pred_insight": "Low and Medium priority goals across all five categories achieve significantly higher success rates (average 74.5%) than High and Critical priorities (32.6%), with Employee Satisfaction showing the largest gap (50.38 percentage points), indicating a systemic organizational pattern—not a Cost Reduction–specific anomaly.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Cross-departmental tasks exhibit higher completion percentages and target achievements compared to non-cross-departmental tasks.",
+        "best_pred_insight": "HR department achieves the highest High/Critical priority success rate (22.18%), outperforming Finance (16.83%) by over 5 percentage points, suggesting transferable practices in target calibration and execution for high-stakes goals.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Unusually high success rates for low and medium priority 'Cost Reduction' goals compared to High and Critical",
+        "best_pred_insight": "Low and Medium priority goals across all five categories achieve significantly higher success rates (average 74.5%) than High and Critical priorities (32.6%), with Employee Satisfaction showing the largest gap (50.38 percentage points), indicating a systemic organizational pattern—not a Cost Reduction–specific anomaly.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Higher success rates for Low and Medium priority goals in the Cost Reduction category",
+        "best_pred_insight": "Low and Medium priority goals across all five categories achieve significantly higher success rates (average 74.5%) than High and Critical priorities (32.6%), with Employee Satisfaction showing the largest gap (50.38 percentage points), indicating a systemic organizational pattern—not a Cost Reduction–specific anomaly.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Cost reduction goals achieve significantly higher success rates compared to other categories",
+        "best_pred_insight": "Cost Reduction is the only category with a positive average target-actual gap (+1.01 pp), while all other categories show negative gaps ranging from −5.14 (Efficiency) to −8.32 (Employee Satisfaction), revealing that Cost Reduction’s relatively high overall success rate (55.45%) stems from more realistic target setting rather than superior execution.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-36",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-36.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-36.json",
+    "insights_score": 1.0,
+    "summary_score": 0.8,
+    "combined_score": 0.94,
+    "insight_matches": [
+      {
+        "gt_insight": "",
+        "best_pred_insight": "The optimal priority-category combination is High + Customer Satisfaction (39.66% success, n=58), whereas Low + Process Improvement is the worst (3.23% success, n=31), and High priority is the top performer in every category—confirming that elevating priority is the most universally effective lever for improving goal outcomes.",
+        "best_score": 1.0
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "The optimal priority-category combination is High + Customer Satisfaction (39.66% success, n=58), whereas Low + Process Improvement is the worst (3.23% success, n=31), and High priority is the top performer in every category—confirming that elevating priority is the most universally effective lever for improving goal outcomes.",
+        "best_score": 1.0
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "Q4 delivers the highest goal success rate (31.82%), outperforming Q3—the lowest quarter—by 17.48 pp; November-starting goals achieve the peak success rate (36.78%), exceeding August-starting goals by 24.14 pp, revealing that timing—not just quarter—is a dominant operational lever.",
+        "best_score": 1.0
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "High priority goals consistently outperform all other priority levels across all five categories, with success rates ranging from 23.21% (Innovation) to 39.66% (Customer Satisfaction), while Low priority goals in Process Improvement achieve only 3.23% success—highlighting a 36.43 pp performance gap that signals severe resource misalignment for low-priority, high-effort categories.",
+        "best_score": 1.0
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "Critical priority goals underperform High priority goals by 21.46 pp overall (13.19% vs 34.64%), yet Critical goals in Cost Reduction achieve 16.67% success—nearly double their average—suggesting that priority labels may be inconsistently applied or misaligned with actual strategic weight in certain categories.",
+        "best_score": 1.0
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-44",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-44.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-44.json",
+    "insights_score": 0.25999999999999995,
+    "summary_score": 0.2,
+    "combined_score": 0.242,
+    "insight_matches": [
+      {
+        "gt_insight": "The number of expense reports submitted varies significantly by user",
+        "best_pred_insight": "Recurring expenses process 175.2 hours slower than One-time expenses (645.5 vs 470.3 hrs), contradicting expectations of efficiency gains from repetition—and this gap widens dramatically in high-risk combinations: Recurring software expenses take 3001.2 hours versus One-time equivalents at -298.1 hours.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The distribution of expense categories shows which types of expenses are most common",
+        "best_pred_insight": "89% of expense descriptions (445/500) fall into the 'other' keyword category yet still account for 104 of 119 Processed-state records and carry a 1638.8-hour average processing time—revealing that unstructured description text is not noise but a critical signal of systemic bottlenecks requiring NLP-driven categorization or standardized taxonomy adoption.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Amounts in expense reports vary significantly based on short description keywords",
+        "best_pred_insight": "89% of expense descriptions (445/500) fall into the 'other' keyword category yet still account for 104 of 119 Processed-state records and carry a 1638.8-hour average processing time—revealing that unstructured description text is not noise but a critical signal of systemic bottlenecks requiring NLP-driven categorization or standardized taxonomy adoption.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Expense amounts vary significantly across different departments",
+        "best_pred_insight": "IT department and Services category jointly drive the Processed state bottleneck, contributing 14.3% and 38.7% of Processed records respectively, with IT averaging 2384.8 hours and Services averaging 1783.9 hours—both significantly above the state-wide average.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Processing times vary significantly based on the state of the expenses",
+        "best_pred_insight": "Processed state is the primary workflow bottleneck with an average processing time of 1690.9 hours—over 4.8× higher than Pending (353.4 hrs) and more than 14× higher than Declined (119.6 hrs), indicating severe operational friction in final expense resolution.",
+        "best_score": 0.6
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-37",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-37.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-37.json",
+    "insights_score": 0.65,
+    "summary_score": 0.6,
+    "combined_score": 0.635,
+    "insight_matches": [
+      {
+        "gt_insight": "There is a disproportionate high number of reportees per manager in the IT Department",
+        "best_pred_insight": "The IT department comprises 100 employees (20% of total workforce) but is managed by only two individuals, with over three-quarters concentrated under a single manager—this violates scalable management design principles and increases single-point failure risk in user administration.",
+        "best_score": 0.9
+      },
+      {
+        "gt_insight": "Employees located in high-retention locations tend to have significantly longer tenures compared to those in other locations.",
+        "best_pred_insight": "Geographic dispersion does not explain the imbalance—Ed manages reports across 33 locations (including 23 in London and 22 in Tokyo), while Mariano covers only 12 locations (3 in London, 11 in Tokyo), yet both serve the same key hubs, indicating assignment volume—not location clustering—is the root cause.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "There is a significant disparity among managers in terms of reportee numbers",
+        "best_pred_insight": "The IT department comprises 100 employees (20% of total workforce) but is managed by only two individuals, with over three-quarters concentrated under a single manager—this violates scalable management design principles and increases single-point failure risk in user administration.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "There is a disparity in Managerial Distribution across departments",
+        "best_pred_insight": "The IT department comprises 100 employees (20% of total workforce) but is managed by only two individuals, with over three-quarters concentrated under a single manager—this violates scalable management design principles and increases single-point failure risk in user administration.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-42",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-42.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-42.json",
+    "insights_score": 0.16,
+    "summary_score": 0.1,
+    "combined_score": 0.142,
+    "insight_matches": [
+      {
+        "gt_insight": "Average expense amounts vary significantly across different departments",
+        "best_pred_insight": "All 8 suspicious claims are one-time expenses (7/8) and disproportionately concentrated in Assets (4/8) and Travel (2/8) categories—categories typically associated with discretionary, non-recurring spending—further distinguishing them from legitimate recurring claims.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The number of expense reports submitted varies significantly by user",
+        "best_pred_insight": "Only 8 claims (1.6% of total) were flagged as suspicious using temporal clustering (same user, similar amounts within 5%, submitted within 7 days), indicating that repeated identical expense claims are rare but highly concentrated in specific behavioral patterns.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Processing times vary significantly based on the state of the expenses",
+        "best_pred_insight": "These 8 suspicious claims have a 75% decline rate—more than triple the overall 21.8% decline rate—providing strong empirical evidence that temporal clustering is a robust proxy for fraudulent intent rather than policy misunderstanding.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The distribution of expense categories shows which types of expenses are most common",
+        "best_pred_insight": "All 8 suspicious claims are one-time expenses (7/8) and disproportionately concentrated in Assets (4/8) and Travel (2/8) categories—categories typically associated with discretionary, non-recurring spending—further distinguishing them from legitimate recurring claims.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Amounts in expense reports vary significantly based on short description keywords",
+        "best_pred_insight": "Only 8 claims (1.6% of total) were flagged as suspicious using temporal clustering (same user, similar amounts within 5%, submitted within 7 days), indicating that repeated identical expense claims are rare but highly concentrated in specific behavioral patterns.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-40",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-40.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-40.json",
+    "insights_score": 0.3,
+    "summary_score": 0.2,
+    "combined_score": 0.27,
+    "insight_matches": [
+      {
+        "gt_insight": "Processing times vary significantly across departments",
+        "best_pred_insight": "Customer Support processes expenses 1.36x faster than Sales—the slowest department—despite handling the highest average expense amount ($85,059), indicating operational excellence is not driven by lower complexity or smaller ticket size.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Processing times vary across expense categories within departments",
+        "best_pred_insight": "Customer Support’s category mix—dominated by Assets (42.1%) and low Miscellaneous (5.3%)—correlates with faster processing, while Services and Miscellaneous proportions correlate positively with delays, revealing that category-specific workflow maturity drives departmental speed differences.",
+        "best_score": 0.6
+      },
+      {
+        "gt_insight": "Lower expense brackets have faster processing times in the Development department",
+        "best_pred_insight": "Miscellaneous expense proportion has a strong positive correlation with slower processing (0.548), and Customer Support has the lowest Miscellaneous share (5.3%), implying that ambiguous or unstructured expense categorization creates approval bottlenecks across departments.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Amounts in expense reports vary significantly based on short description keywords",
+        "best_pred_insight": "Customer Support processes expenses 1.36x faster than Sales—the slowest department—despite handling the highest average expense amount ($85,059), indicating operational excellence is not driven by lower complexity or smaller ticket size.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-43",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-43.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-43.json",
+    "insights_score": 0.3,
+    "summary_score": 0.2,
+    "combined_score": 0.27,
+    "insight_matches": [
+      {
+        "gt_insight": "Total expenses vary significantly across departments.",
+        "best_pred_insight": "Services category dominates overall spend at 38.8% ($11.4M), with Product Management and Customer Support alone driving 48.6% of all Services expenditures — revealing a structural dependency on two departments for the largest cost pool.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Finance and HR departments have processed the highest number of expenses.",
+        "best_pred_insight": "Product Management, Customer Support, and Finance departments collectively account for 67.6% of total spending ($29.4M), indicating extreme concentration of expense authority and risk exposure in just three units.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Customer Support has the highest average expense claims.",
+        "best_pred_insight": "Services category dominates overall spend at 38.8% ($11.4M), with Product Management and Customer Support alone driving 48.6% of all Services expenditures — revealing a structural dependency on two departments for the largest cost pool.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "HR has the quickest average processing time for expenses.",
+        "best_pred_insight": "Miscellaneous expenses show the highest departmental concentration (75.0% driven by top 3 departments), while Travel is the most diversified (63.3% from top 3), suggesting Travel spending is more evenly distributed across operational units and less vulnerable to single-department volatility.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The 'Services' category has the highest total expenses.",
+        "best_pred_insight": "Services category dominates overall spend at 38.8% ($11.4M), with Product Management and Customer Support alone driving 48.6% of all Services expenditures — revealing a structural dependency on two departments for the largest cost pool.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-41",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-41.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-41.json",
+    "insights_score": 0.74,
+    "summary_score": 0.8,
+    "combined_score": 0.758,
+    "insight_matches": [
+      {
+        "gt_insight": "",
+        "best_pred_insight": "evanskevin is the sole systematic fraud suspect, responsible for 10,003 of 10,100 duplicate claims (99.89% duplicate ratio) and $513.4M in fraudulent expense exposure — exceeding all other users combined and representing 95.2% of all duplicates classified as 'likely_fraud_systematic'.",
+        "best_score": 1.0
+      },
+      {
+        "gt_insight": "Processing times vary significantly based on the state of the expenses",
+        "best_pred_insight": "All 10,000 systematically fraudulent claims share identical attributes: amount = $51,285, short_description = 'Water risk class understand PM do big occur.', department = Sales, category = Miscellaneous, location = Africa, type = Recurring, and opened_at = 2024-08-12 09:35:44 — indicating a single, coordinated, non-accidental submission event rather than policy misunderstanding.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "There is a high incidence of repeated identical expense claims",
+        "best_pred_insight": "All 10,000 systematically fraudulent claims share identical attributes: amount = $51,285, short_description = 'Water risk class understand PM do big occur.', department = Sales, category = Miscellaneous, location = Africa, type = Recurring, and opened_at = 2024-08-12 09:35:44 — indicating a single, coordinated, non-accidental submission event rather than policy misunderstanding.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Significant repetition in expense claims by a single user",
+        "best_pred_insight": "Monetary exposure from duplicate claims totals $514.1M (95.5% of total duplicate amount), with systematic fraud accounting for $512.85M — meaning nearly all financial risk stems from evanskevin’s single-pattern, high-volume, fully approved duplication.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "evanskevin is the sole systematic fraud suspect, responsible for 10,003 of 10,100 duplicate claims (99.89% duplicate ratio) and $513.4M in fraudulent expense exposure — exceeding all other users combined and representing 95.2% of all duplicates classified as 'likely_fraud_systematic'.",
+        "best_score": 1.0
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-38",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-38.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-38.json",
+    "insights_score": 0.5,
+    "summary_score": 0.8,
+    "combined_score": 0.5900000000000001,
+    "insight_matches": [
+      {
+        "gt_insight": "There are significantly higher success rates in the IT department compared to other departments",
+        "best_pred_insight": "IT’s mean percent_complete is 63.04%, 19.35 percentage points higher than the 43.69% average for other departments, reflecting stronger mid-cycle execution discipline and progress accountability.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "There are higher success rates in critical and high priority goals within the IT department",
+        "best_pred_insight": "IT’s Medium- and Low-priority goal achievement rates are near zero (0% and 8.33%), revealing a deliberate focus strategy: success is driven by disciplined execution on top-priority goals, not broad-based effort.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "IT department exhibits a higher number of both Critical and High priority goals compared to other departments",
+        "best_pred_insight": "All departments have nearly identical goal volumes (124–126 goals), eliminating sample size or workload imbalance as an explanation for IT’s outperformance.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "There is a consistent higher success rates for critical and high priority goals across departments",
+        "best_pred_insight": "IT’s success is concentrated in high-impact work: it achieves 61.29% on Critical and 52.63% on High priority goals, while other departments achieve only 18–25% on those same priorities—confirming superior execution quality, not easier goal selection.",
+        "best_score": 0.2
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-45",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-45.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-45.json",
+    "insights_score": 0.12,
+    "summary_score": 0.2,
+    "combined_score": 0.14400000000000002,
+    "insight_matches": [
+      {
+        "gt_insight": "The Customer support department has the highest average expense per claim.",
+        "best_pred_insight": "North America accounts for 34.0% of total expenses ($6.7M) and drives the top three location-category combinations—North America_Services (9.51%), North America_Travel (9.40%), and North America_Miscellaneous (8.44%)—collectively representing 27.35% of all expenses, indicating concentrated financial exposure and operational leverage in this region.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "Expense amounts vary significantly across different geographic locations",
+        "best_pred_insight": "Asia_Services has the slowest mean processed time (56.26) across all location-category combinations—despite contributing only 3.55% of total expenses—revealing a high-efficiency risk in a low-spend but operationally fragile segment that may escalate if unaddressed.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Customer Support has processed the most expense claims.",
+        "best_pred_insight": "North America accounts for 34.0% of total expenses ($6.7M) and drives the top three location-category combinations—North America_Services (9.51%), North America_Travel (9.40%), and North America_Miscellaneous (8.44%)—collectively representing 27.35% of all expenses, indicating concentrated financial exposure and operational leverage in this region.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The 'Services' category has the highest total expenses.",
+        "best_pred_insight": "Sunday is the highest-expense day of the week ($3.32M), exceeding all other days by at least $330K, and January is the peak expense month ($2.96M), suggesting recurring demand surges tied to calendar-driven cycles that should inform proactive budget pacing and staffing allocation.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "The Product management department has the highest total expenses.",
+        "best_pred_insight": "Sunday is the highest-expense day of the week ($3.32M), exceeding all other days by at least $330K, and January is the peak expense month ($2.96M), suggesting recurring demand surges tied to calendar-driven cycles that should inform proactive budget pacing and staffing allocation.",
+        "best_score": 0.1
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-46",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-46.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-46.json",
+    "insights_score": 0.4000000000000001,
+    "summary_score": 0.2,
+    "combined_score": 0.34,
+    "insight_matches": [
+      {
+        "gt_insight": "There is a variable distribution of Expense Reports across categories",
+        "best_pred_insight": "IT and HR departments exhibit the highest Travel rejection rates (54.5% and 50.0%, respectively), but their low volume of Travel claims (11 and 2 records) suggests these are outliers driven by the same miscategorization pattern rather than systemic departmental failure.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Certain users have submitted multiple duplicate expense claims.",
+        "best_pred_insight": "Duplicate expense claims are not a meaningful rejection factor: they constitute only 3.56% of total records and show a 5.56% rejection rate for Travel duplicates versus 42.45% for non-duplicate Travel claims—effectively ruling out duplication as a cause of high rejection rates.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "There are disproportionately high rejection rates for Travel expenses",
+        "best_pred_insight": "93.2% of all Travel expense claims (137 out of 147) are systematically miscategorized equipment purchases—evidenced by equipment-related keywords in short descriptions—and carry a 42.3% rejection rate, confirming miscategorization as the primary driver of high Travel rejections.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-34",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-34.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-34.json",
+    "insights_score": 0.42500000000000004,
+    "summary_score": 0.2,
+    "combined_score": 0.3575,
+    "insight_matches": [
+      {
+        "gt_insight": "Tasks initiated in Q4 exhibit higher completion percentages compared to those started in other quarters.",
+        "best_pred_insight": "Time-based factors—including start quarter, start month, and duration bucket—collectively exhibit weak explanatory power, with the strongest (start month) showing only 12% of priority’s weighted variance; notably, longer durations (121–180 days) correlate with the highest completion rate (46.80%), contradicting assumptions about time pressure reducing success.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "There is a uniform distribution of goal priorities in the Finance department",
+        "best_pred_insight": "IT and Marketing outperform their expected completion rates by +2.70% and +2.62% respectively despite having unfavorable priority mixes (higher shares of Critical/High goals), indicating superior execution capability or management practices relative to peers.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "There is a dominance of 'Cost Reduction' goals within the Finance department",
+        "best_pred_insight": "Category shows moderate influence on completion: Cost Reduction goals achieve the highest rate (51.64%), while Efficiency goals lag significantly (29.82%), indicating domain-specific barriers to success that are secondary to priority but still operationally actionable.",
+        "best_score": 0.4
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "Priority is the dominant driver of goal completion, with Low-priority goals achieving a 69.07% completion rate—over three times higher than Critical-priority goals at 22.22%, and contributing ~10× more explanatory power (weighted variance 0.0291) than any time-based factor.",
+        "best_score": 1.0
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-100",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-100.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-100.json",
+    "insights_score": 0.4000000000000001,
+    "summary_score": 0.1,
+    "combined_score": 0.31000000000000005,
+    "insight_matches": [
+      {
+        "gt_insight": "There is no significant increasing trend in the 'Hardware' or any other category.",
+        "best_pred_insight": "Incident counts across all five categories (Database, Hardware, Inquiry / Help, Software, Network) are perfectly balanced at exactly 100 each, confirming zero distributional imbalance in assignment volume.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "The incidents are equally distributed across all categories.",
+        "best_pred_insight": "Incident counts across all five categories (Database, Hardware, Inquiry / Help, Software, Network) are perfectly balanced at exactly 100 each, confirming zero distributional imbalance in assignment volume.",
+        "best_score": 0.9
+      },
+      {
+        "gt_insight": "There are specific mentions of printers in the incident descriptions.",
+        "best_pred_insight": "The dataset contains severe data quality issues: 52.8% of records (264/500) have negative resolution times (closed_at < opened_at), invalidating time-based analysis for nearly half the dataset and introducing high uncertainty into all resolution-time-derived conclusions.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "There is no specific location where hardware incidents are concentrated.",
+        "best_pred_insight": "Despite identical incident volumes, Database incidents require 24% more resolution time and Software incidents generate 15% higher cost and user impact—demonstrating that raw count balance masks substantial functional imbalances in workload intensity and business consequence.",
+        "best_score": 0.1
+      },
+      {
+        "gt_insight": "",
+        "best_pred_insight": "Despite identical incident volumes, Database incidents require 24% more resolution time and Software incidents generate 15% higher cost and user impact—demonstrating that raw count balance masks substantial functional imbalances in workload intensity and business consequence.",
+        "best_score": 1.0
+      },
+      {
+        "gt_insight": "There are no specific issues mentioned in the incident descriptions for each category.",
+        "best_pred_insight": "Despite identical incident volumes, Database incidents require 24% more resolution time and Software incidents generate 15% higher cost and user impact—demonstrating that raw count balance masks substantial functional imbalances in workload intensity and business consequence.",
+        "best_score": 0.1
+      }
+    ],
+    "error": null
+  },
+  {
+    "flag": "flag-39",
+    "result_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/result2/flag-39.json",
+    "groundtruth_file": "/Users/plumliu/Desktop/python_workspace/bi-agent/experiment/insightbench_full/data/flag-39.json",
+    "insights_score": 0.675,
+    "summary_score": 0.8,
+    "combined_score": 0.7125,
+    "insight_matches": [
+      {
+        "gt_insight": "There is a correlation between expense amount and processing time, lower-cost expenses are processed slower than higher-cost ones",
+        "best_pred_insight": "Processing time variability collapses with increasing cost: low-cost expenses show high dispersion (std = 5.28 days, range 4–28), while high-cost expenses are tightly clustered (std = 1.55 days, range 1–5), reflecting rigid, expedited handling for larger amounts and inconsistent, delayed treatment for smaller ones.",
+        "best_score": 0.9
+      },
+      {
+        "gt_insight": "There is varied processing outcomes across expense brackets",
+        "best_pred_insight": "Processing time variability collapses with increasing cost: low-cost expenses show high dispersion (std = 5.28 days, range 4–28), while high-cost expenses are tightly clustered (std = 1.55 days, range 1–5), reflecting rigid, expedited handling for larger amounts and inconsistent, delayed treatment for smaller ones.",
+        "best_score": 0.8
+      },
+      {
+        "gt_insight": "Processing times for expenses under $1000 vary significantly across departments and users.",
+        "best_pred_insight": "Processing time variability collapses with increasing cost: low-cost expenses show high dispersion (std = 5.28 days, range 4–28), while high-cost expenses are tightly clustered (std = 1.55 days, range 1–5), reflecting rigid, expedited handling for larger amounts and inconsistent, delayed treatment for smaller ones.",
+        "best_score": 0.2
+      },
+      {
+        "gt_insight": "Expenses within lower cost brackets experience significantly longer processing times, with the longest delays occurring in the lowest bracket.",
+        "best_pred_insight": "A sharp discontinuity exists at the $1,000 threshold—expenses below it average 20.0 days versus 5.48 days above it (14.5-day gap, 3.65x ratio)—suggesting this threshold functions as a de facto operational triage boundary, despite no formal policy documentation.",
+        "best_score": 0.8
+      }
+    ],
+    "error": null
+  }
+]

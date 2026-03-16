@@ -29,60 +29,78 @@ def replanner_node(state: CustomModelingState) -> Dict[str, Any]:
     execution_context = ""
     if latest_execution:
         execution_context = f"""
-触发重规划时的最后一轮执行（这可能是触发重规划的关键证据）:
-代码:
+The final execution in the round that triggered replanning (this may be key evidence for what caused the replanning):
+code:
 {latest_execution.get('code', '')}
 
-输出:
+stdout:
 {latest_execution.get('stdout', '')}
 """
 
-    context = f"""用户需求: {state['user_input']}
+    context = f"""user_input: {state['user_input']}
 
-初始计划: {json.dumps(state.get('initial_plan'), ensure_ascii=False, indent=2)}
+initial_plan: {json.dumps(state.get('initial_plan'), ensure_ascii=False, indent=2)}
 
-已完成任务:
+completed_tasks:
 {json.dumps(state.get('completed_tasks'), ensure_ascii=False, indent=2)}
 
-旧剩余任务:
+remaining_tasks:
 {json.dumps(state.get('remaining_tasks'), ensure_ascii=False, indent=2)}
 
-已确认发现:
+confirmed_findings:
 {json.dumps(state.get('confirmed_findings'), ensure_ascii=False, indent=2)}
 
-问题池:
+open_questions:
 {json.dumps(state.get('open_questions'), ensure_ascii=False, indent=2)}
 
-当前文件:
+generated_files:
 {json.dumps(state.get('generated_files'), ensure_ascii=False, indent=2)}
 
 {execution_context}
 
-重规划原因: {state.get('replan_reason', '')}
+replan_reason: {state.get('replan_reason', '')}
 """
 
     human_message = HumanMessage(content=context)
 
-    # Call LLM
-    response = llm.invoke([system_message, human_message])
+    # Call LLM with retry loop for JSON parse failures
+    max_retries = 2
+    messages = [system_message, human_message]
+    phase_tasks = []
+    followup_playbook = state.get("followup_playbook") or []
 
-    # Parse JSON output
-    raw_text = extract_text_from_content(response.content)
+    for attempt in range(max_retries):
+        response = llm.invoke(messages)
+        raw_text = extract_text_from_content(response.content)
 
-    match = re.search(r"```(?:json)?(.*?)```", raw_text, re.DOTALL)
-    if match:
-        content_str = match.group(1).strip()
-    else:
-        start_idx = raw_text.find('{')
-        end_idx = raw_text.rfind('}')
-        if start_idx != -1 and end_idx != -1:
-            content_str = raw_text[start_idx:end_idx + 1]
+        match = re.search(r"```(?:json)?(.*?)```", raw_text, re.DOTALL)
+        if match:
+            content_str = match.group(1).strip()
         else:
-            content_str = raw_text.strip()
+            start_idx = raw_text.find('{')
+            end_idx = raw_text.rfind('}')
+            if start_idx != -1 and end_idx != -1:
+                content_str = raw_text[start_idx:end_idx + 1]
+            else:
+                content_str = raw_text.strip()
 
-    parsed = json.loads(content_str)
-    phase_tasks = parsed["phase_tasks"]
-    followup_playbook = parsed.get("followup_playbook", state.get("followup_playbook", []))
+        try:
+            parsed = json.loads(content_str)
+            phase_tasks = parsed["phase_tasks"]
+            followup_playbook = parsed.get("followup_playbook", followup_playbook)
+            break
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"--- [Replanner] JSON 解析失败 (尝试 {attempt + 1}/{max_retries}): {e} ---")
+            if attempt < max_retries - 1:
+                messages.append(response)
+                messages.append(HumanMessage(content=f"Your previous output JSON format is invalid and failed to parse: {e} \n Please output strictly valid JSON only, without any extra text, Markdown, or code block markers, and ensure all strings are properly closed. Please output again:\n"))
+            else:
+                print("--- [Replanner] 多次重试失败，返回空任务列表 ---")
+                return {
+                    "remaining_tasks": [],
+                    "current_task": None,
+                    "replan_reason": None,
+                }
 
     print(f"--- [Replanner] 重新规划了 {len(phase_tasks)} 个任务 ---")
     for i, task in enumerate(phase_tasks, 1):
@@ -93,5 +111,5 @@ def replanner_node(state: CustomModelingState) -> Dict[str, Any]:
         "remaining_tasks": phase_tasks[1:] if len(phase_tasks) > 1 else [],
         "current_task": phase_tasks[0]["description"] if phase_tasks else None,
         "followup_playbook": followup_playbook,
-        "replan_reason": None  # Clear replan reason
+        "replan_reason": None,
     }

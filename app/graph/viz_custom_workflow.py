@@ -1,5 +1,5 @@
 from typing import List
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, END, START
 from langgraph.types import Send
 from ppio_sandbox.code_interpreter import Sandbox
 from app.core.viz_custom_subgraph.state import CustomVizState
@@ -53,7 +53,7 @@ def build_viz_custom_subgraph(sandbox: Sandbox):
     workflow.add_node("viz_aggregator", viz_aggregator_node)
 
     # 2. 设置入口
-    workflow.set_entry_point("viz_planner")
+    workflow.add_edge(START, "viz_planner")
 
     # 3. Planner → Executors (并发分发)
     workflow.add_conditional_edges(

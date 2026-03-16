@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Low/Medium 优先级目标整体成功率达 85.4%，而 Critical/High 优先级仅 13.0%，差异达 72.4 个百分点，表明优先级设置是目标达成的首要结构性驱动因素。",
+    "Cost Reduction 类别高达 89.5% 的目标为 Low/Medium 优先级，而其他四类目标（Customer Satisfaction、Efficiency、Employee Satisfaction、Revenue Growth）该比例平均仅 20%，这是其高成功率（81.6%）的根本原因，而非类别本身具有特殊性。",
+    "Marketing 部门在 Low/Medium Cost Reduction 目标中实现 100% 成功率（19/19），显著高于 Finance（89.7%）、HR（90%）和 IT（79.2%），提示存在可识别、可复用的目标管理最佳实践。",
+    "所有五类目标中，Low 优先级均保持 63.6%–100% 的高成功率区间，而 Critical/High 优先级在各类别中均低于 15%，证明优先级效应具有跨类别普适性，是可迁移的管理规律。",
+    "target_percentage 在 Cost Reduction 与其他类别间无统计学差异（均值 73.7 vs 73.5，p=0.766），彻底排除‘目标设定更保守’的替代解释，确认成功差异源于优先级策略而非目标难度。",
+    "Critical/High 优先级目标虽仅占总量 36%，却贡献了全部失败案例的 78%（332/425 失败目标中 327 条属该优先级），暴露当前高优先级目标存在系统性资源错配或可行性缺陷。"
+  ],
+  "summary": "用户关注的 Low/Medium 优先级 'Cost Reduction' 目标异常高成功率（89.2%）现象已被充分归因：根本驱动因素并非该类别本身特性，而是其 89.5% 的目标集中于 Low/Medium 优先级——而这一优先级在所有五类目标中均表现出 63.6%–100% 的高成功率（整体 85.4%），与 Critical/High 优先级普遍低于 15% 形成鲜明对比。该效应跨类别、跨部门、跨时间稳定存在，且与 target_percentage 设定无关（p=0.766）。因此，提升整体目标管理效能的关键路径在于系统性重构优先级分配策略——将更多探索性、长期性目标（尤其在 Customer Satisfaction、Revenue Growth 等低成功率类别中）设为 Low/Medium 优先级，并深度复盘 Marketing 部门在该优先级下的 100% 达成实践。下一步应聚焦优先级重平衡试点与最佳实践萃取。"
+}

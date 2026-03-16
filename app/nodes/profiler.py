@@ -11,6 +11,7 @@ from app.prompts.profiler_prompt import (
     PROFILER_RECOMMENDATION_CONTEXT_TEMPLATE
 )
 from app.utils.csv_reader import collect_file_metadata
+from app.utils.extract_text_from_content import extract_text_from_content
 from app.utils.llm_factory import create_llm, apply_retry
 
 step = "profiler"
@@ -53,7 +54,7 @@ def _generate_merge_recommendations(
 
     # 解析 JSON 响应
     try:
-        response_text = response.content.strip()
+        response_text = extract_text_from_content(response.content).strip()
         # 移除可能的 markdown 代码块标记
         if response_text.startswith("```json"):
             response_text = response_text[7:]
@@ -300,7 +301,5 @@ def profiler_node(state: WorkflowState, sandbox: Sandbox) -> Dict[str, Any]:
     # 3. 返回状态更新
     return {
         "files_metadata": files_metadata,
-        "merge_recommendations": merge_recommendations,
-        "remote_file_path": None,  # 废弃
-        "data_schema": {}  # 废弃
+        "merge_recommendations": merge_recommendations
     }

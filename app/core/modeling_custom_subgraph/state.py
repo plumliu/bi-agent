@@ -1,4 +1,7 @@
-from typing import TypedDict, List, Optional, Dict, Any
+from typing import TypedDict, List, Optional, Dict, Any, Annotated
+
+from langchain_core.messages import AnyMessage, AIMessage
+from langgraph.graph.message import add_messages
 
 
 class CustomModelingState(TypedDict):
@@ -20,10 +23,6 @@ class CustomModelingState(TypedDict):
     # 合并建议列表 (Profiler 输出，仅多文件时存在)
     merge_recommendations: Optional[List[Dict[str, Any]]]
 
-    # [已废弃] 保留以向后兼容
-    remote_file_path: Optional[str]
-    data_schema: Optional[Dict[str, Any]]
-
     # ========== InternalState - Planning ==========
     initial_plan: Optional[Dict[str, Any]]
     remaining_tasks: Optional[List[Dict[str, str]]]
@@ -32,10 +31,10 @@ class CustomModelingState(TypedDict):
     followup_playbook: Optional[List[Dict[str, Any]]]
 
     # ========== InternalState - Execution ==========
-    latest_ai_message: Optional[Any]
+    latest_ai_message: Optional[AIMessage]
     latest_execution: Optional[Dict[str, Any]]
     last_error: Optional[Dict[str, Any]]
-    execution_trace: Optional[List[Dict[str, Any]]]
+    execution_trace: Annotated[list[AnyMessage], add_messages]
 
     # ========== InternalState - Observer ==========
     latest_control_signal: Optional[str]

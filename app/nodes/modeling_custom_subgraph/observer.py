@@ -74,16 +74,18 @@ def _build_repair_message(parsed: Dict[str, Any]) -> str:
 
     if decision == "FOLLOW_UP" and not parsed["next_task"]:
         return (
-            "你明明已经给出了控制信号为 FOLLOW_UP，但是你似乎忘记了给出 NEXT_TASK。\n"
-            "请严格按照既定结构重新输出完整结果，并补充一个非空、具体、可直接执行的 [NEXT_TASK]。\n"
-            "这次输出中，你不需要输出全量回答内容，只需要给出上个回答中遗漏的 [NEXT_TASK]"
+            "Your previous response selected FOLLOW_UP but did not include [NEXT_TASK].\n"
+            "Reply with ONLY the following block, nothing else:\n\n"
+            "[NEXT_TASK]\n"
+            "<a specific, directly executable task description for the Executor>"
         )
 
     if decision == "REPLAN" and not parsed["replan_reason"]:
         return (
-            "你明明已经给出了控制信号为 REPLAN，但是你似乎忘记了给出 REPLAN_REASON。\n"
-            "请严格按照既定结构重新输出完整结果，并补充一个非空、明确、具体、可操作的 [REPLAN_REASON]。\n"
-            "这次输出中，你不需要输出全量回答内容，只需要给出上个回答中遗漏的 [REPLAN_REASON]"
+            "Your previous response selected REPLAN but did not include [REPLAN_REASON].\n"
+            "Reply with ONLY the following block, nothing else:\n\n"
+            "[REPLAN_REASON]\n"
+            "<a clear, specific, actionable explanation of why the remaining plan needs to be rewritten>"
         )
 
     return ""
@@ -119,34 +121,34 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
     generated_files = state.get("generated_files") or {}
     latest_execution = state.get("latest_execution") or {}
 
-    context = f"""初始计划: {json.dumps(initial_plan, ensure_ascii=False)}
+    context = f"""initial_plan: {json.dumps(initial_plan, ensure_ascii=False)}
 
-已完成任务:
+completed_tasks:
 {json.dumps(completed_tasks, ensure_ascii=False, indent=2)}
 
-当前任务: {state['current_task']}
+current_task: {state['current_task']}
 
-剩余任务:
+remaining_tasks:
 {json.dumps(remaining_tasks, ensure_ascii=False, indent=2)}
 
-追问手册:
+followup_playbook:
 {json.dumps(followup_playbook, ensure_ascii=False, indent=2)}
 
-问题池:
+open_questions:
 {json.dumps(open_questions, ensure_ascii=False, indent=2)}
 
-已确认发现:
+confirmed_findings:
 {json.dumps(confirmed_findings, ensure_ascii=False, indent=2)}
 
-当前工作假设:
+working_hypotheses:
 {json.dumps(working_hypotheses, ensure_ascii=False, indent=2)}
 
-当前文件:
+generated_files:
 {json.dumps(generated_files, ensure_ascii=False, indent=2)}
 
-上一轮执行:
-代码: {latest_execution.get('code', '')}
-输出: {latest_execution.get('stdout', '')}
+latest_execution:
+code: {latest_execution.get('code', '')}
+stdout: {latest_execution.get('stdout', '')}
 """
 
     messages.append(HumanMessage(content=context))
@@ -182,7 +184,16 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
         print(text)
         print("=" * 80)
 
-        parsed = _parse_observer_output(text)
+        # Incremental update: only patch the missing field, preserve the rest
+        if parsed["decision"] == "FOLLOW_UP":
+            next_task_match = re.search(r"\[NEXT_TASK\](.*?)(?:\[|$)", text, re.DOTALL)
+            if next_task_match:
+                parsed["next_task"] = next_task_match.group(1).strip()
+        elif parsed["decision"] == "REPLAN":
+            replan_reason_match = re.search(r"\[REPLAN_REASON\](.*?)(?:\[|$)", text, re.DOTALL)
+            if replan_reason_match:
+                parsed["replan_reason"] = replan_reason_match.group(1).strip()
+
         repair_round += 1
 
     decision = parsed["decision"]

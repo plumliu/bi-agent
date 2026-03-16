@@ -28,34 +28,23 @@ def create_executor_node(sandbox: Sandbox):
         # Construct messages array
         messages = [SystemMessage(content=executor_instruction)]
 
-        # Add successful execution history from execution_trace
-        execution_trace = state.get("execution_trace") or []
-        print(f"--- [Executor DEBUG] execution_trace长度: {len(execution_trace)} ---")
-        for i, trace in enumerate(execution_trace):
-            ai_msg = trace["ai_message"]
-            tool_msg = trace["tool_message"]
-            print(f"--- [Executor DEBUG] Trace {i}: ai_msg类型={type(ai_msg).__name__}, tool_msg类型={type(tool_msg).__name__} ---")
-            # Reconstruct message objects if they were serialized to dicts
-            if isinstance(ai_msg, dict):
-                print(f"--- [Executor DEBUG] ai_msg是dict，keys={list(ai_msg.keys())} ---")
-                ai_msg = AIMessage(**ai_msg)
-            if isinstance(tool_msg, dict):
-                print(f"--- [Executor DEBUG] tool_msg是dict，keys={list(tool_msg.keys())} ---")
-                tool_msg = ToolMessage(**tool_msg)
-            messages.append(ai_msg)
-            messages.append(tool_msg)
+        # Add successful execution history from execution_trace (reducer-managed)
+        history = state.get("execution_trace") or []
+        print(f"--- [Executor DEBUG] execution_trace长度: {len(history)} ---")
+        for i, m in enumerate(history):
+            print(i, type(m), repr(m)[:300])
+        history = _coerce_ai_tool_history(history)
+        messages.extend(history)
 
         # Add failed execution if retrying
         last_error = state.get("last_error")
         if last_error:
-            ai_msg = last_error["ai_message"]
-            tool_msg = last_error["tool_message"]
-            if isinstance(ai_msg, dict):
-                ai_msg = AIMessage(**ai_msg)
-            if isinstance(tool_msg, dict):
-                tool_msg = ToolMessage(**tool_msg)
-            messages.append(ai_msg)
-            messages.append(tool_msg)
+            ai_msg = state.get("latest_ai_message")
+            if ai_msg:
+                messages.append(ai_msg)
+                error_tool_msg = last_error.get("tool_message")
+                if error_tool_msg:
+                    messages.append(error_tool_msg)
 
         # Construct current context HumanMessage
         completed_tasks = state.get("completed_tasks") or []
@@ -67,23 +56,23 @@ def create_executor_node(sandbox: Sandbox):
         findings_str = "\n".join([f"- {f}" for f in confirmed_findings]) if confirmed_findings else "无"
         hypotheses_str = "\n".join([f"- {h}" for h in working_hypotheses]) if working_hypotheses else "无"
 
-        context = f"""当前任务: {state['current_task']}
+        context = f"""current_task: {state['current_task']}
 
-已完成任务:
+completed_tasks:
 {completed_str}
 
-已确认发现:
+confirmed_findings:
 {findings_str}
 
-当前工作假设（上一轮 Observer 的认知状态，仅供参考）:
+working_hypotheses (the previous round’s Observer cognitive state, for reference only):
 {hypotheses_str}
 
-当前已登记文件:
+generated_files:
 {json.dumps(generated_files, ensure_ascii=False, indent=2)}
 """
 
         if last_error:
-            context += "\n\n 当前的 jupyter code cell 执行失败！请重新编写当前任务的代码！"
+            context += "\n\n The current Jupyter code cell execution failed! Please rewrite the code for the current task!"
 
         messages.append(HumanMessage(content=context))
 
@@ -112,3 +101,65 @@ def create_executor_node(sandbox: Sandbox):
         }
 
     return executor_node
+
+
+def _coerce_ai_tool_history(history):
+    if len(history) % 2 != 0:
+        raise RuntimeError(
+            f"Executor: execution_trace 长度必须为偶数（AI/Tool 成对），当前={len(history)}"
+        )
+
+    repaired = []
+
+    for i in range(0, len(history), 2):
+        ai_candidate = history[i]
+        tool_candidate = history[i + 1]
+
+        if not isinstance(ai_candidate, AIMessage):
+            print(f"--- [Executor WARN] history[{i}] 不是 AIMessage，而是 {type(ai_candidate).__name__}，尝试转换 ---")
+            ai_candidate = AIMessage(
+                content=getattr(ai_candidate, "content", None),
+                additional_kwargs=getattr(ai_candidate, "additional_kwargs", {}) or {},
+                response_metadata=getattr(ai_candidate, "response_metadata", {}) or {},
+                tool_calls=getattr(ai_candidate, "tool_calls", []) or [],
+                invalid_tool_calls=getattr(ai_candidate, "invalid_tool_calls", []) or [],
+                usage_metadata=getattr(ai_candidate, "usage_metadata", None),
+                id=getattr(ai_candidate, "id", None),
+                name=getattr(ai_candidate, "name", None),
+            )
+
+        if not isinstance(tool_candidate, ToolMessage):
+            print(f"--- [Executor WARN] history[{i+1}] 不是 ToolMessage，而是 {type(tool_candidate).__name__}，尝试转换 ---")
+            status = getattr(tool_candidate, "status", "success") or "success"
+            if status not in {"success", "error"}:
+                status = "success"
+
+            tool_call_id = getattr(tool_candidate, "tool_call_id", None)
+            if not tool_call_id:
+                raise RuntimeError(
+                    f"Executor: history[{i+1}] 缺少 tool_call_id，无法安全转换为 ToolMessage"
+                )
+
+            tool_candidate = ToolMessage(
+                content=getattr(tool_candidate, "content", ""),
+                tool_call_id=str(tool_call_id),
+                status=status,
+                artifact=getattr(tool_candidate, "artifact", None),
+                additional_kwargs=getattr(tool_candidate, "additional_kwargs", {}) or {},
+                response_metadata=getattr(tool_candidate, "response_metadata", {}) or {},
+                id=getattr(tool_candidate, "id", None),
+                name=getattr(tool_candidate, "name", None),
+            )
+
+        if not ai_candidate.tool_calls:
+            raise RuntimeError(
+                f"Executor: history[{i}] 转换后仍无 tool_calls，不能作为合法 AIMessage"
+            )
+        if not tool_candidate.tool_call_id:
+            raise RuntimeError(
+                f"Executor: history[{i+1}] 转换后仍无 tool_call_id，不能作为合法 ToolMessage"
+            )
+
+        repaired.extend([ai_candidate, tool_candidate])
+
+    return repaired

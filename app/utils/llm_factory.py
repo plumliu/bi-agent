@@ -7,11 +7,8 @@ from app.core.config import settings
 
 def create_llm(use_flash=False):
     """创建LLM实例（不带retry）
-    - 主模型(use_flash=False): 使用Anthropic
-    - FLASH模型(use_flash=True): 使用OpenAI
     """
     if use_flash:
-        # FLASH模型使用OpenAI
         llm = ChatOpenAI(
             model=settings.LLM_FLASH_MODEL_NAME,
             temperature=0,
@@ -22,12 +19,12 @@ def create_llm(use_flash=False):
             timeout=120,
         )
     else:
-        # 主模型使用Anthropic
-        llm = ChatAnthropic(
+        llm = ChatOpenAI(
             model=settings.LLM_MODEL_NAME,
             temperature=0,
-            api_key=settings.ANTHROPIC_API_KEY,
-            base_url=settings.ANTHROPIC_API_BASE,
+            api_key=settings.OPENAI_API_KEY,
+            base_url=settings.OPENAI_API_BASE,
+            use_responses_api=settings.USE_RESPONSES_API,
             max_retries=5,
             timeout=120,
         )

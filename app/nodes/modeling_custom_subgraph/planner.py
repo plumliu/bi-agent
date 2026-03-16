@@ -30,56 +30,91 @@ def planner_node(state: CustomModelingState):
     merge_recs_str = ""
     if state.get("merge_recommendations"):
         merge_recs_str = (
-            "\n\n【合并建议（Profiler 验证通过）】\n"
+            "\n\n【Merge/Concat Recommendation (validated by the Profiler)】\n"
             + json.dumps(state["merge_recommendations"], ensure_ascii=False, indent=2)
         )
 
-    human_content = f"""【用户的原始需求】
+    human_content = f"""【user_input】
 {state['user_input']}
 
-【当前任务的环境信息】
-原始文件数量: {len(state.get('raw_file_paths', []))}
-原始文件路径: {state.get('raw_file_paths', [])}
-原始文件名: {state.get('original_filenames', [])}
+【Environment information for the current_task】
+raw_file count: {len(state.get('raw_file_paths', []))}
+raw_file_paths: {state.get('raw_file_paths', [])}
+original_filenames: {state.get('original_filenames', [])}
 
-【文件元信息】
+【files_metadata】
 {files_metadata_str}{merge_recs_str}
 
-注意：
-- 单文件时，files_metadata 长度为 1，无 merge_recommendations
-- 多文件时，files_metadata 包含所有文件的元信息，merge_recommendations 包含验证通过的合并建议
-- 合并建议仅供参考，executor 应基于 EDA 结果做最终决策
+Note:
+- For a single file, files_metadata has length 1 and there are no merge_recommendations.
+- For multiple files, files_metadata contains metadata for all files, and merge_recommendations contains the merge recommendations that passed validation.
+- Merge recommendations are for reference only; the executor should make the final decision based on the EDA results.
 """
     human_message = HumanMessage(content=human_content)
 
-    # Call LLM
-    response = llm.invoke([system_message, human_message])
+    # Call LLM with retry loop for format errors
+    messages = [system_message, human_message]
+    max_retries = 3
+    phase_tasks = []
+    followup_playbook = []
 
-    # Parse JSON output
-    raw_text = extract_text_from_content(response.content)
+    for attempt in range(max_retries):
+        response = llm.invoke(messages)
+        raw_text = extract_text_from_content(response.content)
 
-    # Extract JSON
-    match = re.search(r"```(?:json)?(.*?)```", raw_text, re.DOTALL)
-    if match:
-        content_str = match.group(1).strip()
-    else:
-        start_idx = raw_text.find('{')
-        end_idx = raw_text.rfind('}')
-        if start_idx != -1 and end_idx != -1:
-            content_str = raw_text[start_idx:end_idx + 1]
+        # Extract JSON
+        match = re.search(r"```(?:json)?(.*?)```", raw_text, re.DOTALL)
+        if match:
+            content_str = match.group(1).strip()
         else:
-            content_str = raw_text.strip()
+            start_idx = raw_text.find('{')
+            end_idx = raw_text.rfind('}')
+            if start_idx != -1 and end_idx != -1:
+                content_str = raw_text[start_idx:end_idx + 1]
+            else:
+                content_str = raw_text.strip()
 
-    try:
-        parsed = json.loads(content_str)
-    except json.JSONDecodeError as e:
-        print(f"[Planner] JSON 解析失败: {e}")
-        print(f"[Planner] LLM 原始响应（前2000字符）:\n{raw_text[:2000]}")
-        print(f"[Planner] 提取的 JSON 字符串（前2000字符）:\n{content_str[:2000]}")
-        raise RuntimeError(f"Planner JSON 解析失败: {e}") from e
+        # Try JSON parse
+        try:
+            parsed = json.loads(content_str)
+        except json.JSONDecodeError as e:
+            print(f"[Planner] JSON 解析失败 (attempt {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                messages.append(response)
+                messages.append(HumanMessage(content=(
+                    f"Your output cannot be parsed as JSON. Error: {e}\n"
+                    f"Please re-output strictly in the required JSON format and do not include any additional text."
+                )))
+                continue
+            raise RuntimeError(f"Planner JSON 解析失败（已重试 {max_retries} 次）: {e}") from e
 
-    phase_tasks = parsed["phase_tasks"]
-    followup_playbook = parsed.get("followup_playbook", [])
+        # Validate structure: phase_tasks must be list of dicts with 'description'
+        raw_tasks = parsed.get("phase_tasks", [])
+        if not isinstance(raw_tasks, list) or len(raw_tasks) == 0:
+            error_msg = f"phase_tasks must be a non-empty list. Current value: {raw_tasks}"
+        elif not isinstance(raw_tasks[0], dict) or "description" not in raw_tasks[0]:
+            error_msg = (
+                f"Each element in phase_tasks must be a dictionary containing the key 'description'. "
+                f"Current first element type: {type(raw_tasks[0]).__name__}, value: {raw_tasks[0]}"
+            )
+        else:
+            error_msg = None
+
+        if error_msg:
+            print(f"[Planner] 格式校验失败 (attempt {attempt + 1}/{max_retries}): {error_msg}")
+            if attempt < max_retries - 1:
+                messages.append(response)
+                messages.append(HumanMessage(content=(
+                    f"Your output format is incorrect: {error_msg}\n"
+                    f"Please ensure `phase_tasks` is a list, and each element is a dictionary containing the 'description' field, for example:\n"
+                    f'{{"phase_tasks": [{{"description": "Task description", "...": "..."}}]}}'
+                )))
+                continue
+            raise RuntimeError(f"Planner 格式校验失败（已重试 {max_retries} 次）: {error_msg}")
+
+        phase_tasks = raw_tasks
+        followup_playbook = parsed.get("followup_playbook", [])
+        break
 
     print(f"--- [Planner] 生成了 {len(phase_tasks)} 个任务 ---")
     for i, task in enumerate(phase_tasks, 1):

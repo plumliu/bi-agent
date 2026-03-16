@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, END, START
 from ppio_sandbox.code_interpreter import Sandbox
 
 from app.core.modeling_custom_subgraph.state import CustomModelingState
@@ -14,7 +14,7 @@ from app.nodes.modeling_custom_subgraph.aggregator import create_modeling_aggreg
 
 def build_modeling_custom_subgraph(sandbox: Sandbox):
     """
-    构建 Custom Modeling 子图（新架构）
+    构建 Custom Modeling 子图
     拓扑: planner → executor → tool → observer → {executor, replanner, aggregator}
     """
     # Upload helper functions to sandbox
@@ -35,10 +35,8 @@ def build_modeling_custom_subgraph(sandbox: Sandbox):
     workflow.add_node("replanner", replanner_node)
     workflow.add_node("aggregator", create_modeling_aggregator_node(sandbox))
 
-    # Set entry point
-    workflow.set_entry_point("planner")
-
     # Add edges
+    workflow.add_edge(START, "planner")
     workflow.add_edge("planner", "executor")
     workflow.add_edge("executor", "tool")
     workflow.add_conditional_edges("tool", tool_router, ["executor", "observer"])
