@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Beth Anglin handled 188 of 500 incidents (37.6%), far exceeding all other agents and indicating severe workload concentration.",
+    "Beth Anglin’s assignment volume increased by 62 incidents in the second half of the observation period—the only agent with a substantial upward trend—while all others declined or remained flat.",
+    "92.6% of Beth Anglin’s assignments are 'High' or 'Critical' priority, with average severity at 1.89 (1–4 scale), confirming her overload is not just volumetric but high-severity.",
+    "Her growth is concentrated in high-pressure domains: Network assignment group increased from 39 to 71 assignments, and '2 - High' priority incidents rose from 43 to 97, with no compensatory shift to lower-severity work.",
+    "No other agent meets both criteria for overload—high total volume and increasing trend—making Beth Anglin the sole, unambiguous case requiring immediate operational intervention.",
+    "The absence of workload redistribution across agents—despite clear imbalance—suggests a systemic assignment logic or governance gap rather than temporary fluctuation."
+  ],
+  "summary": "The analysis confirms Beth Anglin is the only agent experiencing a clear, evidence-based overload: she accounts for 37.6% of all incidents, saw a +62-incident surge in the second half (the only positive trend), and handles 92.6% high- or critical-priority work—primarily in the Network group and escalating severity categories. This is not a transient spike but a structural concentration of high-severity demand without peer-level balancing. All other agents show flat or declining volumes, indicating the imbalance is not industry-wide or cyclical but specific to assignment practices. Immediate focus should be on root cause analysis of assignment rules, reallocation feasibility, and short-term mitigation to prevent burnout or service degradation."
+}

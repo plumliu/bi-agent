@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "No incidents were assigned to any agent during their recorded leave periods, confirming full compliance with leave scheduling in incident assignment.",
+    "Luke Wilson is significantly over-assigned (+50% above uniform expectation), while Fred Luddy (−28%) and Howard Johnson (−25%) are substantially under-assigned, indicating a structural workload imbalance across the agent pool.",
+    "Only two agents—Luke Wilson and Beth Anglin—exceed the +10% workload threshold, whereas three agents fall below −10%, revealing a polarized distribution rather than gradual variance.",
+    "Three agents have valid leave periods, yet none received assignments during those windows—demonstrating consistent operational adherence to leave constraints despite overall assignment imbalance.",
+    "The absence of leave-period misassignments, combined with high overall imbalance (chi-squared = 43.34), indicates that workload inequity stems from baseline assignment logic—not scheduling violations or coverage gaps during absences.",
+    "All 500 incidents are assigned exclusively within a closed pool of 5 Sales department agents, with no cross-departmental or cross-location assignments, limiting scalability of current routing rules."
+  ],
+  "summary": "The analysis directly addresses the goal of identifying incident assignment imbalances during agent leave periods and finds zero violations: no incidents were assigned to any agent during their scheduled leave, confirming strict adherence to leave constraints. However, a pronounced structural imbalance exists—Luke Wilson handles 50% more incidents than expected under uniform allocation, while Fred Luddy and Howard Johnson handle 25–28% less. This polarization (evidenced by chi-squared = 43.34) reflects systemic assignment bias, not leave-related errors. Since all incidents are confined to five Sales agents—with no departmental or locational diversity—the current routing lacks flexibility for load balancing across broader teams. Next focus should be diagnosing the root cause of persistent over-allocation to Luke Wilson and evaluating whether assignment rules incorporate real-time availability or historical capacity signals."
+}

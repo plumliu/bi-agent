@@ -111,7 +111,7 @@ Must output valid JSON in the following format:
 PROFILER_RECOMMENDATION_CONTEXT_TEMPLATE = """
 【File Metadata】
 
-The following is the metadata of the files to be analyzed (please understand the business meaning based on the original_filename, and use remote_path as the sandbox path reference):
+The following is the metadata of the files to be analyzed (please understand the business meaning based on the original_filename, and use data_path as the local session workspace file path reference):
 
 <files_metadata>
 {files_metadata_json}

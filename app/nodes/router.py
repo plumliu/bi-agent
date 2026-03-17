@@ -1,95 +1,31 @@
 from typing import Literal
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+
 from pydantic import BaseModel, Field
-import json
-import re
 
 from app.core.state import WorkflowState
-from app.prompts.router_prompt import ROUTER_SYSTEM_TEMPLATE, ROUTER_CONTEXT_TEMPLATE
-from app.utils.llm_factory import create_llm, apply_retry
 
-# 1. 定义路由的输出结构 (保持不变)
-ScenarioType = Literal[
-    "clustering", "anomaly", "decomposition", "association", "forecast", "classification", # sop 场景
-    "custom",  # custom 场景
-    "unknown" # 拒绝
-]
+ScenarioType = Literal["custom", "unknown"]
+
 
 class RouterOutput(BaseModel):
-    """路由器的决策结果结构"""
-    scenario: ScenarioType = Field(..., description="最适合用户需求的算法场景分类")
-    reasoning: str = Field(..., description="选择该场景的理由，简短的一句话即可，用于调试或告知用户")
+    scenario: ScenarioType = Field(..., description="Routing decision")
+    reasoning: str = Field(..., description="Reason for routing")
 
-# 2. 初始化 LLM（FLASH 模型）
-llm = apply_retry(create_llm(use_flash=True))
 
 def router_node(state: WorkflowState) -> dict:
-    """
-    路由节点：分析用户输入和数据Schema，决定算法场景。
-    （已取消智能化：不调用大模型，统一路由到 custom）
-    """
-    print("--- [Router] 分析用户的意图中... ---")
-    print("算法场景: custom | 理由: 复杂分析，路由到 custom")
-    return {
-        "scenario": "custom",
-        "reasoning": "复杂分析，路由到 custom"
-    }
+    """Route to custom by default. Empty/invalid input routes to unknown."""
+    user_input = state.get("user_input")
 
+    if not isinstance(user_input, str) or not user_input.strip():
+        result = RouterOutput(
+            scenario="unknown",
+            reasoning="user_input is empty or invalid",
+        )
+    else:
+        result = RouterOutput(
+            scenario="custom",
+            reasoning="all supported analysis runs through modeling_custom",
+        )
 
-# 3. Router 节点函数
-# def router_node(state: WorkflowState) -> dict:
-#     """
-#     路由节点：分析用户输入和数据Schema，决定算法场景。
-#     """
-#     print("--- [Router] 分析用户的意图中... ---")
-#     data_schema = state.get("data_schema", "")
-#     user_input = state.get("user_input", "")
-#
-#     # 1. 构建静态 System Message
-#     system_message = SystemMessage(content=ROUTER_SYSTEM_TEMPLATE)
-#
-#     # 2. HumanMessage 包含动态上下文（包括用户输入）
-#     context_content = ROUTER_CONTEXT_TEMPLATE.format(
-#         data_schema=data_schema,
-#         user_input=user_input
-#     )
-#     context_message = HumanMessage(content=context_content)
-#
-#     # 3. 组装 Messages：静态规则 + 动态上下文
-#     messages = [system_message, context_message]
-#
-#     # 调用 LLM 获取 JSON 结果
-#     try:
-#         response = llm.invoke(messages)
-#
-#         # 手动解析 JSON 输出
-#         content = response.content
-#
-#         # 尝试提取 JSON（支持 Markdown 代码块）
-#         match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", content)
-#         if match:
-#             json_str = match.group(1).strip()
-#         else:
-#             # 如果没有代码块，尝试直接解析
-#             json_str = content.strip()
-#
-#         # 解析 JSON
-#         parsed = json.loads(json_str)
-#
-#         # 验证并创建 RouterOutput 对象
-#         result = RouterOutput(**parsed)
-#
-#         print(f"算法场景: {result.scenario} | 理由: {result.reasoning}")
-#
-#         return {
-#             "scenario": result.scenario,
-#             "reasoning": result.reasoning
-#         }
-#
-#     except json.JSONDecodeError as e:
-#         print(f"路由失败 - JSON 解析错误: {e}")
-#         print(f"LLM 输出: {response.content}")
-#         return {"scenario": "unknown", "reasoning": f"路由失败，JSON 解析错误: {e}"}
-#     except Exception as e:
-#         print(f"路由失败: {e}")
-#         return {"scenario": "unknown", "reasoning": f"路由失败，{e}"}
+    print(f"--- [Router] 场景: {result.scenario} | 理由: {result.reasoning} ---")
+    return result.model_dump()

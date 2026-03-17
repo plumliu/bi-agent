@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Customer Support is misclassifying hardware/equipment asset purchases as 'Travel' expenses, causing 57.4% of all Travel rejections and driving the category’s 41.8% rejection rate—more than 2.5× the overall 16.8% rejection rate.",
+    "The 'Travel' category has the highest rejection rate among all expense types (41.8%), while other categories show low and policy-consistent rates: Assets (6.1%), Services (10.6%), and Miscellaneous (3.9%).",
+    "Rejected 'Travel' expenses from Customer Support are not travel-related in nature—nearly all 'short_description' entries describe hardware or equipment purchases, confirming a systemic categorization error rather than policy noncompliance within legitimate travel claims.",
+    "No single user or month dominates the rejected Travel volume, indicating the issue is department-wide process failure—not isolated incidents or timing-related anomalies.",
+    "Sales is the second-largest contributor to Travel rejections (18 cases), but at less than half the volume of Customer Support (35 cases), confirming that the root cause is concentrated in one department’s classification practice.",
+    "The misclassification creates unnecessary processing overhead and policy enforcement friction: 35 valid asset purchases were incorrectly routed through Travel workflows, delaying approvals and inflating rejection metrics without reflecting actual travel policy violations."
+  ],
+  "summary": "The high 41.8% rejection rate for 'Travel' expenses is not due to noncompliant travel behavior but stems from Customer Support systematically misclassifying hardware/equipment asset purchases under the 'Travel' category—accounting for 57.4% of all Travel rejections. This error distorts rejection metrics, masks true compliance performance, and diverts review capacity toward invalid submissions. Other departments and categories show low, stable rejection rates consistent with policy expectations, confirming the issue is localized and procedural. Immediate focus should be on retraining Customer Support on expense categorization rules and implementing front-end validation or dropdown restrictions to prevent 'Travel' selection for asset-related purchases."
+}

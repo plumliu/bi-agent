@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "Hardware incidents account for 67% of total volume, creating a strong structural imbalance across categories that reflects incident type frequency rather than assignment bias.",
+    "Assignment of incidents to agents is highly balanced within every category, with normalized Shannon entropy > 0.97 and near-zero Gini coefficients—indicating no meaningful concentration or monopolization by any agent in any category.",
+    "No agent is exclusively or predominantly assigned to any single category; all five agents handle incidents across all five categories, confirming equitable cross-category allocation responsibility.",
+    "Even within the dominant Hardware category (336 incidents), assignments are distributed relatively uniformly across agents (62–81 incidents per agent), with no evidence of workload skew or operational bottleneck tied to individual assignees.",
+    "The observed imbalance lies solely in category composition—not in assignment practices—meaning resource planning should prioritize category-driven demand forecasting (e.g., Hardware support capacity) rather than agent-level reallocation or fairness interventions."
+  ],
+  "summary": "The analysis confirms there is no discrepancy or imbalance in how incidents are assigned across agents by category—the user’s core goal—since assignment is statistically uniform within every category, as validated by high entropy (>0.97) and negligible Gini coefficients. The only significant imbalance is in incident type distribution: Hardware accounts for 67% of all incidents, dwarfing other categories. This reflects underlying operational reality (e.g., higher hardware failure rates) rather than inequitable assignment practices. Consequently, management attention should shift from fairness audits to capacity planning aligned with category demand—particularly scaling Hardware-support resources—rather than adjusting agent assignments. Next focus areas include diagnosing root causes of Hardware incident dominance and evaluating whether category-level SLA performance or resolution time varies meaningfully despite balanced assignment."
+}

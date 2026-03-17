@@ -5,38 +5,30 @@ from langgraph.graph.message import add_messages
 
 
 class CustomModelingState(TypedDict):
-    """
-    Custom Modeling 子图状态
-    包含 InputState, InternalState, OutputState 三层结构
-    """
-    # ========== InputState (从主图传入) ==========
+    """Custom modeling subgraph state."""
+
+    # Input from parent graph
     scenario: str
     user_input: str
-
-    # 原始文件路径列表（沙盒内）
     raw_file_paths: List[str]
-    # 原始文件名列表
     original_filenames: List[str]
-
-    # 文件元信息列表 (Profiler 输出)
     files_metadata: List[Dict[str, Any]]
-    # 合并建议列表 (Profiler 输出，仅多文件时存在)
     merge_recommendations: Optional[List[Dict[str, Any]]]
 
-    # ========== InternalState - Planning ==========
+    # Planning
     initial_plan: Optional[Dict[str, Any]]
     remaining_tasks: Optional[List[Dict[str, str]]]
     completed_tasks: Optional[List[Dict[str, str]]]
     current_task: Optional[str]
     followup_playbook: Optional[List[Dict[str, Any]]]
 
-    # ========== InternalState - Execution ==========
+    # Execution
     latest_ai_message: Optional[AIMessage]
     latest_execution: Optional[Dict[str, Any]]
     last_error: Optional[Dict[str, Any]]
     execution_trace: Annotated[list[AnyMessage], add_messages]
 
-    # ========== InternalState - Observer ==========
+    # Observation control
     latest_control_signal: Optional[str]
     confirmed_findings: Optional[List[str]]
     working_hypotheses: Optional[List[str]]
@@ -45,11 +37,5 @@ class CustomModelingState(TypedDict):
     replan_reason: Optional[str]
     stop_reason: Optional[str]
 
-    # ========== InternalState - Files ==========
-    generated_files: Optional[Dict[str, Any]]
-
-    # ========== OutputState (返回给主图) ==========
+    # Output back to parent graph
     modeling_summary: Optional[str]
-    generated_data_files: Optional[List[str]]
-    file_metadata: Optional[List[Dict[str, Any]]]
-    modeling_artifacts: Optional[Dict[str, Any]]

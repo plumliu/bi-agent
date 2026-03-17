@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Beth Anglin carries 37.6% of total assignments (188 out of 500), an 88% deviation above the uniform expectation of 100 tickets, making her the only overloaded agent in the cohort.",
+    "Beth Anglin is the sole agent with a statistically significant increasing assignment trend (slope = 1.258 tickets/month, p < 0.001, R² = 0.802), and her recent monthly average (18.4) is 87.4% higher than her early-period average (9.8).",
+    "Network assignment group drives 82.27% of Beth Anglin’s overload (72.4 excess tickets) and accounts for 58.5% of her total assignments — far exceeding her proportional share of Network tickets (36.8% of 299) versus the expected 20%.",
+    "All other agents (Fred Luddy, Howard Johnson, Luke Wilson, Charlie Whitherspoon) show weak downward or stable trends, with workload shares tightly clustered between 13.8%–17.4%, confirming no secondary overload or emerging pressure points.",
+    "Priority distribution is evenly balanced across all agents and shows no correlation with workload imbalance or trend divergence, ruling out priority-based assignment bias as a contributing factor.",
+    "The workload inequality across the five agents is quantified by a Gini coefficient of 0.1976 and CV of 49.6%, indicating moderate but operationally meaningful structural imbalance concentrated entirely on Beth Anglin."
+  ],
+  "summary": "The analysis confirms that Beth Anglin is the only agent experiencing both severe workload overload and a statistically significant upward trajectory in assignments — carrying 37.6% of all tickets with an 88% excess over equitable distribution and a strong monthly growth rate of 1.26 tickets. This overload is not systemic across the team, as all four other agents operate within narrow, stable, and sub-average workload bands. The root cause is highly localized: the Network assignment group accounts for nearly all of Beth’s excess volume (82.3%) and more than half of her increasing trend (57.2%), while priority distribution is confirmed even and non-contributory. This represents a clear operational bottleneck and single-point risk in assignment routing — not a broad staffing shortfall. Next focus should be on diagnosing why Network tickets are disproportionately routed to Beth and evaluating reallocation or triage rules for that group."
+}

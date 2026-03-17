@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Travel expenses have a 41.78% rejection rate—2.5 times higher than the overall expense rejection rate of 16.80%, confirming a systemic policy alignment issue specific to this category.",
+    "Expenses below $1000 account for only 11 records but exhibit an 81.82% rejection rate, indicating that sub-threshold submissions are disproportionately noncompliant with travel policy requirements.",
+    "IT department has the highest travel expense rejection rate at 54.50%, despite contributing only 7.5% of total travel volume (11 out of 146), signaling targeted policy awareness or approval workflow gaps in that function.",
+    "Customer Support drives 54% of all travel expenses (79 out of 146) and accounts for 35 of the 61 declined cases—making it the largest source of both volume and absolute rejection count, warranting immediate process review and agent training.",
+    "Ofelia Sheffler has an 80% travel expense rejection rate (4 out of 5), the highest individual pattern observed, suggesting either recurring submission errors or lack of access to updated policy guidance.",
+    "No statistically significant textual or structural differences exist between declined and processed travel expenses—indicating rejections are driven by policy-based manual review rather than detectable data patterns, reinforcing the need for clearer policy communication and pre-submission validation."
+  ],
+  "summary": "The high travel expense rejection rate (41.78%) is not random but concentrated among low-value submissions (<$1000), the IT department (54.50% rejection rate), and Customer Support (54% of volume and majority of rejections). Ofelia Sheffler’s 80% rejection rate highlights individual-level compliance risk. Critically, the absence of distinguishing text or numeric patterns between declined and processed cases confirms that rejections stem from policy interpretation—not data anomalies—pointing to gaps in policy clarity, training, or pre-submission controls. Immediate focus should be on revising sub-$1000 travel submission rules, delivering targeted policy training to IT and Customer Support teams, and implementing a lightweight validation step for high-risk submitters like Ofelia Sheffler."
+}

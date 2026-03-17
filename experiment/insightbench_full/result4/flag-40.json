@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "Customer Support has the lowest median corrected processing time (52.5 days), but no department demonstrates a statistically significant speed advantage over others (all Mann-Whitney U test p > 0.05).",
+    "The original 'processing_period' field is unreliable for performance analysis, with 35.8% of records excluded due to negative or null durations—177 values are implausible (negative < -1 or > 365 days).",
+    "Development department shows a paradoxical negative mean processing period (-6.13) despite the lowest reported median (6.0), confirming systemic timestamp misordering or source system logic errors—not genuine operational efficiency.",
+    "Corrected processing duration (processed_date − opened_at) reveals narrow inter-departmental variation (52.5–83.0 days median), indicating structural uniformity in processing speed rather than actionable performance differentiation.",
+    "The absence of a statistically or practically meaningful performance gap across departments means no empirically validated 'efficient practices' from Customer Support—or any department—can be identified for cross-departmental replication."
+  ],
+  "summary": "The goal of identifying and generalizing faster expense processing practices cannot be fulfilled because no department exhibits a statistically or practically significant speed advantage: Customer Support leads only marginally (median 52.5 days), and all pairwise comparisons fail to reach significance (p > 0.05). This lack of differentiation stems not from operational excellence but from uniformly constrained process velocity across departments—and critically, from severe data quality issues in the original 'processing_period' field, which misrepresents timing logic in over one-third of records. The corrected duration metric confirms tight dispersion (52.5–83.0 days), ruling out department-specific efficiencies as a meaningful lever for improvement. Next, focus should shift from inter-departmental benchmarking to root-cause analysis of timestamp inconsistencies and end-to-end process bottlenecks common to all departments."
+}

@@ -1,8 +1,12 @@
-"""Workflow runner for single sample execution"""
+"""Workflow runner for single sample execution (local runtime only)."""
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import sys
+import traceback
+import uuid
 from pathlib import Path
 from typing import Any, Dict
 
@@ -10,88 +14,134 @@ from typing import Any, Dict
 project_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(project_root))
 
-from ppio_sandbox.code_interpreter import Sandbox
+from app.core.config import settings
 from app.core.state import WorkflowState
 from app.graph.workflow import build_graph
+from app.tools.local_kernel_runtime import LocalKernelRuntime
+
+DEFAULT_WORKSPACE_SESSIONS_DIR = "/Users/plumliu/Desktop/python_workspace/agent_workspace/sessions"
+DEFAULT_WORKSPACE_PYTHON = "/Users/plumliu/Desktop/python_workspace/agent_workspace/.venv/bin/python"
 
 
-async def run_single_sample(sandbox: Sandbox, sample_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Run full custom workflow for a single sample
+def _workspace_sessions_dir() -> Path:
+    configured = settings.AGENT_WORKSPACE_SESSIONS_DIR or DEFAULT_WORKSPACE_SESSIONS_DIR
+    return Path(configured)
 
-    Args:
-        sandbox: PPIO sandbox instance
-        sample_data: Sample metadata from utils.load_all_samples
 
-    Returns:
-        Result dict with insights, summary, and metadata
-    """
-    sample_id = sample_data["sample_id"]
-    print(f"\n{'='*60}")
-    print(f"[Sample {sample_id}] Starting workflow")
-    print(f"{'='*60}")
+def _workspace_python() -> str:
+    configured = settings.AGENT_WORKSPACE_PYTHON or DEFAULT_WORKSPACE_PYTHON
+    return configured
+
+
+def _ensure_runtime_ready() -> str:
+    python_exec = _workspace_python()
+    python_path = Path(python_exec)
+    if not python_path.exists():
+        raise RuntimeError(
+            f"Workspace python not found: {python_exec}. "
+            "Please create/activate /agent_workspace/.venv first."
+        )
+
+    check = subprocess.run(
+        [python_exec, "-c", "import ipykernel"],
+        capture_output=True,
+        text=True,
+    )
+    if check.returncode != 0:
+        raise RuntimeError(
+            "ipykernel is missing in workspace python. "
+            f"Python: {python_exec}. stderr: {check.stderr.strip()}"
+        )
+    return python_exec
+
+
+def _extract_summary_payload(final_summary_raw: str) -> tuple[list[str], str, str | None]:
+    insights: list[str] = []
+    summary = ""
+    parse_error = None
+
+    if not final_summary_raw:
+        return insights, summary, parse_error
+
+    payload = final_summary_raw.strip()
+    if payload.startswith("```json"):
+        payload = payload[7:].strip()
+    if payload.startswith("```"):
+        payload = payload[3:].strip()
+    if payload.endswith("```"):
+        payload = payload[:-3].strip()
 
     try:
-        # 1. Upload CSV files to sandbox
+        summary_json = json.loads(payload)
+        insights = summary_json.get("insights", [])
+        summary = summary_json.get("summary", "")
+    except json.JSONDecodeError as e:
+        parse_error = str(e)
+        summary = final_summary_raw
+
+    return insights, summary, parse_error
+
+
+async def run_single_sample(sample_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Run full custom workflow for a single sample on local runtime."""
+    sample_id = sample_data["sample_id"]
+    print(f"\n{'=' * 60}")
+    print(f"[Sample {sample_id}] Starting workflow")
+    print(f"{'=' * 60}")
+
+    runtime: LocalKernelRuntime | None = None
+    session_dir: Path | None = None
+
+    try:
+        python_exec = _ensure_runtime_ready()
+
+        session_id = f"insightbench_{sample_id}_{uuid.uuid4().hex[:8]}"
+        session_dir = _workspace_sessions_dir() / session_id
+        session_dir.mkdir(parents=True, exist_ok=True)
+        print(f"[Sample {sample_id}] Session dir: {session_dir}")
+
         csv_files = sample_data["csv_files"]
-        raw_file_paths = []
-
+        raw_file_paths: list[str] = []
         for idx, csv_path in enumerate(csv_files):
-            remote_path = f"/home/user/raw_{idx}.csv"
-            with open(csv_path, "rb") as f:
-                sandbox.files.write(remote_path, f)
-            raw_file_paths.append(remote_path)
-            print(f"[Sample {sample_id}] Uploaded: {Path(csv_path).name} -> {remote_path}")
+            dst = session_dir / f"raw_{idx}.csv"
+            shutil.copy2(csv_path, dst)
+            raw_file_paths.append(str(dst))
+            print(f"[Sample {sample_id}] Copied: {Path(csv_path).name} -> {dst.name}")
 
-        # 2. Build initial state (matching main.py:144-159)
         initial_state: WorkflowState = {
             "user_input": sample_data["user_input"],
             "raw_file_paths": raw_file_paths,
             "original_filenames": sample_data["original_filenames"],
-            "local_file_paths": csv_files,
+            "local_file_paths": raw_file_paths,
             "files_metadata": [],
             "merge_recommendations": None,
-            "remote_file_path": None,
-            "data_schema": {},
             "scenario": "custom",
             "reasoning": None,
-            "modeling_artifacts": None,
             "modeling_summary": None,
-            "generated_data_files": None,
-            "file_metadata": None,
-            "viz_config": None,
-            "viz_success": False,
-            "viz_data": None,
             "final_summary": None,
             "error_count": 0,
         }
 
-        print(f"[Sample {sample_id}] Built initial state")
+        runtime = LocalKernelRuntime(
+            session_dir=str(session_dir),
+            python_executable=python_exec,
+        )
+        runtime.start()
 
-        # 3. Build and invoke workflow
-        workflow_app = build_graph(sandbox=sandbox)
+        workflow_app = build_graph(
+            runtime=runtime,
+            session_dir=str(session_dir),
+            session_id=session_id,
+        )
         print(f"[Sample {sample_id}] Invoking workflow...")
 
         final_state = await workflow_app.ainvoke(initial_state)
         print(f"[Sample {sample_id}] Workflow completed")
 
-        # 4. Extract and parse results
-        final_summary_raw = final_state.get("final_summary", "")
-
-        # Parse JSON from summary_custom.yaml output
-        insights = []
-        summary = ""
-        parse_error = None
-
-        if final_summary_raw:
-            try:
-                summary_json = json.loads(final_summary_raw)
-                insights = summary_json.get("insights", [])
-                summary = summary_json.get("summary", "")
-            except json.JSONDecodeError as e:
-                parse_error = str(e)
-                summary = final_summary_raw
-                print(f"[Sample {sample_id}] Warning: Failed to parse final_summary as JSON: {e}")
+        final_summary_raw = final_state.get("final_summary", "") or ""
+        insights, summary, parse_error = _extract_summary_payload(final_summary_raw)
+        if parse_error:
+            print(f"[Sample {sample_id}] Warning: Failed to parse final_summary as JSON: {parse_error}")
 
         result = {
             "sample_id": sample_id,
@@ -101,18 +151,16 @@ async def run_single_sample(sandbox: Sandbox, sample_data: Dict[str, Any]) -> Di
             "summary": summary,
             "final_summary_raw": final_summary_raw,
             "modeling_summary": final_state.get("modeling_summary"),
-            "viz_data": final_state.get("viz_data"),
-            "viz_config": final_state.get("viz_config"),
             "success": True,
             "error": None,
             "parse_error": parse_error,
+            "session_dir": str(session_dir),
         }
 
         print(f"[Sample {sample_id}] ✓ Success")
         return result
 
     except Exception as e:
-        import traceback
         error_msg = f"{type(e).__name__}: {str(e)}"
         traceback_str = traceback.format_exc()
 
@@ -121,15 +169,17 @@ async def run_single_sample(sandbox: Sandbox, sample_data: Dict[str, Any]) -> Di
 
         return {
             "sample_id": sample_id,
-            "goal": sample_data["goal"],
-            "user_input": sample_data["user_input"],
+            "goal": sample_data.get("goal", ""),
+            "user_input": sample_data.get("user_input", ""),
             "insights": [],
             "summary": "",
             "final_summary_raw": "",
             "modeling_summary": None,
-            "viz_data": None,
-            "viz_config": None,
             "success": False,
             "error": error_msg,
             "traceback": traceback_str,
+            "session_dir": str(session_dir) if session_dir else None,
         }
+    finally:
+        if runtime is not None:
+            runtime.shutdown()

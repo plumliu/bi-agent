@@ -73,6 +73,34 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/experiment/insightbench_full/data/flag-91.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/experiment/insightbench_full/data/flag-92.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/experiment/insightbench_full/data/flag-97.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/experiment/insightbench_full/data/flag-98.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/experiment/modeling_custom/da-bench/temp/temp_data.csv">
           <value>
             <Attribute>

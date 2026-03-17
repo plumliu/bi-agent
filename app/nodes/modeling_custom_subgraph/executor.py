@@ -1,42 +1,40 @@
-import json
-from typing import Dict, Any
+from typing import Any, Dict
 
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
-from ppio_sandbox.code_interpreter import Sandbox
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
 from app.core.modeling_custom_subgraph.state import CustomModelingState
 from app.core.prompts_config import load_prompts_config
 from app.tools.python_interpreter import create_code_interpreter_tool
-from app.utils.llm_factory import create_llm, apply_retry
+from app.utils.llm_factory import apply_retry, create_llm
+from app.utils.terminal_logger import (
+    preview_code,
+    preview_text,
+    print_block,
+    print_kv,
+    print_list,
+    print_subheader,
+)
 
-def create_executor_node(sandbox: Sandbox):
-    """创建 Executor 节点（工厂函数）"""
 
-    # Initialize LLM with tools (主模型使用Anthropic)
-    # 先bind_tools，再apply_retry
+def create_executor_node():
+    """Executor node for generating the next python_interpreter tool call."""
     llm_with_tools = apply_retry(
-        create_llm(use_flash=False).bind_tools([create_code_interpreter_tool(sandbox)])
+        create_llm(use_flash=False).bind_tools([create_code_interpreter_tool()])
     )
 
     def executor_node(state: CustomModelingState) -> Dict[str, Any]:
-        print("--- [Executor] 开始执行当前任务 ---")
+        print_block("Executor")
 
-        # Load executor instruction
         prompts = load_prompts_config("modeling", "custom")
         executor_instruction = prompts["executor_instruction"]
 
-        # Construct messages array
         messages = [SystemMessage(content=executor_instruction)]
 
-        # Add successful execution history from execution_trace (reducer-managed)
-        history = state.get("execution_trace") or []
-        print(f"--- [Executor DEBUG] execution_trace长度: {len(history)} ---")
-        for i, m in enumerate(history):
-            print(i, type(m), repr(m)[:300])
-        history = _coerce_ai_tool_history(history)
+        history = _coerce_ai_tool_history(state.get("execution_trace") or [])
         messages.extend(history)
+        print_kv("current_task", preview_text(state.get("current_task", ""), max_chars=240))
+        print_kv("history_pairs", len(history) // 2)
 
-        # Add failed execution if retrying
         last_error = state.get("last_error")
         if last_error:
             ai_msg = state.get("latest_ai_message")
@@ -45,16 +43,31 @@ def create_executor_node(sandbox: Sandbox):
                 error_tool_msg = last_error.get("tool_message")
                 if error_tool_msg:
                     messages.append(error_tool_msg)
+            print_subheader("Executor / Retry Context")
+            print_kv("has_last_error", True)
+            print_kv(
+                "error_tool_message_preview",
+                preview_text(getattr(last_error.get("tool_message"), "content", ""), max_chars=320),
+            )
+        else:
+            print_kv("has_last_error", False)
 
-        # Construct current context HumanMessage
         completed_tasks = state.get("completed_tasks") or []
         confirmed_findings = state.get("confirmed_findings") or []
         working_hypotheses = state.get("working_hypotheses") or []
-        generated_files = state.get("generated_files") or {}
+        print_kv("completed_tasks", len(completed_tasks))
+        print_kv("confirmed_findings", len(confirmed_findings))
+        print_kv("working_hypotheses", len(working_hypotheses))
+        if completed_tasks:
+            print_list(
+                "completed_task_preview",
+                [t.get("description", "") for t in completed_tasks],
+                max_items=4,
+            )
 
-        completed_str = "\n".join([f"- {t['description']}" for t in completed_tasks]) if completed_tasks else "无"
-        findings_str = "\n".join([f"- {f}" for f in confirmed_findings]) if confirmed_findings else "无"
-        hypotheses_str = "\n".join([f"- {h}" for h in working_hypotheses]) if working_hypotheses else "无"
+        completed_str = "\n".join([f"- {t['description']}" for t in completed_tasks]) if completed_tasks else "none"
+        findings_str = "\n".join([f"- {f}" for f in confirmed_findings]) if confirmed_findings else "none"
+        hypotheses_str = "\n".join([f"- {h}" for h in working_hypotheses]) if working_hypotheses else "none"
 
         context = f"""current_task: {state['current_task']}
 
@@ -64,40 +77,39 @@ completed_tasks:
 confirmed_findings:
 {findings_str}
 
-working_hypotheses (the previous round’s Observer cognitive state, for reference only):
+working_hypotheses:
 {hypotheses_str}
-
-generated_files:
-{json.dumps(generated_files, ensure_ascii=False, indent=2)}
 """
 
         if last_error:
-            context += "\n\n The current Jupyter code cell execution failed! Please rewrite the code for the current task!"
+            context += "\n\nThe previous code cell failed. Rewrite code for the same current_task."
 
         messages.append(HumanMessage(content=context))
+        print_kv("messages_count", len(messages))
 
-        # Call LLM
-        print(f"--- [Executor] 当前任务: {state['current_task']} ---")
-        print(f"--- [Executor DEBUG] Messages数组长度: {len(messages)} ---")
-        print(f"--- [Executor DEBUG] Messages类型: {[type(m).__name__ for m in messages]} ---")
-        print(f"--- [Executor DEBUG] 准备调用LLM... ---")
-
-        try:
-            ai_response = llm_with_tools.invoke(messages)
-            print(f"--- [Executor DEBUG] LLM调用成功 ---")
-        except Exception as e:
-            print(f"--- [Executor ERROR] LLM调用失败: {type(e).__name__}: {str(e)} ---")
-            raise
-
-        # Extract code from tool calls
+        ai_response = llm_with_tools.invoke(messages)
         if not ai_response.tool_calls:
-            raise RuntimeError("Executor: LLM 未返回工具调用")
+            raise RuntimeError("Executor: LLM did not return any tool call")
 
-        print(f"--- [Executor] 已生成代码 ---")
+        tool_call = ai_response.tool_calls[0]
+        if isinstance(tool_call, dict):
+            args = tool_call.get("args", {}) or {}
+            call_name = tool_call.get("name", "python_interpreter")
+        else:
+            args = getattr(tool_call, "args", {}) or {}
+            call_name = getattr(tool_call, "name", "python_interpreter")
+
+        code = str(args.get("code", ""))
+        print_subheader("Executor / Generated Tool Call")
+        print_kv("tool_name", call_name)
+        print_kv("code_chars", len(code))
+        print_kv("code_lines", len(code.splitlines()) if code else 0)
+        if code:
+            print(preview_code(code))
 
         return {
             "latest_ai_message": ai_response,
-            "last_error": None
+            "last_error": None,
         }
 
     return executor_node
@@ -106,17 +118,15 @@ generated_files:
 def _coerce_ai_tool_history(history):
     if len(history) % 2 != 0:
         raise RuntimeError(
-            f"Executor: execution_trace 长度必须为偶数（AI/Tool 成对），当前={len(history)}"
+            f"Executor: execution_trace length must be even (AI/Tool pairs), current={len(history)}"
         )
 
     repaired = []
-
     for i in range(0, len(history), 2):
         ai_candidate = history[i]
         tool_candidate = history[i + 1]
 
         if not isinstance(ai_candidate, AIMessage):
-            print(f"--- [Executor WARN] history[{i}] 不是 AIMessage，而是 {type(ai_candidate).__name__}，尝试转换 ---")
             ai_candidate = AIMessage(
                 content=getattr(ai_candidate, "content", None),
                 additional_kwargs=getattr(ai_candidate, "additional_kwargs", {}) or {},
@@ -129,7 +139,6 @@ def _coerce_ai_tool_history(history):
             )
 
         if not isinstance(tool_candidate, ToolMessage):
-            print(f"--- [Executor WARN] history[{i+1}] 不是 ToolMessage，而是 {type(tool_candidate).__name__}，尝试转换 ---")
             status = getattr(tool_candidate, "status", "success") or "success"
             if status not in {"success", "error"}:
                 status = "success"
@@ -137,7 +146,7 @@ def _coerce_ai_tool_history(history):
             tool_call_id = getattr(tool_candidate, "tool_call_id", None)
             if not tool_call_id:
                 raise RuntimeError(
-                    f"Executor: history[{i+1}] 缺少 tool_call_id，无法安全转换为 ToolMessage"
+                    f"Executor: history[{i + 1}] missing tool_call_id, cannot coerce to ToolMessage"
                 )
 
             tool_candidate = ToolMessage(
@@ -152,13 +161,9 @@ def _coerce_ai_tool_history(history):
             )
 
         if not ai_candidate.tool_calls:
-            raise RuntimeError(
-                f"Executor: history[{i}] 转换后仍无 tool_calls，不能作为合法 AIMessage"
-            )
+            raise RuntimeError(f"Executor: history[{i}] has no tool_calls")
         if not tool_candidate.tool_call_id:
-            raise RuntimeError(
-                f"Executor: history[{i+1}] 转换后仍无 tool_call_id，不能作为合法 ToolMessage"
-            )
+            raise RuntimeError(f"Executor: history[{i + 1}] has no tool_call_id")
 
         repaired.extend([ai_candidate, tool_candidate])
 

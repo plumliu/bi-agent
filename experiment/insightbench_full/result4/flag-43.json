@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Product Management and Customer Support account for the highest total departmental spending, indicating expense concentration in customer-facing and strategic functions.",
+    "All departments exhibit uniformly low expense processing completion rates—ranging from 17% (Sales) to 27% (Development)—revealing a systemic workflow bottleneck rather than isolated departmental inefficiencies.",
+    "High-spending departments show no improvement in processing efficiency: Product Management and Customer Support, despite their elevated expenditure, have processing completion rates of only 21% and 23%, respectively.",
+    "Non-Processed states (Submitted, Pending, Declined) dominate across all departments (73–83% share), confirming that the majority of expenses remain stuck in early or unresolved workflow stages.",
+    "The decoupling of spending volume and processing efficiency undermines assumptions of operational alignment—departments with the greatest financial responsibility are not prioritized or resourced for timely expense resolution.",
+    "Datetime logic violations (39% of records show processed_date < opened_at) render time-based efficiency metrics unreliable except for the 'Processed' subset, making state distribution the only valid proxy for workflow health."
+  ],
+  "summary": "The analysis reveals a clear structural disconnect between where money is spent and how efficiently those expenses are processed: while Product Management and Customer Support drive the largest share of departmental spending, all departments—including these high-expenditure units—show similarly low processing completion rates (17–27%). This uniformity in inefficiency confirms a systemic workflow issue, not a department-specific problem. The unreliability of datetime fields for non-Processed records further validates using state distribution—not duration—as the appropriate efficiency metric. Critically, spending scale does not correlate with processing priority or capability, suggesting misalignment in governance, tooling, or policy across the organization. Next focus should be diagnosing root causes common to all departments—such as approval gateways, system constraints, or policy bottlenecks—that prevent progression beyond Submitted, Pending, or Declined states."
+}

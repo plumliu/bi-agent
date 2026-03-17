@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "All five agents received exactly 100 incidents each, resulting in zero statistical imbalance (standard deviation = 0, coefficient of variation = 0), indicating perfectly uniform annual assignment distribution.",
+    "Incident redistribution during agent leave periods shows no systematic pattern—chi-square tests confirm that reassignments across all three agents with valid schedule data are statistically indistinguishable from random allocation (p-values > 0.14).",
+    "84.7% of incidents occurring during documented leave periods were reassigned to other agents, but the redistribution was uniformly distributed across available agents, with no evidence of consistent backup pairings or preferential routing.",
+    "40% of all incidents (200/500) were assigned to agents lacking schedule/leave data (Beth Anglin and Luke Wilson), limiting visibility into whether those assignments overlapped with unrecorded absences.",
+    "The balanced assignment holds consistently across departments—both Development and Sales agents received exactly 100 incidents each—ruling out structural department-level imbalances.",
+    "Only 9.6% of total incidents (48/500) were both assigned to and touched by an agent during their documented leave period, confirming minimal operational exposure to concurrent assignment and absence."
+  ],
+  "summary": "The analysis definitively refutes the presence of incident assignment imbalances—both overall and during leave periods. All five agents handled exactly 100 incidents, with zero variance across individuals, departments, or time. Redistribution during documented leave periods occurred at a high rate (84.7%) but followed no discernible pattern, aligning with random allocation rather than governed backup rules. Critically, nearly half of all incidents were assigned to agents without usable schedule data, meaning leave-related exposure could not be fully assessed for those cases. Given the absence of statistical or operational imbalances, the primary business implication is that current assignment logic is highly equitable; the highest-value next step is to prioritize completing schedule data coverage for all agents to enable future leave-aware monitoring and proactive capacity planning."
+}

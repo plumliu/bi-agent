@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Incident assignments increased by 285% from early 2023 (15.2 avg/month) to late 2023/early 2024 (58.4 avg/month), indicating sustained and statistically significant workload escalation across the agent cohort.",
+    "All five agents experienced nearly identical monthly growth in assignments (~1.2–1.3 additional assignments/month per agent), confirming that the surge is system-wide rather than concentrated on specific individuals or creating inequitable burden.",
+    "Network-related incidents account for the largest absolute increase (+168 assignments, +365% growth), making this category the dominant driver of rising agent workload rather than broad-based growth across incident types.",
+    "Priority 2 (High) incidents contributed the largest absolute volume increase (+253 assignments, +367% growth), signaling that escalating operational pressure is disproportionately tied to high-priority work—not just higher volume, but higher-stakes demand.",
+    "The Network assignment group shows the highest absolute growth (+187 assignments, +374% growth), reinforcing that structural concentration in both incident category and assignment routing amplifies workload pressure on all agents uniformly.",
+    "Total incident volume rose 349.5% (from 91 to 409 assignments) between early and late periods, confirming that the agent-level trend reflects a fundamental shift in inbound demand scale—not sampling artifact or transient fluctuation."
+  ],
+  "summary": "The investigation confirms that user agents are experiencing a substantial, sustained, and uniformly distributed increase in incident assignments—rising 285–350% over the analysis period—with no evidence of disproportionate burden on any individual agent. This surge is not diffuse: it is structurally driven by sharp growth in Network-related incidents and Priority 2 (High) severity work, which together dominate the volume increase. The consistency across all five agents indicates systemic demand pressure rather than staffing or routing imbalances, implying that capacity planning, triage protocols, or upstream prevention—particularly for Network and High-priority incidents—should be the immediate focus for mitigating service risk and sustaining agent performance."
+}

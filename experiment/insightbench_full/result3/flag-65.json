@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "37.4% of assets (187 out of 500) were purchased after employee start dates, indicating a widespread reactive procurement pattern rather than proactive onboarding alignment.",
+    "Development and Finance departments exhibit the highest post-start purchase rates at 50% and 44% respectively, revealing department-specific deviations from optimal procurement timing.",
+    "Computers account for 54% of all post-start purchases (101 out of 187), making this asset category the dominant contributor to misaligned procurement timing and a priority for advance planning interventions.",
+    "Short warranty coverage (<180 days after employee start) affects 8% of assets (40 out of 500), but is heavily concentrated in HR (15.4%) and IT (10.8%), signaling elevated early-failure risk in these departments.",
+    "The minimum warranty coverage after employee start is only 63 days, creating a material gap in protection during the critical early-employment period when asset usage intensity and failure likelihood are often elevated.",
+    "Low-cost assets (0–1k price range) show the highest short-warranty rate at 10.5%, suggesting cost-driven warranty trade-offs may be introducing disproportionate operational risk."
+  ],
+  "summary": "To optimize asset procurement and warranty management, the analysis reveals that nearly two-fifths of assets are procured reactively—after employees begin work—undermining readiness and increasing early-failure exposure. This pattern is most acute in Development and Finance departments and overwhelmingly driven by computer purchases, pointing to targeted advance procurement planning as the highest-leverage intervention. Simultaneously, 8% of assets carry critically short warranty coverage (<180 days post-start), with disproportionate concentration in HR and IT and among low-cost devices—highlighting a structural warranty risk that could lead to unplanned maintenance costs or service disruption. These findings collectively indicate that current procurement timing and warranty strategy are misaligned with workforce onboarding cycles; the next focus should be implementing department- and category-specific procurement lead-time targets and enforcing minimum warranty duration thresholds for high-risk segments."
+}

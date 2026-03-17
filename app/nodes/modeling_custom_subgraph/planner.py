@@ -1,4 +1,5 @@
 import json
+import os
 import re
 
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -26,6 +27,7 @@ def planner_node(state: CustomModelingState):
     system_message = SystemMessage(content=planner_instruction)
 
     files_metadata_str = json.dumps(state["files_metadata"], ensure_ascii=False, indent=2)
+    workspace_filenames = [os.path.basename(path) for path in state.get("raw_file_paths", [])]
 
     merge_recs_str = ""
     if state.get("merge_recommendations"):
@@ -38,9 +40,8 @@ def planner_node(state: CustomModelingState):
 {state['user_input']}
 
 【Environment information for the current_task】
-raw_file count: {len(state.get('raw_file_paths', []))}
-raw_file_paths: {state.get('raw_file_paths', [])}
-original_filenames: {state.get('original_filenames', [])}
+file_count: {len(workspace_filenames)}
+workspace_filenames: {workspace_filenames}
 
 【files_metadata】
 {files_metadata_str}{merge_recs_str}

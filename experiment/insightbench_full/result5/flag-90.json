@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "68.2% of expense claims were flagged as potentially repeated based on caller-category-location combinations, but these repetitions are uniformly distributed across all 4 callers and 5 categories—indicating systemic pattern consistency rather than individual-level fraud behavior.",
+    "The median time gap between flagged repeated claims is 335 hours (14 days), which aligns with legitimate recurring operational issues—not the rapid, clustered submissions typical of fraudulent intent.",
+    "Zero claims were submitted less than one hour apart, and only 4.7% occurred on the same day, confirming absence of urgent, high-frequency repetition that would suggest deliberate duplication to exploit reimbursement rules.",
+    "All 500 claims share the identical short_description 'There was an issue', eliminating textual differentiation as a basis for distinguishing legitimate recurrence from suspicious duplication.",
+    "Negative resolution times (up to -355 days) and perfectly balanced ticket counts (125 per caller, 100 per category) strongly indicate synthetic or test data—not real-world expense submission behavior—undermining the validity of fraud inference from this dataset.",
+    "Even the most extreme repetition clusters show average inter-claim gaps of 323–413 hours (13–17 days), further confirming that no cohort exhibits the compressed temporal signatures associated with fraudulent claim inflation."
+  ],
+  "summary": "The analysis finds no evidence supporting fraudulent repeated expense claims; instead, all observed repetition patterns are consistent with synthetic or uniformly generated data. Repetitions are evenly distributed across users and categories, occur at median intervals of 14 days (not minutes or hours), and lack any rapid-submission clusters or descriptive variation needed to distinguish intent. The universal short_description, perfect distribution balance, and implausible negative resolution times collectively confirm the dataset does not reflect authentic expense reporting behavior—making fraud detection infeasible with this data. Next focus should be validating data provenance and sourcing a real-world claims dataset with behavioral heterogeneity and meaningful descriptive detail."
+}

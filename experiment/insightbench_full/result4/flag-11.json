@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Hardware incidents show a statistically significant and accelerating increase in median resolution time—from ~178 to ~2710 hours between early 2023 and early 2024—while all other categories exhibit negligible or non-significant trends.",
+    "The surge in Hardware resolution time is almost entirely driven by the Service Desk assignment group, which handles 81% of Hardware incidents and shows a parallel sharp rise from ~200 to over 2700 hours during the same period.",
+    "No location, priority level, or assigned individual subgroup within Hardware shows materially lower resolution times—indicating systemic delay rather than isolated bottlenecks or skill gaps.",
+    "Keyword analysis confirms consistent problem descriptions (e.g., 'email', 'system', 'outage') before and after mid-2023, ruling out new hardware failure modes and pointing to process or resourcing breakdowns within Service Desk handling.",
+    "The Service Desk’s resolution time escalation began mid-2023 and has persisted without recovery, suggesting an entrenched operational issue—not a transient spike—requiring urgent process or capacity review.",
+    "Hardware incidents handled outside Service Desk (e.g., by Network or regional teams) show flat or declining resolution times, confirming that the degradation is assignment-group–specific and not category-wide."
+  ],
+  "summary": "The primary driver of increasing incident resolution time is a severe, systemic delay in the Service Desk’s handling of Hardware incidents—evidenced by an 15-fold median increase (178 → 2710 hours) concentrated entirely within this assignment group starting mid-2023. This trend is not attributable to changes in incident complexity, location, priority, or technical root cause, as keyword patterns remain stable and non-Service Desk subgroups show no deterioration. The uniformity of high resolution times across all Hardware subgroups further confirms that the issue lies in end-to-end process execution or resourcing within Service Desk—not in upstream triage or downstream escalation. Immediate focus should be on auditing Service Desk workflows, staffing levels, handoff protocols, and SLA adherence for Hardware tickets post-July 2023."
+}

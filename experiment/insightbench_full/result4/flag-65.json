@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "62.6% of assets are purchased before the assigned employee's start date, with a median lead time of 37 days, indicating a systematic pre-onboarding procurement practice across departments.",
+    "Assets purchased more than 90 days before employee start dates are 7.7× more likely to have unusually short warranties (20.7% vs 2.7%), confirming that extreme early procurement is the primary driver of warranty coverage risk.",
+    "Only 4 out of 500 assets (0.8%) combine both >90-day pre-purchase and effective post-onboarding warranty under 90 days—exclusively those with the minimum 365-day warranty—making this a rare, isolated risk rather than a systemic procurement flaw.",
+    "Warranty durations are consistently long overall (median 633 days), and no asset category or department shows structural short-warranty concentration, indicating current warranty terms are broadly adequate for operational needs.",
+    "Pre-purchase timing shows meaningful variation by asset type—Printers (76.7%) and Servers (70.7%) are far more likely to be procured early than Computers (55.5%)—suggesting category-specific procurement logic that may reflect infrastructure readiness requirements.",
+    "There is no association between early purchase (>90 days pre-start) and high-cost assets (12.8% vs 11.1%), ruling out cost-driven over-provisioning as a contributor to warranty misalignment."
+  ],
+  "summary": "The analysis confirms that pre-onboarding asset procurement is widespread (62.6% of assets), but rarely compromises post-onboarding warranty coverage: only 0.8% of all assets face critically short effective warranty (<90 days after start), and all such cases stem from the combination of very early purchase (>90 days prior) and the minimum 365-day warranty term. This indicates the current procurement process is operationally sound, with risk confined to a negligible fraction of assets—not a policy-level issue. The stronger differentiator is asset category: Printers and Servers show markedly higher pre-purchase rates than Computers, suggesting infrastructure provisioning drives early buying more than individual onboarding timing. For optimization, focus should shift from broad procurement timing adjustments to targeted review of 365-day warranty assignments for assets procured >90 days pre-start."
+}

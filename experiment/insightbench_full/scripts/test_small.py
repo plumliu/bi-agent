@@ -5,18 +5,17 @@ Test script to verify the workflow on 2-3 samples
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 from pathlib import Path
 
-# Add project root and da-bench src to path
+# Add project root to path
 project_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(project_root / "experiment/modeling_custom/da-bench/src"))
 sys.path.insert(0, str(project_root / "experiment/insightbench_full"))
 
 from src.utils import load_all_samples
 from src.runner import run_single_sample
-from sandbox_manager import SandboxPool
 
 
 async def main():
@@ -35,15 +34,16 @@ async def main():
     test_samples = all_samples[:2]
     print(f"Testing with {len(test_samples)} samples: {[s['sample_id'] for s in test_samples]}")
 
-    # Initialize pool
-    pool = SandboxPool(max_concurrent=2)
-
     # Run tasks
     print("\nRunning workflows...")
-    tasks = [
-        pool.run_with_sandbox(run_single_sample, sample)
-        for sample in test_samples
-    ]
+    max_concurrent = max(1, min(2, (os.cpu_count() or 4) // 2))
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def _run_with_limit(sample):
+        async with semaphore:
+            return await run_single_sample(sample)
+
+    tasks = [asyncio.create_task(_run_with_limit(sample)) for sample in test_samples]
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
 

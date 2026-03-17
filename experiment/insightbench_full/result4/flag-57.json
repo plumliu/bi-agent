@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "TTR cannot be meaningfully computed due to chronologically invalid timestamps, with 100% of 'closed_at' values preceding 'opened_at' in the majority of records (median TTR ≈ -5.5 days), indicating systemic data entry or synchronization failure.",
+    "Swapping 'opened_at' and 'closed_at' fails to produce a valid resolution-time metric, as ~47% of recalculated TTR values remain negative—confirming that neither timestamp reliably represents true incident opening or closure order.",
+    "'sys_updated_on' shows no consistent temporal relationship with either 'opened_at' or 'closed_at', violating the fundamental requirement for reconstructing incident lifecycle sequence and eliminating it as a fallback ordering signal.",
+    "All non-temporal fields—including priority, category, location, assignment_group, and state—are uniformly distributed and semantically inert for performance analysis, providing zero discriminative power to proxy or explain resolution latency.",
+    "The complete absence of urgency- or speed-related language in 'short_description' across all 500 records further confirms that no textual signal can compensate for the lack of valid temporal structure in assessing TTR trends or drivers.",
+    "The dataset contains no field—temporal or categorical—that satisfies basic validity criteria for measuring, trending, or diagnosing TTR, rendering any inference about 'increasing TTR' statistically unsupported and operationally misleading."
+  ],
+  "summary": "The goal of identifying trends and underlying factors behind increasing TTR is unachievable with this dataset due to fundamental data integrity failures: timestamps are chronologically inconsistent (majority of 'closed_at' precede 'opened_at'), no field reliably orders incident lifecycle events, and all categorical and textual fields show zero variation relevant to resolution performance. This eliminates any valid basis for computing TTR, detecting temporal trends, or isolating contributing factors. Before further analysis, data provenance, ingestion logic, and timestamp governance processes must be audited and corrected; downstream operational decisions based on TTR from this dataset carry high risk of misdirection."
+}

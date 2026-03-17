@@ -1,22 +1,20 @@
 import json
 import re
-from typing import Dict, Any
+from typing import Any, Dict
 
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from app.core.modeling_custom_subgraph.state import CustomModelingState
 from app.core.prompts_config import load_prompts_config
 from app.utils.extract_text_from_content import extract_text_from_content
-from app.utils.llm_factory import create_llm, apply_retry
+from app.utils.llm_factory import apply_retry, create_llm
+from app.utils.terminal_logger import print_block, print_kv, print_list, print_subheader, preview_text
 
 llm = apply_retry(create_llm(use_flash=False))
-
-# 最多补救 2 轮，属于轻量级修复，不做无限循环
 MAX_REPAIR_ROUNDS = 2
 
 
 def _parse_observer_output(text: str) -> Dict[str, Any]:
-    """解析 Observer 的结构化输出"""
     decision_match = re.search(r"\[DECISION\]\s*(\w+)", text)
     decision = decision_match.group(1) if decision_match else "STOP"
 
@@ -69,48 +67,48 @@ def _parse_observer_output(text: str) -> Dict[str, Any]:
 
 
 def _build_repair_message(parsed: Dict[str, Any]) -> str:
-    """根据缺失字段构造补救提示"""
     decision = parsed["decision"]
 
     if decision == "FOLLOW_UP" and not parsed["next_task"]:
         return (
             "Your previous response selected FOLLOW_UP but did not include [NEXT_TASK].\n"
-            "Reply with ONLY the following block, nothing else:\n\n"
+            "Reply with ONLY:\n\n"
             "[NEXT_TASK]\n"
-            "<a specific, directly executable task description for the Executor>"
+            "<a specific executable task for the Executor>"
         )
 
     if decision == "REPLAN" and not parsed["replan_reason"]:
         return (
             "Your previous response selected REPLAN but did not include [REPLAN_REASON].\n"
-            "Reply with ONLY the following block, nothing else:\n\n"
+            "Reply with ONLY:\n\n"
             "[REPLAN_REASON]\n"
-            "<a clear, specific, actionable explanation of why the remaining plan needs to be rewritten>"
+            "<a clear, actionable reason>"
+        )
+
+    if decision == "STOP" and not parsed["stop_reason"]:
+        return (
+            "Your previous response selected STOP but did not include [STOP_REASON].\n"
+            "Reply with ONLY:\n\n"
+            "[STOP_REASON]\n"
+            "<a clear reason explaining why no higher-value next step remains>"
         )
 
     return ""
 
 
 def observer_node(state: CustomModelingState) -> Dict[str, Any]:
-    """Observer 节点：观察执行结果并决定下一步行动"""
-    print("--- [Observer] 观察执行结果 ---")
+    print_block("Observer")
 
-    # Load observer instruction
     prompts = load_prompts_config("modeling", "custom")
     observer_instruction = prompts["observer_instruction"]
 
-    # Construct messages array
     messages = [SystemMessage(content=observer_instruction)]
+    messages.append(HumanMessage(content=f"user_input: {state['user_input']}"))
 
-    # Add user input as first HumanMessage
-    messages.append(HumanMessage(content=f"用户需求: {state['user_input']}"))
-
-    # Add observer history
     observer_history = state.get("observer_history") or []
     for summary in observer_history:
         messages.append(AIMessage(content=summary))
 
-    # Construct current observation context
     initial_plan = state.get("initial_plan") or {}
     completed_tasks = state.get("completed_tasks") or []
     remaining_tasks = state.get("remaining_tasks") or []
@@ -118,8 +116,15 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
     open_questions = state.get("open_questions") or []
     confirmed_findings = state.get("confirmed_findings") or []
     working_hypotheses = state.get("working_hypotheses") or []
-    generated_files = state.get("generated_files") or {}
     latest_execution = state.get("latest_execution") or {}
+    print_kv("current_task", preview_text(state.get("current_task", ""), max_chars=240))
+    print_kv("completed_tasks", len(completed_tasks))
+    print_kv("remaining_tasks", len(remaining_tasks))
+    print_kv("confirmed_findings", len(confirmed_findings))
+    print_kv("open_questions", len(open_questions))
+    print_kv("observer_history", len(observer_history))
+    print_kv("latest_stdout_chars", len(str(latest_execution.get("stdout", ""))))
+    print_kv("latest_stderr_chars", len(str(latest_execution.get("stderr", ""))))
 
     context = f"""initial_plan: {json.dumps(initial_plan, ensure_ascii=False)}
 
@@ -143,35 +148,37 @@ confirmed_findings:
 working_hypotheses:
 {json.dumps(working_hypotheses, ensure_ascii=False, indent=2)}
 
-generated_files:
-{json.dumps(generated_files, ensure_ascii=False, indent=2)}
-
 latest_execution:
 code: {latest_execution.get('code', '')}
 stdout: {latest_execution.get('stdout', '')}
+stderr: {latest_execution.get('stderr', '')}
+result_text: {latest_execution.get('result_text', '')}
 """
 
     messages.append(HumanMessage(content=context))
+    print_kv("messages_count", len(messages))
 
-    # First call
     response = llm.invoke(messages)
     text = extract_text_from_content(response.content)
-
-    print("=" * 80)
-    print("[Observer] LLM原始输出:")
-    print(text)
-    print("=" * 80)
-
+    print_subheader("Observer / Raw Output Preview")
+    print(preview_text(text, max_chars=700))
     parsed = _parse_observer_output(text)
+    print_subheader("Observer / Parsed Decision")
+    print_kv("decision", parsed.get("decision"))
+    print_kv("task_summary", preview_text(parsed.get("task_summary", ""), max_chars=260))
+    print_list("findings_delta", parsed.get("findings_delta", []), max_items=5)
+    print_list("new_open_questions", parsed.get("new_open_questions", []), max_items=5)
+    print_list("new_working_hypotheses", parsed.get("new_working_hypotheses", []), max_items=5)
 
-    # 轻量级补救：仅在 FOLLOW_UP 缺 NEXT_TASK 或 REPLAN 缺 REPLAN_REASON 时触发
     repair_round = 0
     while repair_round < MAX_REPAIR_ROUNDS:
         repair_message = _build_repair_message(parsed)
         if not repair_message:
             break
 
-        print(f"--- [Observer] 触发补救回合 #{repair_round + 1}: {parsed['decision']} 缺少必填字段 ---")
+        print_subheader("Observer / Repair Round")
+        print_kv("round", repair_round + 1)
+        print_kv("reason", preview_text(repair_message, max_chars=280))
 
         messages.append(AIMessage(content=text))
         messages.append(HumanMessage(content=repair_message))
@@ -179,12 +186,6 @@ stdout: {latest_execution.get('stdout', '')}
         response = llm.invoke(messages)
         text = extract_text_from_content(response.content)
 
-        print("=" * 80)
-        print(f"[Observer] 补救回合 #{repair_round + 1} 输出:")
-        print(text)
-        print("=" * 80)
-
-        # Incremental update: only patch the missing field, preserve the rest
         if parsed["decision"] == "FOLLOW_UP":
             next_task_match = re.search(r"\[NEXT_TASK\](.*?)(?:\[|$)", text, re.DOTALL)
             if next_task_match:
@@ -197,54 +198,49 @@ stdout: {latest_execution.get('stdout', '')}
         repair_round += 1
 
     decision = parsed["decision"]
-    task_summary = parsed["task_summary"]
-    findings_delta = parsed["findings_delta"]
-    new_working_hypotheses = parsed["new_working_hypotheses"]
-    new_open_questions = parsed["new_open_questions"]
+    print_subheader("Observer / Final Control")
+    print_kv("decision", decision)
+    if parsed.get("next_task"):
+        print_kv("next_task", preview_text(parsed["next_task"], max_chars=240))
+    if parsed.get("replan_reason"):
+        print_kv("replan_reason", preview_text(parsed["replan_reason"], max_chars=260))
+    if parsed.get("stop_reason"):
+        print_kv("stop_reason", preview_text(parsed["stop_reason"], max_chars=260))
 
-    print(f"--- [Observer] 最终决策: {decision} ---")
-
-    # Update state based on decision
-    result = {
+    result: Dict[str, Any] = {
         "latest_control_signal": decision,
-        "confirmed_findings": confirmed_findings + findings_delta,
-        "working_hypotheses": new_working_hypotheses,
-        "open_questions": new_open_questions,
-        "observer_history": observer_history + [task_summary],
+        "confirmed_findings": confirmed_findings + parsed["findings_delta"],
+        "working_hypotheses": parsed["new_working_hypotheses"],
+        "open_questions": parsed["new_open_questions"],
+        "observer_history": observer_history + [parsed["task_summary"]],
     }
 
     if decision == "CONTINUE":
-        # Move to next task
         result["completed_tasks"] = completed_tasks + [{"description": state["current_task"]}]
         if remaining_tasks:
             result["current_task"] = remaining_tasks[0]["description"]
             result["remaining_tasks"] = remaining_tasks[1:]
         else:
             result["current_task"] = None
+            result["remaining_tasks"] = []
 
     elif decision == "FOLLOW_UP":
-        # Insert follow-up task
         result["completed_tasks"] = completed_tasks + [{"description": state["current_task"]}]
         result["current_task"] = parsed["next_task"] or None
 
     elif decision == "REPLAN":
-        # Trigger replanning
         result["replan_reason"] = parsed["replan_reason"]
 
     elif decision == "STOP":
-        # Stop execution
         result["stop_reason"] = parsed["stop_reason"]
 
     return result
 
 
 def observer_router(state: CustomModelingState) -> str:
-    """Observer 节点路由函数"""
     signal = state.get("latest_control_signal")
     if signal in ["CONTINUE", "FOLLOW_UP"]:
         return "executor"
-    elif signal == "REPLAN":
+    if signal == "REPLAN":
         return "replanner"
-    elif signal == "STOP":
-        return "aggregator"
-    return "aggregator"  # Default fallback
+    return "aggregator"

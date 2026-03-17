@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Hardware assignment_group accounts for 81% (405/500) of all incidents, creating extreme volume concentration and indicating a structural imbalance in routing logic rather than operational randomness.",
+    "The 95.80% alignment between incident category and assignment_group—especially 99.8% mapping of Hardware category to Hardware group—confirms that systematic category-based routing is the primary driver of the observed imbalance.",
+    "Assignee-level workload is balanced (Gini: 0.0624; range: 31 incidents), with no individual assignee bearing disproportionate load, ruling out fairness or capacity issues at the agent level.",
+    "Hardware incidents are significantly more likely to be High priority (82.96% vs 61.05% for non-Hardware), amplifying service pressure on the Hardware group beyond its sheer volume share.",
+    "Hardware dominance is sustained across all time periods (monthly range: 69–93%), confirming the imbalance is chronic and systemic—not driven by transient spikes or batched assignments.",
+    "The Gini coefficient for assignment_group (0.6280) is over 10× higher than for assignees (0.0624), quantitatively confirming that the core discrepancy resides at the group-to-category routing layer, not at the individual assignment layer."
+  ],
+  "summary": "The primary discrepancy in incident assignment is a severe structural imbalance at the assignment_group level, where Hardware absorbs 81% of all incidents due to near-perfect (99.8%) category-to-group routing alignment—not individual assignee bias or temporal anomalies. This concentration is chronic, stable across all months, and compounded by Hardware incidents being substantially more likely to carry High priority (83% vs 61%), increasing operational pressure disproportionately. In contrast, assignee workloads are well-balanced (Gini 0.0624), confirming that resource distribution among agents is fair and functional. The root cause lies in routing policy design, not execution or staffing—making category-to-group mapping logic the highest-priority focus for rebalancing efforts."
+}

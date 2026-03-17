@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Only 27% of expense records are processed, and processing_time is defined exclusively for this subset—making it impossible to assess processing time equity across the full cost spectrum.",
+    "Higher expense amounts correlate negatively with processing_time, but this is a structural artifact: unprocessed records (73% of total) have zero processing_time, and higher-cost expenses are slightly less likely to be processed, not slower to process once approved.",
+    "Processed rates are stable across cost tiers (25.6%–27.8%), indicating no meaningful disparity in the likelihood of expense approval by cost level.",
+    "The absence of processed_date for 366 out of 500 records reflects a systemic data gap—not variation in processing behavior—rendering cost-based efficiency analysis infeasible with current data.",
+    "Equity in expense processing cannot be meaningfully evaluated on timing grounds, as the core metric (processing_time) is both sparse and conditionally defined, violating the premise that cost influences speed of resolution.",
+    "Resource or policy bottlenecks—if they exist—are not expressed through differential processing times by cost, but rather through the overall low processing rate (27%) and missing outcome timestamps."
+  ],
+  "summary": "The goal of assessing how expense cost impacts processing time to improve efficiency and equity cannot be fulfilled due to fundamental data limitations: processing_time is only available for the 27% of records marked 'Processed', while 73% lack processed_date and default to zero processing_time. This structure creates a spurious negative correlation between amount and processing_time, not evidence of delay. Disposition rates show no cost-tier bias, and the dominant issue is not inequitable speed but systemic incompleteness in outcome recording. To advance equity and efficiency, the priority must shift from cost-tier timing analysis to diagnosing why 73% of expenses remain unprocessed and why processed_date is missing for most records."
+}

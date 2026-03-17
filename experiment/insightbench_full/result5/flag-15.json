@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "During documented agent leave windows, 98.6% of incidents were assigned to the two agents with no leave data (Luke Wilson and Beth Anglin), indicating near-total redistribution pressure falls on this subset.",
+    "Luke Wilson’s incident share surged from 30.0% at baseline to 52.4% during leave periods — a +22.4 percentage point increase — making him the single largest absorber of redistributed workload.",
+    "Beth Anglin’s incident share rose from 23.2% at baseline to 46.2% during leave periods — a +23.0 percentage point increase — confirming she bears comparable redistribution pressure to Luke Wilson.",
+    "Agents with documented leave (Fred Luddy, Howard Johnson, Charlie Whitherspoon) collectively received only 2 incidents (1.4%) during all their combined leave windows, validating that assignments are effectively routed away from unavailable agents.",
+    "The absence of schedule/leave data for Luke Wilson and Beth Anglin creates a systemic blind spot: their consistently high availability is misinterpreted as capacity, leading to disproportionate and sustained assignment concentration.",
+    "The overall assignment distribution is meaningfully imbalanced (Gini = 0.158; top/bottom ratio = 2.08x), but this baseline imbalance is dramatically amplified during leave periods — transforming a moderate disparity into acute operational concentration risk."
+  ],
+  "summary": "The core goal of identifying assignment imbalances during agent leave periods has been conclusively addressed: workload redistribution is highly concentrated among the two agents lacking documented leave data — Luke Wilson and Beth Anglin — who absorbed 98.6% of incidents during others’ leave windows. This redistribution explains Luke’s 30% baseline load and reveals a structural risk: absence of leave visibility for these agents leads to their automatic over-allocation, with both experiencing >22 percentage point increases in share during leave periods. The finding confirms the imbalance is not due to arbitrary scheduling or category bias, but to a data gap in availability tracking that directly drives inequitable workload distribution. Next focus should be on reconciling missing schedule data for Luke Wilson and Beth Anglin, and implementing guardrails to cap redistribution thresholds during known leave windows."
+}

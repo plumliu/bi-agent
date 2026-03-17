@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "All five agents received exactly 100 incidents each, indicating perfect uniformity in raw assignment volume and no count-based imbalance.",
+    "Priority-weighted workload across agents varies by only a 1.13x ratio (239–269 total priority points), confirming near-total balance in severity-adjusted assignment burden.",
+    "Resolution time metrics are fundamentally invalid: 52.8% of records show closed_at < opened_at, and valid-record averages range from 124 to 158 days — values inconsistent with operational reality and unusable for workload assessment.",
+    "No evidence supports meaningful assignment imbalance across any validated dimension (count, priority weight, or cleaned resolution time); observed variation is minimal and within acceptable operational tolerance.",
+    "The uniform distribution extends beyond agents to all major categorical dimensions — categories (100 each), locations (100 each), and priorities (125 each) — suggesting a deliberately controlled or synthetic assignment process.",
+    "Data quality issues in timestamps are systemic and evenly distributed across agents (46%–58% invalid per agent), ruling out agent-specific data entry errors as an explanation for resolution time anomalies."
+  ],
+  "summary": "The analysis finds no evidence of meaningful imbalance in incident assignments across the five agents — raw counts are perfectly uniform (100 incidents each), priority-weighted loads differ by only 13%, and resolution time metrics are invalidated by pervasive timestamp corruption (over half the records show impossible negative durations). This uniformity extends to categories, locations, and priority levels, indicating a highly controlled or artificial assignment regime rather than organic operational variance. Given the absence of substantiated workload disparity, efforts to redistribute tasks would not address an actual imbalance but could disrupt an already balanced system. The highest-priority next step is diagnosing and correcting the root cause of timestamp inversion in the incident lifecycle data, as this undermines all time-based performance measurement."
+}

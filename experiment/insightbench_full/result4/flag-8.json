@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "David Loo is the dominant caller, responsible for 266 of 500 incident tickets (53.2%), indicating extreme concentration of ticket creation in a single individual rather than distributed across multiple callers.",
+    "No caller exhibits an increasing trend in incident reporting; all top callers—including David Loo—show substantially lower ticket volumes in the last 30 days compared to earlier periods, refuting the assumption of rising activity.",
+    "The imbalance is structural rather than temporal: the issue lies in disproportionate contribution from one caller, not in accelerating behavior or emerging risk from any individual.",
+    "David Loo’s recent decline in ticket volume suggests either resolution of underlying issues, process intervention, or behavioral change—yet his historical dominance still represents a high-risk single point of failure for incident volume management.",
+    "The absence of any rising trend among top callers implies that operational pressure is not intensifying over time, but remains persistently skewed toward one historical contributor."
+  ],
+  "summary": "The analysis reveals no evidence of increasing incident reports by any caller—contradicting the initial assumption—while uncovering a pronounced structural imbalance: David Loo alone generated over half of all 500 tickets. This concentration—not growth—represents the core operational risk, as service demand remains heavily dependent on a single individual whose recent activity has actually declined. The lack of upward trends across all top callers indicates stable or receding temporal pressure, but persistent vulnerability due to over-reliance on one source. Next focus should be diagnosing why David Loo generated so many incidents historically and whether those root causes remain latent despite reduced recent activity."
+}

@@ -1,61 +1,42 @@
 import json
 import logging
-from typing import Dict, Any, List, Union
+import os
+from typing import Any, Dict, List
 
-from langchain_core.messages import SystemMessage, HumanMessage
+import pandas as pd
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.core.state import WorkflowState
-from ppio_sandbox.code_interpreter import Sandbox
 from app.prompts.profiler_prompt import (
+    PROFILER_RECOMMENDATION_CONTEXT_TEMPLATE,
     PROFILER_RECOMMENDATION_SYSTEM_TEMPLATE,
-    PROFILER_RECOMMENDATION_CONTEXT_TEMPLATE
 )
 from app.utils.csv_reader import collect_file_metadata
 from app.utils.extract_text_from_content import extract_text_from_content
-from app.utils.llm_factory import create_llm, apply_retry
+from app.utils.llm_factory import apply_retry, create_llm
+from app.utils.terminal_logger import print_block, print_kv, print_list, print_subheader, preview_text
 
-step = "profiler"
 logger = logging.getLogger(__name__)
-
 llm = apply_retry(create_llm(use_flash=False))
 
 
-def _parse_stdout(stdout_content: Union[str, List[str], None]) -> str:
-    """兼容处理沙盒返回的 stdout"""
-    if stdout_content is None:
-        return ""
-    if isinstance(stdout_content, list):
-        return "".join(stdout_content)
-    return str(stdout_content)
-
-
 def _generate_merge_recommendations(
-    sandbox: Sandbox,
     files_metadata: List[Dict[str, Any]],
-    original_names: List[str]
 ) -> List[Dict[str, Any]]:
-    """生成并验证合并建议（仅多文件时调用）"""
-    print("--- [Profiler] 请求 LLM 生成合并建议... ---")
+    """Generate and validate merge recommendations when multiple files are uploaded."""
+    print_subheader("Profiler / Merge Recommendation")
+    print_kv("input_files", len(files_metadata))
 
-    # 调用 LLM 生成建议
     system_message = SystemMessage(content=PROFILER_RECOMMENDATION_SYSTEM_TEMPLATE)
     context_content = PROFILER_RECOMMENDATION_CONTEXT_TEMPLATE.format(
         files_metadata_json=json.dumps(files_metadata, ensure_ascii=False, indent=2)
     )
     context_message = HumanMessage(content=context_content)
 
-    print(f"[Profiler] 发送给 LLM 的上下文长度: {len(context_content)} 字符")
-    print(f"[Profiler] files_metadata 包含 {len(files_metadata)} 个文件")
-
     response = llm.invoke([system_message, context_message])
 
-    print(f"[Profiler] LLM 原始响应（前1000字符）:\n{response.content[:1000]}")
-    print(f"[Profiler] LLM 响应总长度: {len(response.content)} 字符")
-
-    # 解析 JSON 响应
     try:
         response_text = extract_text_from_content(response.content).strip()
-        # 移除可能的 markdown 代码块标记
         if response_text.startswith("```json"):
             response_text = response_text[7:]
         if response_text.startswith("```"):
@@ -66,57 +47,58 @@ def _generate_merge_recommendations(
 
         recommendations_data = json.loads(response_text)
         raw_recommendations = recommendations_data.get("recommendations", [])
-        print(f"[Profiler] LLM 生成了 {len(raw_recommendations)} 个初步建议")
+        print_kv("raw_recommendations", len(raw_recommendations))
     except Exception as e:
-        logger.error(f"解析 LLM 建议失败: {e}, 响应内容: {response.content}")
-        print(f"[Profiler] JSON 解析失败: {e}")
-        print(f"[Profiler] 尝试解析的文本（前2000字符）:\n{response_text[:2000] if 'response_text' in locals() else response.content[:2000]}")
+        logger.error("解析 LLM 合并建议失败: %s", e)
+        print_kv("parse_error", str(e))
+        print_kv("response_preview", preview_text(response.content, max_chars=280))
         return []
 
-    # 验证每个建议
-    validated_recommendations = []
-    for idx, rec in enumerate(raw_recommendations):
-        print(f"\n[Profiler] 验证建议 {idx + 1}/{len(raw_recommendations)}: {rec.get('recommendation_id', 'unknown')}")
-        print(f"  策略: {rec.get('strategy')}, 涉及文件: {rec.get('involved_files')}")
-        validated_rec = _validate_recommendation(sandbox, rec, files_metadata)
-        print(f"  验证结果: {'通过' if validated_rec.get('validation_passed') else '未通过'}")
-        if not validated_rec.get('validation_passed'):
-            print(f"  警告: {validated_rec.get('validation_warnings', [])}")
-        if validated_rec.get("validation_passed"):
-            validated_recommendations.append(validated_rec)
+    validated_recommendations: List[Dict[str, Any]] = []
+    for rec in raw_recommendations:
+        validated = _validate_recommendation(rec, files_metadata)
+        if validated.get("validation_passed"):
+            validated_recommendations.append(validated)
+
+    print_kv("validated_recommendations", len(validated_recommendations))
+    if validated_recommendations:
+        print_list(
+            "validated_items",
+            [
+                f"{r.get('recommendation_id', 'n/a')} | {r.get('strategy', 'n/a')}"
+                for r in validated_recommendations
+            ],
+            max_items=6,
+        )
 
     return validated_recommendations
 
 
 def _validate_recommendation(
-    sandbox: Sandbox,
     recommendation: Dict[str, Any],
-    files_metadata: List[Dict[str, Any]]
+    files_metadata: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    """验证单个合并建议"""
     strategy = recommendation.get("strategy")
 
     if strategy == "concat":
-        return _validate_concat(sandbox, recommendation, files_metadata)
-    elif strategy == "merge":
-        return _validate_merge(sandbox, recommendation, files_metadata)
-    else:
-        # reject 或其他策略不需要验证
-        recommendation["validation_passed"] = False
-        return recommendation
+        return _validate_concat(recommendation, files_metadata)
+    if strategy == "merge":
+        return _validate_merge(recommendation, files_metadata)
+
+    recommendation["validation_passed"] = False
+    recommendation["validation_warnings"] = ["unsupported strategy"]
+    return recommendation
 
 
 def _validate_concat(
-    sandbox: Sandbox,
     recommendation: Dict[str, Any],
-    files_metadata: List[Dict[str, Any]]
+    files_metadata: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    """验证 concat 建议：检查列名重合度"""
     involved_files = recommendation.get("involved_files", [])
 
     if len(involved_files) != 2:
         recommendation["validation_passed"] = False
-        recommendation["validation_warnings"] = ["concat 策略仅支持两个文件"]
+        recommendation["validation_warnings"] = ["concat strategy requires exactly two files"]
         return recommendation
 
     file1_meta = files_metadata[involved_files[0]]
@@ -127,29 +109,26 @@ def _validate_concat(
 
     overlap = cols1 & cols2
     union = cols1 | cols2
-
     overlap_ratio = len(overlap) / len(union) if union else 0
 
     recommendation["column_overlap_ratio"] = overlap_ratio
     recommendation["validation_passed"] = overlap_ratio >= 0.9
     recommendation["validation_warnings"] = [] if overlap_ratio >= 0.9 else [
-        f"列名重合度仅 {overlap_ratio:.2%}，低于 90% 阈值"
+        f"column overlap ratio {overlap_ratio:.2%} is below 90%",
     ]
-
-    print(
-        f"[Profiler] concat 列名重合度: {overlap_ratio:.2%} | "
-        f"pass={recommendation['validation_passed']}"
-    )
-
     return recommendation
 
 
+def _as_list(value: Any) -> List[str]:
+    if isinstance(value, list):
+        return [str(v) for v in value]
+    return [str(value)]
+
+
 def _validate_merge(
-    sandbox: Sandbox,
     recommendation: Dict[str, Any],
-    files_metadata: List[Dict[str, Any]]
+    files_metadata: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    """验证 merge 建议：三阶段策略"""
     left_idx = recommendation.get("left_file")
     right_idx = recommendation.get("right_file")
     left_on = recommendation.get("left_on")
@@ -157,149 +136,147 @@ def _validate_merge(
 
     if left_idx is None or right_idx is None or not left_on or not right_on:
         recommendation["validation_passed"] = False
-        recommendation["validation_warnings"] = ["merge 策略缺少必要字段 (left_on/right_on)"]
+        recommendation["validation_warnings"] = ["merge strategy missing left/right join keys"]
         return recommendation
 
     left_meta = files_metadata[left_idx]
     right_meta = files_metadata[right_idx]
-    left_path = left_meta["remote_path"]
-    right_path = right_meta["remote_path"]
+    left_path = left_meta.get("data_path")
+    right_path = right_meta.get("data_path")
 
-    # 生成验证代码
-    validation_code = f"""
-import pandas as pd
-import json
-
-left_df = pd.read_csv('{left_path}')
-right_df = pd.read_csv('{right_path}')
-
-left_on = {json.dumps(left_on)}
-right_on = {json.dumps(right_on)}
-if isinstance(left_on, str):
-    left_on = [left_on]
-if isinstance(right_on, str):
-    right_on = [right_on]
-
-# 阶段 1: 静态键质量检查
-left_non_null = left_df[left_on].notna().all(axis=1).sum()
-right_non_null = right_df[right_on].notna().all(axis=1).sum()
-
-left_unique = left_df[left_on].drop_duplicates().shape[0]
-right_unique = right_df[right_on].drop_duplicates().shape[0]
-
-left_uniqueness = left_unique / left_non_null if left_non_null > 0 else 0
-right_uniqueness = right_unique / right_non_null if right_non_null > 0 else 0
-
-# 值域交集
-left_keys = set(map(tuple, left_df[left_on].dropna().values))
-right_keys = set(map(tuple, right_df[right_on].dropna().values))
-intersection = left_keys & right_keys
-intersection_size = len(intersection)
-
-left_coverage = intersection_size / len(left_keys) if left_keys else 0
-right_coverage = intersection_size / len(right_keys) if right_keys else 0
-
-# 阶段 2: 试验性合并
-merged_df = pd.merge(left_df, right_df, left_on=left_on, right_on=right_on, how='left', indicator=True)
-row_multiplier = len(merged_df) / len(left_df) if len(left_df) > 0 else 0
-matched_ratio = ((merged_df['_merge'] == 'both').sum() / len(left_df)) if len(left_df) > 0 else 0
-
-result = {{
-    "left_uniqueness": left_uniqueness,
-    "right_uniqueness": right_uniqueness,
-    "intersection_size": intersection_size,
-    "left_coverage": left_coverage,
-    "right_coverage": right_coverage,
-    "row_multiplier": row_multiplier,
-    "matched_ratio": matched_ratio
-}}
-
-print(json.dumps(result))
-"""
-
-    exec_res = sandbox.run_code(validation_code)
-
-    if exec_res.error or exec_res.logs.stderr:
+    try:
+        left_df = pd.read_csv(left_path)
+        right_df = pd.read_csv(right_path)
+    except Exception as e:
         recommendation["validation_passed"] = False
-        recommendation["validation_warnings"] = [f"验证代码执行失败: {exec_res.error or exec_res.logs.stderr}"]
+        recommendation["validation_warnings"] = [f"failed to read csv for validation: {e}"]
+        return recommendation
+
+    left_keys = _as_list(left_on)
+    right_keys = _as_list(right_on)
+
+    if len(left_keys) != len(right_keys):
+        recommendation["validation_passed"] = False
+        recommendation["validation_warnings"] = ["left_on and right_on must have equal key counts"]
         return recommendation
 
     try:
-        stdout_str = _parse_stdout(exec_res.logs.stdout)
-        metrics = json.loads(stdout_str)
+        left_non_null = left_df[left_keys].notna().all(axis=1).sum()
+        right_non_null = right_df[right_keys].notna().all(axis=1).sum()
+
+        left_unique = left_df[left_keys].drop_duplicates().shape[0]
+        right_unique = right_df[right_keys].drop_duplicates().shape[0]
+
+        left_uniqueness = left_unique / left_non_null if left_non_null > 0 else 0
+        right_uniqueness = right_unique / right_non_null if right_non_null > 0 else 0
+
+        left_key_set = set(map(tuple, left_df[left_keys].dropna().values.tolist()))
+        right_key_set = set(map(tuple, right_df[right_keys].dropna().values.tolist()))
+        intersection_size = len(left_key_set & right_key_set)
+
+        left_coverage = intersection_size / len(left_key_set) if left_key_set else 0
+        right_coverage = intersection_size / len(right_key_set) if right_key_set else 0
+
+        merged_df = pd.merge(
+            left_df,
+            right_df,
+            left_on=left_keys,
+            right_on=right_keys,
+            how="left",
+            indicator=True,
+        )
+        row_multiplier = len(merged_df) / len(left_df) if len(left_df) > 0 else 0
+        matched_ratio = ((merged_df["_merge"] == "both").sum() / len(left_df)) if len(left_df) > 0 else 0
+
     except Exception as e:
         recommendation["validation_passed"] = False
-        recommendation["validation_warnings"] = [f"验证结果解析失败: {e}"]
+        recommendation["validation_warnings"] = [f"validation computation failed: {e}"]
         return recommendation
 
-    recommendation["validation_metrics"] = metrics
-    print(f"[Profiler] merge 验证指标: {metrics}")
+    metrics = {
+        "left_uniqueness": float(left_uniqueness),
+        "right_uniqueness": float(right_uniqueness),
+        "intersection_size": int(intersection_size),
+        "left_coverage": float(left_coverage),
+        "right_coverage": float(right_coverage),
+        "row_multiplier": float(row_multiplier),
+        "matched_ratio": float(matched_ratio),
+    }
 
-    # 阶段 3: 硬性过滤决策
-    warnings = []
+    warnings: List[str] = []
     passed = True
 
-    # ① 至少一侧唯一性 ≥ 0.95
     if metrics["left_uniqueness"] < 0.95 and metrics["right_uniqueness"] < 0.95:
         passed = False
-        warnings.append("两侧唯一性均低于 0.95")
+        warnings.append("both sides uniqueness are below 0.95")
 
-    # ② 值域存在实质性重合
     if metrics["left_coverage"] < 0.7 or metrics["right_coverage"] < 0.7:
         passed = False
-        warnings.append(f"值域覆盖率不足: left={metrics['left_coverage']:.2%}, right={metrics['right_coverage']:.2%}")
+        warnings.append(
+            f"insufficient key overlap coverage: left={metrics['left_coverage']:.2%}, right={metrics['right_coverage']:.2%}"
+        )
 
-    # ③ row_multiplier ≤ 1.05
     if metrics["row_multiplier"] > 1.05:
         passed = False
-        warnings.append(f"row_multiplier={metrics['row_multiplier']:.2f} 超过 1.05，可能存在 many-to-many 关系")
+        warnings.append(f"row_multiplier={metrics['row_multiplier']:.2f} > 1.05")
 
-    # ④ matched_ratio ≥ 0.6
     if metrics["matched_ratio"] < 0.6:
         passed = False
-        warnings.append(f"matched_ratio={metrics['matched_ratio']:.2%} 低于 60%")
+        warnings.append(f"matched_ratio={metrics['matched_ratio']:.2%} < 60%")
 
+    recommendation["validation_metrics"] = metrics
     recommendation["validation_passed"] = passed
     recommendation["validation_warnings"] = warnings
-
     return recommendation
 
 
-def profiler_node(state: WorkflowState, sandbox: Sandbox) -> Dict[str, Any]:
-    """Profiler 节点：元信息收集器 + 合并建议生成器"""
-    print("--- [Profiler] 收集文件元信息... ---")
+def profiler_node(state: WorkflowState) -> Dict[str, Any]:
+    """Collect metadata and generate merge recommendations in local workspace."""
+    print_block("Profiler")
 
     raw_paths = state.get("raw_file_paths", [])
-    orig_names = state.get("original_filenames", [])
     local_paths = state.get("local_file_paths", [])
+    workspace_filenames = [os.path.basename(path) for path in raw_paths]
+    print_kv("raw_file_count", len(raw_paths))
+    print_list("workspace_filenames", workspace_filenames, max_items=6)
 
-    # 1. 本地收集所有文件的元信息
-    files_metadata = []
-    for idx, (remote_path, local_path, name) in enumerate(zip(raw_paths, local_paths, orig_names)):
+    files_metadata: List[Dict[str, Any]] = []
+    for idx, data_path in enumerate(raw_paths):
+        local_path = local_paths[idx] if idx < len(local_paths) else data_path
+        workspace_filename = os.path.basename(data_path)
         metadata = collect_file_metadata(
             file_path=local_path,
-            original_filename=name,
+            original_filename=workspace_filename,
             file_index=idx,
-            remote_path=remote_path
+            data_path=data_path,
         )
-
         if "error" in metadata:
             raise RuntimeError(f"文件元信息收集失败: {metadata['error']}")
-
         files_metadata.append(metadata)
+        print_subheader(f"Profiler / File {idx}")
+        print_kv("name", workspace_filename)
+        print_kv("data_path", data_path)
+        print_kv("local_path", local_path)
+        print_kv("basename", os.path.basename(local_path))
+        print_kv("rows", metadata.get("row_count"))
+        print_kv("columns", len(metadata.get("columns", [])))
+        print_list("column_names", metadata.get("columns", []), max_items=10)
 
-    print(f"--- [Profiler] 已收集 {len(files_metadata)} 个文件的元信息 ---")
-
-    # 2. 多文件：生成并验证合并建议
     merge_recommendations = None
     if len(raw_paths) > 1:
-        merge_recommendations = _generate_merge_recommendations(
-            sandbox, files_metadata, orig_names
-        )
-        print(f"--- [Profiler] 生成了 {len(merge_recommendations)} 个验证通过的合并建议 ---")
+        merge_recommendations = _generate_merge_recommendations(files_metadata)
+        print_kv("validated_merge_count", len(merge_recommendations))
+    else:
+        print_kv("merge_recommendation", "skipped(single file)")
 
-    # 3. 返回状态更新
+    print_subheader("Profiler / Output")
+    print_kv("files_metadata_count", len(files_metadata))
+    print_kv(
+        "merge_recommendation_count",
+        0 if merge_recommendations is None else len(merge_recommendations),
+    )
+
     return {
         "files_metadata": files_metadata,
-        "merge_recommendations": merge_recommendations
+        "merge_recommendations": merge_recommendations,
     }

@@ -8,8 +8,8 @@ from pathlib import Path
 
 def main() -> None:
     project_root = Path(__file__).resolve().parents[3]
-    input_path = project_root / "experiment/insightbench_full/results/full_custom_responses_20260315_233954.jsonl"
-    output_dir = project_root / "experiment/insightbench_full/result2"
+    input_path = project_root / "experiment/insightbench_full/results/full_custom_responses_20260317_005705.jsonl"
+    output_dir = project_root / "experiment/insightbench_full/result5"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     success_count = 0

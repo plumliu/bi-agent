@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "The dataset contains 500 IT service incident tickets—not expense claims—making direct fraud detection for repeated expense submissions infeasible.",
+    "21 out of 500 tickets (4.2%) are flagged as repeated same-category submissions by the same caller within 24 hours, indicating a measurable pattern of rapid re-engagement with IT support.",
+    "All 21 repeated-submission pairs were assigned to the same assignment group, and 14 of them showed a change in state (e.g., Closed → Resolved), suggesting users resubmitted due to perceived lack of resolution rather than intentional duplication.",
+    "Time gaps between repeated submissions range from 1.1 to 22.5 hours (median 15.5 hours), and priority changed in 13 of 21 cases, further supporting procedural confusion or unclear closure communication—not systematic gaming of a system.",
+    "Bud Richman appears repeatedly across Network and Inquiry/Help categories with short time gaps, exemplifying user-level behavior consistent with seeking clarification or escalation—not fraudulent intent.",
+    "The near-uniform 'short_description' ('There was an issue') eliminates textual similarity as a viable signal for identifying substantively identical requests, reinforcing that repetition is driven by process friction, not claim replication."
+  ],
+  "summary": "The original goal of detecting fraudulent repeated expense claims cannot be addressed because the dataset consists entirely of 500 IT service incident tickets—not expense records. However, a robust proxy analysis identifies 21 instances (4.2%) of same-user, same-category IT ticket resubmissions within 24 hours. These repetitions consistently map to the same assignment group, frequently involve state changes (14/21) and priority adjustments (13/21), and occur with median timing of 15.5 hours—strong evidence of user frustration with unresolved or ambiguously closed issues rather than malicious intent. The uniformity of 'short_description' further confirms the absence of meaningful descriptive variation needed to assess substantive claim identity. Next focus should be on improving resolution clarity and post-closure communication for high-frequency categories like Network and Inquiry/Help, particularly for repeat submitters such as Bud Richman."
+}

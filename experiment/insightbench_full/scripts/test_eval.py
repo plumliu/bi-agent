@@ -35,8 +35,9 @@ class JudgeConfig:
     model: str
     max_retries: int
     retry_sleep_sec: float
-    max_workers_flags: int = 16
-    max_workers_insights: int = 16
+    request_timeout_sec: float = 90.0
+    max_workers_flags: int = 4
+    max_workers_insights: int = 4
 
 
 
@@ -83,6 +84,7 @@ def judge_pair_score(
                 ],
                 temperature=0,
                 max_tokens=64,
+                timeout=cfg.request_timeout_sec,
             )
             content = resp.choices[0].message.content or ""
             rating_1_to_10 = parse_rating(content)
@@ -90,7 +92,8 @@ def judge_pair_score(
         except Exception as e:
             last_error = str(e)
             if attempt < cfg.max_retries:
-                time.sleep(cfg.retry_sleep_sec)
+                # Exponential backoff avoids burst retries under rate limits/network jitter.
+                time.sleep(cfg.retry_sleep_sec * (2 ** (attempt - 1)))
                 continue
             raise RuntimeError(f"Judge failed after {cfg.max_retries} attempts: {last_error}") from e
 
@@ -125,8 +128,12 @@ def score_insights_o2m(
 
     def best_for_gt(gt: str) -> Tuple[str, float, str]:
         """Return (gt, best_score, best_pred) for one GT insight."""
-        def score_one(pred: str) -> float:
-            return judge_pair_score(
+        local_best_score = -1.0
+        local_best_pred = ""
+
+        # Keep one level of concurrency (across GT insights) to avoid thread explosion.
+        for pred in pred_insights:
+            score = judge_pair_score(
                 client=client,
                 prompt_template=prompt_template,
                 system_message=system_message,
@@ -134,17 +141,9 @@ def score_insights_o2m(
                 gt_text=gt,
                 cfg=cfg,
             )
-
-        with ThreadPoolExecutor(max_workers=cfg.max_workers_insights) as pool:
-            futures = {pool.submit(score_one, pred): pred for pred in pred_insights}
-            local_best_score = -1.0
-            local_best_pred = ""
-            for fut in as_completed(futures):
-                pred = futures[fut]
-                score = fut.result()
-                if score > local_best_score:
-                    local_best_score = score
-                    local_best_pred = pred
+            if score > local_best_score:
+                local_best_score = score
+                local_best_pred = pred
 
         return gt, max(local_best_score, 0.0), local_best_pred
 
@@ -287,7 +286,10 @@ def evaluate_flags(
         for fut in as_completed(futures):
             row = fut.result()
             all_rows.append(row)
-            print(f"✓ Completed {row['flag']}")
+            if row.get("error"):
+                print(f"✗ Completed {row['flag']} with error: {row['error']}")
+            else:
+                print(f"✓ Completed {row['flag']}")
 
     ok_rows = [r for r in all_rows if not r.get("error")]
     fail_rows = [r for r in all_rows if r.get("error")]
@@ -318,13 +320,17 @@ def main():
     """
     # Setup paths
     project_root = Path(__file__).resolve().parents[3]
-    result_dir = project_root / "experiment/insightbench_full/result2"
+    result_dir = project_root / "experiment/insightbench_full/result5"
     gt_dir = project_root / "experiment/insightbench_full/data"
     output_dir = project_root / "experiment/insightbench_full/eval_results"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Get OpenRouter API key from environment
+    # Keep placeholder behavior, while allowing env override for actual runs.
     api_key = "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"
+    if not api_key:
+        api_key = os.getenv("OPENROUTER_API_KEY", "")
+    if not api_key:
+        print("Warning: OPENROUTER_API_KEY is empty. Judge requests are likely to fail.")
 
     # Initialize client and config
     client = OpenAI(
@@ -336,6 +342,9 @@ def main():
         model="meta-llama/llama-3.3-70b-instruct",
         max_retries=3,
         retry_sleep_sec=2.0,
+        request_timeout_sec=90.0,
+        max_workers_flags=4,
+        max_workers_insights=4,
     )
 
     # Load G-Eval prompts from eval_prompts.py
@@ -361,6 +370,18 @@ def main():
     start_id = min(sample_ids)
     end_id = max(sample_ids)
 
+    # Precompute expected judge call volume for better observability.
+    estimated_calls = 0
+    for i in sample_ids:
+        pred = load_json(result_dir / f"flag-{i}.json")
+        gt = load_json(gt_dir / f"flag-{i}.json")
+        pred_insights = pred.get("insights", [])
+        gt_insight_list = gt.get("insight_list", [])
+        gt_insights = [item.get("insight", "") for item in gt_insight_list if isinstance(item, dict)]
+        if not isinstance(pred_insights, list):
+            pred_insights = []
+        estimated_calls += len(pred_insights) * len(gt_insights) + 1  # +1 for summary scoring
+
     print("=" * 80)
     print("InsightBench Evaluation using Llama-3.3-70B-Instruct")
     print("=" * 80)
@@ -369,6 +390,7 @@ def main():
     print(f"Output directory: {output_dir}")
     print(f"Sample range: {start_id} to {end_id}")
     print(f"Total samples found: {len(sample_ids)}")
+    print(f"Estimated judge API calls: {estimated_calls}")
     print(f"Judge model: {cfg.model}")
     print(f"Insights weight: 0.7, Summary weight: 0.3")
     print("=" * 80)

@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "IT department shows the fastest median expense processing time (8 days), but its small sample size (n=27) and wide confidence intervals prevent statistically reliable differentiation from Sales (10 days) and Customer Support (11 days).",
+    "Customer Support—despite being the largest department (63% of analyzable processed cases)—is the slowest among the three viable departments, contradicting initial assumptions about its operational efficiency.",
+    "No department demonstrates a statistically distinguishable processing speed advantage, as all 95% bootstrap confidence intervals for median processing time substantially overlap, indicating no evidence of a consistently faster department.",
+    "Data limitations severely constrain cross-departmental analysis: 30% of records lack 'processed_date', 'expense_id' is absent, and only three departments meet minimum sample requirements—rendering generalization of 'best practices' unsupported by evidence.",
+    "The effective analysis set is structurally dominated by Customer Support, creating high risk of bias and limiting ability to detect true inter-departmental differences in processing efficiency.",
+    "Departments with fewer than 20 processed records (Finance, HR, and others) are excluded entirely from comparison, eliminating any potential insight from those units and narrowing the scope of organizational learning."
+  ],
+  "summary": "The goal of identifying a reliably faster department to extract transferable efficiency practices cannot be achieved, as no department demonstrates statistically distinct processing speed—IT’s nominal lead (8 days) is undermined by low sample size and overlapping confidence intervals with Sales (10 days) and Customer Support (11 days). The analysis is further compromised by critical data gaps: missing 'processed_date' for 30% of records, absence of 'expense_id' for tracking, and extreme departmental imbalance that concentrates 63% of analyzable cases in Customer Support. With only three departments meeting minimum viability thresholds—and no evidence of meaningful performance separation—the premise of scalable best practices lacks empirical foundation. Next focus should shift to diagnosing root causes of incomplete processing data and standardizing expense state capture before attempting comparative efficiency analysis."
+}

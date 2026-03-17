@@ -1,47 +1,31 @@
 import os
+from typing import Any, Dict, List
 
 import pandas as pd
-from typing import Dict, Any, List
 
 
 def collect_file_metadata(
     file_path: str,
     original_filename: str,
     file_index: int,
-    remote_path: str,
+    data_path: str,
     max_rows_for_sample: int = 5,
     max_string_length: int = 50,
     unique_threshold: int = 20,
-    max_unique_samples: int = 10
+    max_unique_samples: int = 10,
 ) -> Dict[str, Any]:
-    """
-    收集单个文件的完整元信息（本地执行）
-
-    Returns:
-        {
-        "file_index": int,
-            "original_filename": str,
-            "remote_path": str,
-         "row_count": int,
-            "columns": List[str],
-            "dtypes": Dict[str, str],
-            "head_rows": List[Dict],
-            "missing_counts": Dict[str, int],
-            "unique_counts": Dict[str, int],
-          "sample_unique_values": Dict[str, List]
-        }
-    """
+    """Collect metadata for one CSV file in local session workspace."""
     if not os.path.exists(file_path):
         return {
             "error": f"File not found at {file_path}",
             "file_index": file_index,
-          "original_filename": original_filename,
-            "remote_path": remote_path
+            "original_filename": original_filename,
+            "data_path": data_path,
         }
 
     def _truncate_value(value: Any) -> Any:
         if isinstance(value, str) and len(value) > max_string_length:
-            return value[:max_string_length] + "[截断]"
+            return value[:max_string_length] + "[truncated]"
         return value
 
     try:
@@ -68,14 +52,14 @@ def collect_file_metadata(
         return {
             "file_index": file_index,
             "original_filename": original_filename,
-            "remote_path": remote_path,
+            "data_path": data_path,
             "row_count": row_count,
             "columns": columns,
             "dtypes": dtypes,
             "head_rows": head_rows,
             "missing_counts": missing_counts,
             "unique_counts": unique_counts,
-            "sample_unique_values": sample_unique_values
+            "sample_unique_values": sample_unique_values,
         }
 
     except Exception as e:
@@ -83,6 +67,5 @@ def collect_file_metadata(
             "error": f"Error reading CSV: {str(e)}",
             "file_index": file_index,
             "original_filename": original_filename,
-            "remote_path": remote_path
+            "data_path": data_path,
         }
-

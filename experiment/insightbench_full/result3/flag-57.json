@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "TTR decreased 77% from Q2 to Q4 2023—driven by a sharp, systemic improvement beginning in Q3 2023—not an increase as originally assumed.",
+    "Standard operational dimensions (category, location, priority, assignment_group) collectively explain less than 2% of TTR variance, ruling out compositional shifts as the cause of the improvement.",
+    "The Q3 2023 inflection point coincides with a 55.92% quarter-on-quarter TTR reduction, indicating a structural intervention or process change occurred around that time.",
+    "Database-category tickets exhibit the highest median TTR (3541.84 hours), 1.67× higher than Network-category tickets—the largest inter-category disparity—but this variation is dwarfed by the overall 77% systemic decline.",
+    "Negative TTR values affect 52.8% of records uniformly across all states, categories, and assignment groups, confirming a systemic timestamp logging issue rather than isolated data entry errors.",
+    "Priority level shows negligible impact on TTR (Critical vs Low: only 1.12× difference), contradicting expected service-tier behavior and further supporting the dominance of time-based systemic factors over policy-driven tiering."
+  ],
+  "summary": "Contrary to the original goal of explaining a TTR increase, the analysis conclusively shows TTR declined 77% between Q2 and Q4 2023—with the steepest drop (-55.92% QoQ) occurring in Q3 2023—indicating a deliberate, organization-wide improvement rather than a degradation. Standard ticket attributes explain less than 2% of this variance, confirming the change was systemic and uniform across categories, locations, priorities, and assignment groups. The consistent distribution of negative TTR values (52.8% of all records) reflects a pervasive timestamp logging flaw, not isolated anomalies, reinforcing that observed trends reflect real operational change—not data artifacts. Given the timing and magnitude of the Q3 inflection, the most actionable next step is to investigate process, tooling, or policy changes implemented during that quarter—including knowledge base updates, automation rollout, or SLA governance adjustments."
+}

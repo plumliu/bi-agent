@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "52.8% of incidents have non-positive resolution times (closed_at ≤ opened_at), rendering trend analysis of resolution performance fundamentally invalid.",
+    "The timestamp corruption is systemic and unrecoverable: 'sys_updated_on' precedes 'opened_at' in 49% of cases and never matches 'closed_at', eliminating it as a viable proxy for closure time.",
+    "All categorical metadata fields (category, priority, location, assignment_group) are perfectly uniform—exactly 100 or 125 incidents per value—indicating no compositional variation to explain temporal patterns or performance differences.",
+    "Incident volume shows a mild upward trend in 2023, peaking at 52 incidents in October, but this trend cannot be linked to resolution time behavior due to pervasive timestamp invalidity.",
+    "The combination of chronologically impossible resolution times and synthetic uniformity across all dimensions confirms the dataset lacks operational fidelity and does not support root-cause analysis of resolution delays."
+  ],
+  "summary": "The goal of analyzing incident resolution time trends and identifying underlying drivers cannot be achieved with the current dataset. Over half of all resolution times are chronologically invalid (52.8%), and no reliable alternative timestamp (including 'sys_updated_on') can reconstruct meaningful closure timing. Furthermore, all categorical metadata fields exhibit perfect uniformity—eliminating compositional shifts, category-specific bottlenecks, or assignment-group imbalances as explanatory factors. While incident volume rose modestly through 2023 and peaked in October, this pattern remains disconnected from resolution performance due to data integrity failure. The priority now is to diagnose and remediate the root cause of timestamp corruption before any operational insights on resolution efficiency can be derived."
+}

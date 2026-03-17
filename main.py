@@ -1,73 +1,36 @@
-import io
-import os
-import sys
 import json
-import shutil
+import os
+import subprocess
+import sys
 import uuid
-
-import chardet
-
-import pandas as pd
-import uvicorn
-import asyncio
-from typing import Any, List, Dict
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
-from fastapi.responses import StreamingResponse
-from fastapi.middleware.cors import CORSMiddleware
+from typing import Any, Dict, List, Optional
 
+import uvicorn
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+
+# Ensure app package import path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from app.core.config import settings
+from app.core.state import WorkflowState
+from app.graph.workflow import build_graph
+from app.tools.local_kernel_runtime import LocalKernelRuntime
 from app.utils.alias_generator import generate_semantic_alias
 from app.utils.extract_text_from_content import extract_text_from_content
 from app.utils.file_parser import parse_file_content
 
-from langchain_core.messages import SystemMessage, HumanMessage
-
-# ==========================================
-# 0. 环境路径配置
-# ==========================================
-# 确保能导入 app 模块
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from ppio_sandbox.code_interpreter import Sandbox, SandboxQuery, SandboxState
-from app.core.state import WorkflowState
-from app.graph.workflow import build_graph
-from app.core.config import settings
-
-# ==========================================
-# 1. Config & Setup
-# ==========================================
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 【启动阶段】: 这里可以放置应用启动时需要执行的代码
-    print("[Launching] 启动BI agent中...")
+    print("[Launching] BI agent (modeling-only) starting...")
     yield
-    # 【关闭阶段】: 当 Ctrl + C 终止时执行以下逻辑
-    print("\n[Shutdown] 正在检测并关闭所有运行中的沙箱...")
-    try:
-        # 1. 查找所有状态为 RUNNING 的沙箱
-        query = SandboxQuery(state=[SandboxState.RUNNING])
-        paginator = Sandbox.list(query=query)
-        running_sandboxes = paginator.next_items()
+    print("[Shutdown] BI agent stopped.")
 
-        if not running_sandboxes:
-            print("[Shutdown] 未发现运行中的沙箱。")
-        else:
-            print(f"[Shutdown] 发现 {len(running_sandboxes)} 个运行中的沙箱，准备关闭...")
-            for sb_info in running_sandboxes:
-                try:
-                    # 2. 连接并杀死沙箱
-                    sb = Sandbox.connect(sb_info.sandbox_id)
-                    sb.kill()
-                    print(f"成功关闭沙箱 ID: {sb_info.sandbox_id}")
-                except Exception as e:
-                    print(f"关闭沙箱 {sb_info.sandbox_id} 失败: {e}")
-            print("[Shutdown] 所有沙箱清理完毕。")
-    except Exception as e:
-        print(f"[Shutdown] 获取沙箱列表失败: {e}")
 
-app = FastAPI(title="BI Agent API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="BI Agent API", version="2.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -77,235 +40,173 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-TEMP_DIR = "temp"
-os.makedirs(TEMP_DIR, exist_ok=True)
 
-
-# ==========================================
-# 2. Helper Functions
-# ==========================================
 def format_sse(event_type: str, data: Any = None) -> str:
     payload = {"type": event_type, "data": data}
     return f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
-# ==========================================
-# 3. Core Logic: Request-Scoped Generator
-# ==========================================
+def _ensure_workspace_runtime_ready() -> None:
+    python_exec = settings.AGENT_WORKSPACE_PYTHON
+    if not os.path.exists(python_exec):
+        raise RuntimeError(
+            f"Workspace python not found: {python_exec}. "
+            "Please create/activate /agent_workspace/.venv first."
+        )
+
+    check_cmd = [python_exec, "-c", "import ipykernel"]
+    result = subprocess.run(check_cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(
+            "ipykernel is missing in workspace python. "
+            f"Python: {python_exec}. stderr: {result.stderr.strip()}"
+        )
+
+
+def _get_session_dir(session_id: str) -> str:
+    sessions_root = settings.AGENT_WORKSPACE_SESSIONS_DIR
+    os.makedirs(sessions_root, exist_ok=True)
+    session_dir = os.path.join(sessions_root, session_id)
+    os.makedirs(session_dir, exist_ok=True)
+    return session_dir
+
 
 async def run_workflow_stream(
-        user_query: str,
-        scenario: str,
-        upload_queue: List[Dict[str, str]],  # List of {local_path, remote_path}
-        original_filenames: List[str],
-        session_id: str
+    user_query: str,
+    scenario: Optional[str],
+    upload_queue: List[Dict[str, str]],
+    original_filenames: List[str],
+    session_id: str,
+    session_dir: str,
 ):
-    """
-    Lifecycle-bound Generator:
-    1. Creates Sandbox
-    2. Uploads Files
-    3. Runs Agent
-    4. Destroys Sandbox (Finally block)
-    """
-    sandbox = None
-    # Use a session-specific path for viz data to support concurrency
-    local_viz_path = os.path.join(TEMP_DIR, f"viz_{session_id}.json")
+    runtime = None
 
     try:
-        # --- A. Environment Init ---
-        yield format_sse("log", "正在动态创建 PPIO 沙盒环境...")
+        yield format_sse("log", "初始化本地建模运行环境...")
+        _ensure_workspace_runtime_ready()
 
-        # [Lifecycle Start] Create Sandbox
-        sandbox = Sandbox.create(
-            settings.PPIO_TEMPLATE,
-            api_key=settings.PPIO_API_KEY,
-            timeout=3600
+        runtime = LocalKernelRuntime(
+            session_dir=session_dir,
+            python_executable=settings.AGENT_WORKSPACE_PYTHON,
         )
-        yield format_sse("log", f"沙盒创建成功")
+        runtime.start()
 
-        # --- B. File Upload (Consume Queue) ---
-        yield format_sse("log", "正在同步数据到隔离环境...")
+        yield format_sse("log", f"本地会话内核已启动: {session_dir}")
 
-        raw_file_paths_in_sandbox = []
-        for item in upload_queue:
-            local_p = item["local_path"]
-            remote_p = item["remote_path"]
+        workflow_app = build_graph(runtime=runtime, session_dir=session_dir, session_id=session_id)
 
-            # Upload to the specific sandbox instance
-            with open(local_p, "rb") as f:
-                sandbox.files.write(remote_p, f)
-
-            raw_file_paths_in_sandbox.append(remote_p)
-
-        # --- C. Workflow Init ---
-        workflow_app = build_graph(sandbox=sandbox)
-
-        # Initialize State
+        raw_file_paths = [item["path"] for item in upload_queue]
         initial_state = WorkflowState(
             user_input=user_query,
-            raw_file_paths=raw_file_paths_in_sandbox,
+            raw_file_paths=raw_file_paths,
             original_filenames=original_filenames,
-            local_file_paths=[item["local_path"] for item in upload_queue],
+            local_file_paths=raw_file_paths,
             files_metadata=[],
             merge_recommendations=None,
-            remote_file_path=None,
-            data_schema={},
             scenario=scenario,
-            modeling_artifacts=None,
-            viz_config=None,
-            viz_success=False,
+            reasoning=None,
+            modeling_summary=None,
             final_summary=None,
-            error_count=0
+            error_count=0,
         )
 
-        # --- D. Execution Loop ---
         yield format_sse("log", "智能体工作流启动...")
 
-        etl_completed_flag = False
-        last_msg_id = None
-        final_viz_data_cache = []
+        profiler_done = False
         final_summary_cache = ""
+        last_execution_signature = None
 
-        # 返回结构为 (namespace, mode, data)，直接解包即可
         async for namespace, mode, payload in workflow_app.astream(
-                initial_state,
-                stream_mode=["messages", "values"],
-                subgraphs=True  # 开启子图事件穿透
+            initial_state,
+            stream_mode=["messages", "values"],
+            subgraphs=True,
         ):
-            # namespace: 元组类型，标识事件来源（主图或子图路径），如需调试可打印
-            # print(f"当前作用域：{namespace}")
+            _ = namespace
 
-            # payload 对应文档中的 data，原有业务逻辑保持不变
-            # ==========================================
-            # 模态 1：实时捕获大模型的"打字机"输出
-            # ==========================================
             if mode == "messages":
                 chunk, metadata = payload
+                _ = metadata
 
-                # 【核心拦截】：获取当前正在发声的节点名称，屏蔽后台节点
-                current_node = metadata.get("langgraph_node", "")
-                if current_node == "viz":
-                    continue
-
-                # 只拦截 AI 生成的增量消息
                 if chunk.type == "AIMessageChunk":
-                    # 处理文本内容
                     if chunk.content:
-                        content_to_yield = extract_text_from_content(chunk.content)
-                        if content_to_yield:
-                            yield format_sse("log_stream", content_to_yield)
+                        content = extract_text_from_content(chunk.content)
+                        if content:
+                            yield format_sse("log_stream", content)
 
-                    # 处理工具调用（过滤空的流式占位符）
-                    if hasattr(chunk, 'tool_calls') and chunk.tool_calls:
+                    if hasattr(chunk, "tool_calls") and chunk.tool_calls:
                         for tool_call in chunk.tool_calls:
-                            tool_name = tool_call.get('name', '') or '未知工具'
-                            # 只推送有效的工具调用（过滤流式构建中的空占位符）
-                            if tool_name and tool_name != '未知工具':
-                                yield format_sse("tool_calling", {
-                                    "tool_name": tool_name,
-                                    "message": f"正在调用工具: {tool_name}"
-                                })
+                            tool_name = tool_call.get("name", "") or "unknown_tool"
+                            if tool_name and tool_name != "unknown_tool":
+                                yield format_sse(
+                                    "tool_calling",
+                                    {
+                                        "tool_name": tool_name,
+                                        "message": f"正在调用工具: {tool_name}",
+                                    },
+                                )
 
-            # ==========================================
-            # 模态 2：捕获节点执行完毕后的全局状态更新
-            # ==========================================
             elif mode == "values":
                 event = payload
 
-                # 捕获 ETL 状态
-                if not etl_completed_flag and event.get("files_metadata"):
-                    # 这里的 log 事件前端可以新起一行显示
+                if not profiler_done and event.get("files_metadata"):
+                    profiler_done = True
                     yield format_sse("log", "文件元信息收集完成。")
-                    etl_completed_flag = True
 
-                # 捕获日志 (此时专注于拦截沙盒的执行结果)
-                if "messages" in event and event["messages"]:
-                    last_msg = event["messages"][-1]
-                    current_id = id(last_msg)
+                latest_execution = event.get("latest_execution")
+                if latest_execution:
+                    signature = (
+                        latest_execution.get("code", ""),
+                        latest_execution.get("stdout", ""),
+                        latest_execution.get("stderr", ""),
+                        json.dumps(latest_execution.get("error"), ensure_ascii=False),
+                    )
+                    if signature != last_execution_signature:
+                        last_execution_signature = signature
+                        tool_lines = []
+                        if latest_execution.get("stdout"):
+                            tool_lines.append(str(latest_execution["stdout"]))
+                        if latest_execution.get("result_text"):
+                            tool_lines.append(str(latest_execution["result_text"]))
+                        if latest_execution.get("stderr"):
+                            tool_lines.append("[STDERR]\n" + str(latest_execution["stderr"]))
+                        if latest_execution.get("error"):
+                            tool_lines.append("[ERROR]\n" + json.dumps(latest_execution["error"], ensure_ascii=False))
+                        if tool_lines:
+                            yield format_sse("tool_log", "\n".join(tool_lines))
 
-                    if current_id != last_msg_id:
-                        # 场景 1：沙盒工具执行完毕，输出的 STDOUT (Pandas 表格等)
-                        if last_msg.type == "tool":
-                            content = str(last_msg.content)
-                            yield format_sse("tool_log", content)
-
-                        last_msg_id = current_id
-
-                # 捕获 Viz 结果 (已清理原代码中的冗余重复块)
-                if event.get("viz_success") is True:
-                    target_viz_path = local_viz_path if os.path.exists(local_viz_path) else os.path.join(TEMP_DIR,
-                                                                                                         "viz_data.json")
-                    if os.path.exists(target_viz_path):
-                        try:
-                            with open(target_viz_path, "r", encoding="utf-8") as f:
-                                data_content = json.load(f)
-                                if "echarts" in data_content:
-                                    final_viz_data_cache = data_content["echarts"]
-                                    yield format_sse("viz_data", final_viz_data_cache)
-                        except Exception as e:
-                            print(f"Viz read error: {e}")
-
-                # 捕获全局总结
-                if "final_summary" in event and event["final_summary"]:
+                if event.get("final_summary"):
                     final_summary_cache = event["final_summary"]
                     yield format_sse("summary", final_summary_cache)
 
-        # Done
-        full_result = {
-            "success": True,
-            "message": final_summary_cache,
-            "echarts": final_viz_data_cache
-        }
-        yield format_sse("done", full_result)
+        yield format_sse(
+            "done",
+            {
+                "success": True,
+                "message": final_summary_cache,
+                "echarts": [],
+            },
+        )
 
     except Exception as e:
         import traceback
+
         traceback.print_exc()
         yield format_sse("error", f"工作流异常: {str(e)}")
 
     finally:
-        # --- E. Cleanup (Crucial) ---
-        yield format_sse("log", "正在清理计算资源...")
+        if runtime is not None:
+            runtime.shutdown()
+            yield format_sse("log", "本地会话内核已关闭。")
 
-        # 1. Kill Sandbox
-        if sandbox:
-            try:
-                sandbox.kill()
-                print(f"--- [Session {session_id}] Sandbox killed. ---")
-            except Exception as e:
-                print(f"Error killing sandbox: {e}")
-
-        # 2. Cleanup Local Temp Files for this session
-        for item in upload_queue:
-            if os.path.exists(item["local_path"]):
-                try:
-                    os.remove(item["local_path"])
-                except:
-                    pass
-        if os.path.exists(local_viz_path):
-            try:
-                os.remove(local_viz_path)
-            except:
-                pass
-
-
-# ==========================================
-# 4. Stream Endpoint
-# ==========================================
 
 @app.post("/query_agents_stream")
 async def query_agents_stream(
-        file: List[UploadFile] = File(...),
-        request_data: str = Form(...)
+    file: List[UploadFile] = File(...),
+    request_data: str = Form(...),
 ):
-    """
-    1. Parse Params
-    2. Local ETL (Parse to CSV)
-    3. Handover to Stream Generator
-    """
-    # 1. Session ID for concurrency safety
     session_id = str(uuid.uuid4())[:8]
-    print(f"--- [Req {session_id}] New Request ---")
+    session_dir = _get_session_dir(session_id)
+    print(f"--- [Req {session_id}] New Request @ {session_dir} ---")
 
     try:
         data = json.loads(request_data)
@@ -314,9 +215,11 @@ async def query_agents_stream(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
-    # 2. Prepare Upload Queue (Do not upload yet, just prep)
-    upload_queue = []  # [{"local_path":..., "remote_path":...}]
-    original_filenames = []
+    if not isinstance(user_query, str):
+        raise HTTPException(status_code=400, detail="query must be a string")
+
+    upload_queue: List[Dict[str, str]] = []
+    original_filenames: List[str] = []
 
     try:
         fragment_count = 0
@@ -324,49 +227,41 @@ async def query_agents_stream(
             content = await f.read()
             base_alias = generate_semantic_alias(f.filename, file_index)
 
-            # Parse (CPU Bound - OK to do here)
             extracted_items = parse_file_content(content, f.filename)
 
             for sheet_name, df in extracted_items:
-                # Save to local temp with session ID to avoid collisions
-                local_filename = f"raw_{session_id}_{fragment_count}.csv"
-                local_path = os.path.join(TEMP_DIR, local_filename)
-                df.to_csv(local_path, index=False)
+                raw_filename = f"raw_{fragment_count}.csv"
+                raw_path = os.path.join(session_dir, raw_filename)
+                df.to_csv(raw_path, index=False)
 
-                remote_path = f"/home/user/raw_{fragment_count}.csv"
-
-                # Semantic Name
                 if sheet_name == "CSV_Content":
                     final_name = base_alias
                 else:
                     final_name = f"{base_alias} (Sheet: {sheet_name})"
 
-                upload_queue.append({
-                    "local_path": local_path,
-                    "remote_path": remote_path
-                })
+                upload_queue.append({"path": raw_path})
                 original_filenames.append(final_name)
                 fragment_count += 1
 
         if not upload_queue:
             raise HTTPException(status_code=400, detail="No valid data parsed")
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Preprocessing failed: {e}")
 
-    # 3. Delegate to Stream
-    # We pass the 'upload_queue' so the generator can handle the Sandbox interaction
     return StreamingResponse(
         run_workflow_stream(
-            user_query,
-            scenario,
-            upload_queue,
-            original_filenames,
-            session_id
+            user_query=user_query,
+            scenario=scenario,
+            upload_queue=upload_queue,
+            original_filenames=original_filenames,
+            session_id=session_id,
+            session_dir=session_dir,
         ),
-        media_type="text/event-stream"
+        media_type="text/event-stream",
     )
-
 
 
 if __name__ == "__main__":

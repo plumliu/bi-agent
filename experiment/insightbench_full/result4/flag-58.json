@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "All five incident categories show statistically significant decreasing trends in median resolution time over the 13-month period (Jan 2023–Jan 2024), directly contradicting the assumption of increasing resolution time.",
+    "The 'Inquiry / Help' category exhibits the strongest improvement, with median resolution time declining by 463 hours per month — the largest reduction among all categories.",
+    "The 'Software' category shows the smallest but still substantial decline at 365 hours per month, confirming consistent performance gains across all categories without exception.",
+    "Resolution time improvements are observed uniformly across categories despite similar ticket volume distribution (43–52 tickets each), indicating systemic operational enhancements rather than category-specific anomalies.",
+    "The median resolution time across all incidents is approximately 2997 hours (~125 days), and its consistent downward trajectory suggests sustained process optimization or resource reallocation efforts are taking effect.",
+    "No category or time window shows evidence of deterioration, backlog accumulation, or service pressure — ruling out localized bottlenecks, staffing shortages, or priority-related delays as drivers of resolution time."
+  ],
+  "summary": "Contrary to the stated goal of investigating rising resolution times, the data reveals a robust, cross-category improvement in incident resolution performance over the 13-month analysis window. All five categories demonstrate statistically significant monthly declines in median resolution time, ranging from −365 to −463 hours/month, with 'Inquiry / Help' leading the improvement. This uniform trend — observed across balanced ticket volumes and unaffected by missing data or invalid timestamps — points to organization-wide operational maturity rather than isolated issues. The absence of any category-level deterioration or temporal anomaly eliminates the need for root-cause investigation into worsening performance; instead, the focus should shift to identifying and scaling the practices driving this consistent acceleration in resolution. Next steps should prioritize documenting and institutionalizing the underlying process, tooling, or resourcing changes responsible for this sustained improvement."
+}
