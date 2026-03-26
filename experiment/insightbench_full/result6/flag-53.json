@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "Over half of all ticket records (52.8%) show negative resolution times—closed before opened—indicating systemic data capture or timestamping failures that invalidate resolution time as a performance metric.",
+    "The overall median resolution time is -132 hours, confirming that the metric is not just noisy but structurally corrupted across the dataset.",
+    "Four out of five agents have negative median resolution times, rendering cross-agent performance comparison statistically meaningless and operationally unsafe for decision-making.",
+    "No valid agent-level discrepancy analysis can be performed until timestamp integrity is restored—current data cannot support optimization of resolution times or identification of high-performing or underperforming agents.",
+    "The presence of widespread negative resolution times suggests either upstream system logic errors (e.g., incorrect event sequencing), integration flaws in ticket lifecycle tracking, or persistent manual data entry overrides that bypass temporal validation."
+  ],
+  "summary": "The core business goal—to analyze human agent performance trends and optimize resolution times—cannot be achieved due to fundamental data integrity failure: more than half of all tickets report closed_at timestamps earlier than opened_at, producing logically impossible negative resolution times. This corruption invalidates the metric at both aggregate and agent levels, with four of five agents showing negative medians and the overall median at -132 hours. As a result, no reliable performance discrepancies can be identified, and any attempt to benchmark, prioritize, or intervene based on resolution time would risk misallocation of resources or misguided operational decisions. The immediate priority must be diagnosing and remediating the root cause of timestamp inversion—whether in system event logging, integration pipelines, or manual override protocols—before any performance analysis resumes."
+}

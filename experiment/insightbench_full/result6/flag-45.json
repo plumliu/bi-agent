@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "North America has a mean expense of ~$68K—over 3 times higher than Africa's ~$20K—indicating extreme geographic disparity that directly drives 69.6% of total expense variance and must anchor budget allocation decisions.",
+    "Expense variation across categories is negligible (mean range: $37.5K–$41.5K; 0.4% of total variance), confirming that category-based budgeting rules or category-level controls will yield minimal impact on overall expense management.",
+    "The location effect persists uniformly across departments—for example, Customer Support expenses range from ~$31K in Africa/Asia to ~$93K in North America—ruling out departmental composition as an explanatory factor and reinforcing location as an intrinsic cost driver.",
+    "No meaningful time trend exists in expenses (monthly means fluctuate between $36K–$44K without directionality; max correlation with month = 0.47), indicating that temporal forecasting or calendar-based budget pacing is not supported by the data.",
+    "Processed time shows virtually no relationship with expense amounts (r = 0.11, R² = 1.2%), confirming that workflow efficiency levers—such as approval speed or cycle time reduction—will not meaningfully influence expense levels.",
+    "Asia exhibits the most distinct category mix (38% Miscellaneous, 12% Travel), yet its overall expense level (~$35K) remains mid-range and consistent with the location-driven pattern—further evidence that local operational context, not category or department composition, defines cost structure."
+  ],
+  "summary": "The analysis conclusively identifies geographic location as the dominant, actionable driver of expense variation—accounting for 69.6% of total variance—with North America averaging over three times the expense of Africa. Category, department, time trends, and workflow efficiency (e.g., processed time) are statistically insignificant as explanatory factors, eliminating them as levers for expense control or forecasting. This means budget allocation must shift from functional or temporal models to location-specific frameworks that reflect inherent cost structures. Next, priority should be placed on diagnosing *why* location drives such disparity—e.g., regional pricing, compliance requirements, labor costs, or vendor contracts—through localized cost driver interviews and benchmarking."
+}

@@ -1,0 +1,9 @@
+{
+  "insights": [
+    "All five incident categories have exactly 100 records each, resulting in a perfectly uniform 20% share per category—no top-level distributional discrepancy or imbalance exists.",
+    "The two incident states (Closed and Resolved) are perfectly balanced at 250 records each (50% share), and category distribution within each state varies by only 3.20 percentage points (18.40%–21.60%), confirming no meaningful cross-dimensional imbalance.",
+    "The absence of material variation across both top-level categories and category×state combinations indicates that incident assignment is operationally neutral with respect to category—no category is over- or under-represented in volume or state progression.",
+    "Given the strict uniformity in both marginal and joint distributions, observed incident handling patterns are not driven by category-based assignment bias, concentration risk, or structural skew in allocation logic."
+  ],
+  "summary": "The analysis confirms there is no discrepancy or imbalance in the distribution of incidents across categories—neither at the top level nor when stratified by incident state. All five categories hold identical shares (20% each), and category proportions remain tightly bounded (18.40%–21.60%) within each state, with states themselves perfectly balanced (50% Closed, 50% Resolved). This uniformity implies that category is not a source of operational distortion in assignment volume, backlog formation, or closure behavior. The findings rule out category-driven resource pressure, prioritization bias, or governance gaps; subsequent investigation should shift focus to other dimensions such as time-based demand patterns, agent-level throughput, or root-cause recurrence—not category allocation."
+}

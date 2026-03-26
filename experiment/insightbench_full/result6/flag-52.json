@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "Resolution time is fundamentally invalid for 52.8% of records, with closed_at preceding opened_at — indicating a systemic data collection or timestamping failure rather than operational reality.",
+    "The data quality degradation follows a clear temporal worsening trend: negative resolution times rose from 7% in January 2023 to 97% in January 2024, confirming a progressive system-level failure in timestamp recording.",
+    "Category and priority exhibit minimal variation in negative resolution rates (48–57% and 45–58%, respectively), confirming the issue is not driven by operational differences but by a universal data capture flaw.",
+    "The median resolution time of -132 hours and 25th percentile of -2470 hours demonstrate that the metric is non-informative for trend or factor analysis — any category-based investigation into resolution time drivers would produce misleading or spurious conclusions.",
+    "The positive mean resolution time (174 hours) is an artifact of extreme right-skewed outliers and masks the dominant pattern of chronologically impossible timestamps, rendering summary statistics operationally meaningless."
+  ],
+  "summary": "The core goal of identifying factors influencing resolution time cannot be achieved because the resolution_time metric is systematically invalid across more than half the dataset, with a severe and accelerating temporal decay in data integrity — from 7% invalid timestamps in early 2023 to 97% in January 2024. This is not a category-specific or priority-related phenomenon, as negative resolution rates show negligible variation across these dimensions; instead, it reflects a foundational failure in timestamp capture or system logging. Consequently, no reliable inference can be drawn about drivers of resolution time, and any model or comparison based on this metric would be technically unsound and operationally dangerous. The immediate priority must shift from analytical exploration to root-cause diagnosis of the timestamping process — specifically auditing system logs, ETL pipelines, and timezone handling between Jan–Dec 2023."
+}

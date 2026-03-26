@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "TTR values contain widespread negative durations (median -5.5 days, minimum -355 days), confirming systemic timestamp inversion where closed_at precedes opened_at for a substantial portion of records.",
+    "Monthly average TTR shows a sharp decline from +171 days to -147 days, indicating the observed 'decrease' is an artifact of data corruption—not an improvement in resolution performance.",
+    "The presence of invalid TTR values invalidates trend analysis entirely, as no statistically or operationally meaningful interpretation of direction, rate, or drivers can be derived from corrupted time deltas.",
+    "The user's assumption of rising TTR contradicts the observed pattern in the data, but this contradiction stems from data quality failure—not from misdiagnosis of operational reality.",
+    "Timestamp field integrity is the root constraint: without correcting opened_at and closed_at alignment, any correlation, segmentation, or root-cause analysis targeting TTR will produce false or misleading business conclusions."
+  ],
+  "summary": "The goal of identifying trends and drivers behind increasing TTR cannot be fulfilled because the TTR metric itself is fundamentally compromised by timestamp inversion—closed_at frequently occurs before opened_at, yielding nonsensical negative durations (median -5.5 days). This data quality failure invalidates all trend interpretations: the apparent monthly decline in average TTR (from +171 to -147 days) reflects corruption, not operational change. Consequently, no reliable insights about underlying factors, correlations, or performance shifts can be extracted from TTR until timestamp fields are validated and corrected. The immediate priority must be data governance—auditing and repairing the incident time logging pipeline—before any further TTR-based analysis is attempted."
+}

@@ -129,8 +129,6 @@ Note:
         "current_task": phase_tasks[0]["description"] if phase_tasks else None,
         "followup_playbook": followup_playbook,
         "confirmed_findings": [],
-        "working_hypotheses": [],
-        "open_questions": [],
         "observer_history": [],
         "execution_trace": [],
         "generated_files": {},

@@ -29,22 +29,6 @@ def _parse_observer_output(text: str) -> Dict[str, Any]:
         if line.strip().startswith("-")
     ]
 
-    questions_match = re.search(r"\[OPEN_QUESTIONS\](.*?)(?:\[|$)", text, re.DOTALL)
-    questions_text = questions_match.group(1).strip() if questions_match else ""
-    new_open_questions = [
-        line.strip("- ").strip()
-        for line in questions_text.split("\n")
-        if line.strip().startswith("-")
-    ]
-
-    hypotheses_match = re.search(r"\[WORKING_HYPOTHESES\](.*?)(?:\[|$)", text, re.DOTALL)
-    hypotheses_text = hypotheses_match.group(1).strip() if hypotheses_match else ""
-    new_working_hypotheses = [
-        line.strip("- ").strip()
-        for line in hypotheses_text.split("\n")
-        if line.strip().startswith("-")
-    ]
-
     next_task_match = re.search(r"\[NEXT_TASK\](.*?)(?:\[|$)", text, re.DOTALL)
     next_task = next_task_match.group(1).strip() if next_task_match else ""
 
@@ -58,8 +42,6 @@ def _parse_observer_output(text: str) -> Dict[str, Any]:
         "decision": decision,
         "task_summary": task_summary,
         "findings_delta": findings_delta,
-        "new_working_hypotheses": new_working_hypotheses,
-        "new_open_questions": new_open_questions,
         "next_task": next_task,
         "replan_reason": replan_reason,
         "stop_reason": stop_reason,
@@ -113,15 +95,12 @@ def observer_node(state: CustomModelingState) -> Dict[str, Any]:
     completed_tasks = state.get("completed_tasks") or []
     remaining_tasks = state.get("remaining_tasks") or []
     followup_playbook = state.get("followup_playbook") or []
-    open_questions = state.get("open_questions") or []
     confirmed_findings = state.get("confirmed_findings") or []
-    working_hypotheses = state.get("working_hypotheses") or []
     latest_execution = state.get("latest_execution") or {}
     print_kv("current_task", preview_text(state.get("current_task", ""), max_chars=240))
     print_kv("completed_tasks", len(completed_tasks))
     print_kv("remaining_tasks", len(remaining_tasks))
     print_kv("confirmed_findings", len(confirmed_findings))
-    print_kv("open_questions", len(open_questions))
     print_kv("observer_history", len(observer_history))
     print_kv("latest_stdout_chars", len(str(latest_execution.get("stdout", ""))))
     print_kv("latest_stderr_chars", len(str(latest_execution.get("stderr", ""))))
@@ -139,14 +118,8 @@ remaining_tasks:
 followup_playbook:
 {json.dumps(followup_playbook, ensure_ascii=False, indent=2)}
 
-open_questions:
-{json.dumps(open_questions, ensure_ascii=False, indent=2)}
-
 confirmed_findings:
 {json.dumps(confirmed_findings, ensure_ascii=False, indent=2)}
-
-working_hypotheses:
-{json.dumps(working_hypotheses, ensure_ascii=False, indent=2)}
 
 latest_execution:
 code: {latest_execution.get('code', '')}
@@ -167,8 +140,6 @@ result_text: {latest_execution.get('result_text', '')}
     print_kv("decision", parsed.get("decision"))
     print_kv("task_summary", preview_text(parsed.get("task_summary", ""), max_chars=260))
     print_list("findings_delta", parsed.get("findings_delta", []), max_items=5)
-    print_list("new_open_questions", parsed.get("new_open_questions", []), max_items=5)
-    print_list("new_working_hypotheses", parsed.get("new_working_hypotheses", []), max_items=5)
 
     repair_round = 0
     while repair_round < MAX_REPAIR_ROUNDS:
@@ -210,8 +181,6 @@ result_text: {latest_execution.get('result_text', '')}
     result: Dict[str, Any] = {
         "latest_control_signal": decision,
         "confirmed_findings": confirmed_findings + parsed["findings_delta"],
-        "working_hypotheses": parsed["new_working_hypotheses"],
-        "open_questions": parsed["new_open_questions"],
         "observer_history": observer_history + [parsed["task_summary"]],
     }
 

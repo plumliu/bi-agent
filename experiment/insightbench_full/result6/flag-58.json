@@ -1,0 +1,9 @@
+{
+  "insights": [
+    "Resolution time shows a strong decreasing trend over time (correlation = -0.6979), directly contradicting the user's assumption of increasing resolution time.",
+    "Over half of all incident records (52.8%, 264 out of 500) report negative resolution times—indicating systemic data capture or timestamping failures where incidents appear closed before they were opened.",
+    "Monthly average resolution time collapsed from +4125 hours in January 2023 to -3541 hours in January 2024, confirming both the magnitude and consistency of the downward trend and data integrity breakdown.",
+    "The presence of pervasive negative resolution times invalidates quantitative analysis of resolution performance, as the metric no longer reflects actual handling duration but rather data pipeline errors."
+  ],
+  "summary": "The core business goal—to understand causes behind increasing resolution time—is not supported by the data; instead, resolution time exhibits a strong, statistically significant decline over time. This reversal is compounded by severe data quality failure: more than half of all incidents have negative resolution times, indicating fundamental flaws in timestamp recording or system integration. As a result, observed trends reflect data corruption—not operational reality—and any causal analysis of resolution time would be misleading. The immediate priority must shift from trend diagnosis to data pipeline validation and timestamp logic remediation."
+}

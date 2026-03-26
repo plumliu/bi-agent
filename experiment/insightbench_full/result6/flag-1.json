@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Hardware incidents account for 67.2% of all incidents (336/500), materially dominating the category distribution — more than double the combined share of all other categories.",
+    "Australia drives the overall category imbalance, contributing 54.6% of total incidents (273/500) and 90.1% of all Hardware incidents, while representing only one of five locations.",
+    "Hardware concentration in Australia (88.3%) is extreme compared to other locations (38.5%–47.1%), indicating the imbalance is not systemic but geographically concentrated.",
+    "Australia’s incident profile diverges significantly from other locations: it has 2.5× higher Critical priority incidence (34.4% vs 13.7%), near-zero Service Desk assignments (0% vs 11%), and a higher resolution rate (53.1% vs 42.3%).",
+    "The structural imbalance reflects a high-risk regional operational pattern rather than uniform category demand — Australia’s Hardware-heavy, Critical-priority, non-Service-Desk assignment profile signals potential infrastructure fragility or governance divergence.",
+    "Non-Australia locations collectively handle 45.4% of incidents but generate only 9.9% of Hardware volume, confirming that Hardware dominance is not inherent to the service domain but amplified by Australia-specific factors."
+  ],
+  "summary": "The core discrepancy in incident category distribution is a severe structural imbalance driven almost entirely by Australia, where Hardware incidents constitute 88.3% of local volume and 90.1% of all Hardware incidents globally — accounting for over half of total incidents (54.6%). This regional concentration—not broad category skew—explains the overall 67.2% Hardware dominance, which masks fundamentally different operational profiles: Australia exhibits elevated Critical priority (34.4% vs 13.7%), absence of Service Desk routing (0% vs 11%), and distinct resolution behavior. The imbalance is therefore not a general service design issue but a high-risk regional anomaly requiring immediate root-cause investigation into Australia’s infrastructure, assignment logic, or incident classification practices. Next focus should be on auditing Australia’s Hardware incident triggers, escalation pathways, and assignment group configurations."
+}

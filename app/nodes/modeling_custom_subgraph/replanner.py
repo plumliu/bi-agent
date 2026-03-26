@@ -41,7 +41,6 @@ latest_execution_result_text:
     print_kv("replan_reason", preview_text(state.get("replan_reason", ""), max_chars=260))
     print_kv("completed_tasks", len(state.get("completed_tasks") or []))
     print_kv("remaining_tasks", len(state.get("remaining_tasks") or []))
-    print_kv("open_questions", len(state.get("open_questions") or []))
     print_kv("latest_stdout_chars", len(str((latest_execution or {}).get("stdout", ""))))
 
     context = f"""user_input: {state['user_input']}
@@ -56,9 +55,6 @@ remaining_tasks:
 
 confirmed_findings:
 {json.dumps(state.get('confirmed_findings'), ensure_ascii=False, indent=2)}
-
-open_questions:
-{json.dumps(state.get('open_questions'), ensure_ascii=False, indent=2)}
 
 {execution_context}
 

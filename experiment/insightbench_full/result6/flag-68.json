@@ -1,0 +1,9 @@
+{
+  "insights": [
+    "Forty percent of expense records (200 out of 500) show submission dates preceding employees' recorded start dates, rendering employment duration an invalid and unreliable variable for analyzing its influence on expense errors or rejections.",
+    "The systematic occurrence of negative tenure across nearly half the dataset indicates either widespread misrecording of employee start dates or incorrect timestamping of expense submissions—both pointing to foundational data governance failures in HR or finance systems.",
+    "Policy compliance analysis targeting newer employees cannot proceed as intended, because 'newness' (e.g., <30/60/90 days tenure) cannot be accurately defined when tenure itself is frequently nonsensical or inverted.",
+    "The 100% match rate between employees and expenses confirms data linkage integrity, isolating the root cause of analysis failure to field-level data accuracy—not structural or referential issues."
+  ],
+  "summary": "The core business goal—to assess how employment duration influences expense submission errors and rejections—cannot be achieved due to a critical data integrity issue: 40% of expense records (200/500) report submission dates before the employee’s official start date, making tenure calculations invalid. This undermines any attempt to segment or compare error rates by experience level, exposes systemic flaws in either HR onboarding date capture or expense system timestamping, and prevents meaningful interpretation of policy compliance gaps among newer staff. Before proceeding with behavioral or policy analysis, the priority must be diagnosing and correcting the source of these implausible date relationships—starting with audit of start_date entry logic and expense submission time capture."
+}

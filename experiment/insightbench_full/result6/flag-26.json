@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "Asset cost is overwhelmingly determined by model_category (88.2% of variance explained), not warranty duration, indicating that procurement strategy should prioritize asset classification over warranty terms when forecasting or benchmarking costs.",
+    "Warranty duration explains only 1.9% of cost variance and shows a weak negative correlation with cost (-0.1376), directly contradicting the expectation that longer warranties align with higher-cost assets.",
+    "The absence of a meaningful cost-warranty relationship invalidates the premise of a systemic discrepancy between asset value and warranty coverage, shifting focus from warranty alignment to model-category-driven cost governance.",
+    "Model_category is 46.6 times more predictive of cost than warranty_duration, confirming that asset type—not service protection scope—is the dominant structural driver of procurement spend.",
+    "No evidence supports adjusting procurement policies based on warranty periods; instead, cost control levers lie in standardizing or negotiating at the model_category level."
+  ],
+  "summary": "The analysis conclusively refutes the hypothesis that warranty period meaningfully influences or correlates with asset cost: warranty duration explains only 1.9% of cost variance and exhibits a weak negative correlation (−0.1376), while model_category alone accounts for 88.2% of cost variation. This indicates that asset type—not warranty terms—drives procurement spend, rendering warranty-based cost alignment strategies ineffective. Procurement strategy should therefore shift focus from warranty duration to model-category-level standardization, negotiation, and lifecycle cost benchmarking. The next priority is to dissect cost drivers *within* high-variance model_categories to identify actionable levers for spend optimization."
+}

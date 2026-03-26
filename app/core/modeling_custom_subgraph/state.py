@@ -31,8 +31,6 @@ class CustomModelingState(TypedDict):
     # Observation control
     latest_control_signal: Optional[str]
     confirmed_findings: Optional[List[str]]
-    working_hypotheses: Optional[List[str]]
-    open_questions: Optional[List[str]]
     observer_history: Optional[List[str]]
     replan_reason: Optional[str]
     stop_reason: Optional[str]

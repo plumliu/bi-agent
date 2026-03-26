@@ -1,0 +1,9 @@
+{
+  "insights": [
+    "Over half of incident records (53%, 264/500) show closed_at timestamps earlier than opened_at, rendering resolution time calculations invalid and trend analysis fundamentally unreliable.",
+    "The apparent shift in monthly median resolution times—from positive values (1155–5266 hours) in Jan–Jun 2023 to negative values (−169 to −3180 hours) from Jul 2023 onward—is an artifact of timestamp inversion, not a real operational trend.",
+    "No credible inference can be made about incident resolution performance, bottlenecks, or improvement over time due to systemic timestamp misalignment across the dataset.",
+    "This data integrity issue poses a high risk of misinforming service-level reporting, SLA compliance assessments, and resource planning decisions if used without correction."
+  ],
+  "summary": "The stated goal of analyzing incident resolution time trends cannot be fulfilled due to a critical data integrity failure: 53% of incidents have closed_at timestamps preceding opened_at, making resolution duration mathematically and operationally meaningless. The observed monthly median shift from positive to negative durations is not evidence of changing performance but reflects widespread timestamp inversion—likely caused by incorrect logging, system clock errors, or ETL logic flaws. Any interpretation of these values as real trends would lead to erroneous conclusions about service efficiency, SLA adherence, or team productivity. Immediate data governance action is required to diagnose and correct the root cause of timestamp misordering before any resolution-time analytics can proceed."
+}

@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Mamie Mcintee has 100 identical expense claims of exactly $8000, forming a perfectly contiguous sequential block (EXP0000400–EXP0000499) with no gaps—indicating systematic batch generation rather than organic user submissions.",
+    "All 100 claims span 436 calendar days but occur on only 90 distinct dates, averaging just 1.1 claims per active day, which is inconsistent with natural submission behavior and further supports synthetic data generation.",
+    "The 100 claims reference 92 unique CI items and 80 unique short descriptions—including 9 repetitions of 'Automatically generated expense line for creation of travel asset'—revealing template-driven diversity masking, not genuine expense variation.",
+    "Zero exact duplicates exist across user+amount+short_description+category+ci combinations, confirming no evidence of fraudulent or erroneous repeated submissions under the strict definition of identity.",
+    "All relaxed-duplicate patterns (user+amount, user+short_description, amount+short_description) are overwhelmingly dominated by Mamie Mcintee’s $8000 claims, indicating this is an isolated data artifact—not a broader policy misunderstanding or fraud signal across users.",
+    "The contiguous claim numbering, temporal sparsity, and artificial diversity collectively rule out both intentional fraud and accidental policy misinterpretation, pointing conclusively to test or synthetic data ingestion."
+  ],
+  "summary": "The investigation confirms that repeated $8000 expense claims by Mamie Mcintee are not evidence of fraud or policy misunderstanding, but instead reflect a systematic data generation artifact: 100 claims form a gapless sequential block (EXP0000400–EXP0000499), are temporally sparse (90 days across 436), and exhibit engineered diversity (92 CIs, 80 short descriptions). No exact duplicates exist in the full field combination, and all relaxed-duplicate signals trace exclusively to this single artifact. This pattern is inconsistent with human submission behavior and aligns with synthetic or test data ingestion. Next focus should be on auditing upstream data pipelines for unfiltered test records or automated provisioning logic that may have leaked into production expense feeds."
+}

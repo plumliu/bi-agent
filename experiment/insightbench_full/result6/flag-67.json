@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Travel expenses have a 41.8% rejection rate—2.5× the overall 16.8% rate and 4–11× higher than all other categories—confirming a systemic category-level policy compliance issue.",
+    "Customer Support accounts for 57% of all travel rejections (35 of 61), making it the highest-volume contributor to the problem despite not having the highest departmental rejection rate.",
+    "Rejected travel expenses in Customer Support consistently describe equipment/hardware purchases (e.g., laptops, GPS devices, luggage) in short_description and are linked to CI values confirming hardware assets—demonstrating misclassification rather than legitimate travel costs.",
+    "Processed travel expenses in Customer Support describe bona fide travel activities or company-allocated equipment, confirming that rejections stem from incorrect categorization—not submission behavior, amount thresholds, or user eligibility.",
+    "The absence of rejection reason codes does not undermine diagnostic confidence: the pattern is robustly evidenced by textual descriptions and CI metadata, directly implicating expense type misclassification as the root cause.",
+    "IT has the highest departmental travel rejection rate (54.5%), but with only 11 submissions, its absolute contribution is minimal—highlighting that volume-weighted impact (not just rate) determines operational priority for intervention."
+  ],
+  "summary": "The elevated travel expense rejection rate—41.8%, far exceeding all other categories—is driven primarily by systematic misclassification of equipment/hardware purchases (e.g., laptops, GPS devices, luggage) as travel expenses, especially by Customer Support, which accounts for over half of all travel rejections. This is not due to amount thresholds, user-specific behavior, or data quality gaps, but a clear policy violation evident in both narrative descriptions and configuration item metadata. While IT shows a higher rejection *rate*, its low submission volume makes Customer Support the highest-impact target for immediate policy reinforcement and training. To rectify the issue, the organization should prioritize clarifying expense categorization rules for hardware-related purchases and implementing targeted training for Customer Support staff, supplemented by system-level validation or routing safeguards at submission time."
+}

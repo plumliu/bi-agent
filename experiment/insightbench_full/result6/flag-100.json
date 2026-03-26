@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "All five incident categories have exactly 100 records each, reflecting perfect uniformity with zero deviation from the expected 20% share per category.",
+    "Cross-tabulation of category with state shows no meaningful concentration, as the maximum absolute deviation from expected cell counts is only 4.0 (vs expected 50), well within statistical noise.",
+    "Cross-tabulation of category with location also reveals no operational imbalance, with a maximum absolute deviation of only 6.0 (vs expected 20), indicating negligible structural skew.",
+    "Across all 11 categorical dimensions—including assigned_to, priority, and rca_category—the dataset exhibits near-perfect uniformity, with 8 dimensions showing zero normalized chi-square (chi_sq_norm = 0.000000) and the strongest signal (rca_category) still trivial (chi_sq_norm = 0.001456).",
+    "The absence of material discrepancy across every tested categorical dimension confirms the incident assignment process is synthetically balanced—no category, role, location, or priority tier bears disproportionate assignment load or risk exposure.",
+    "This uniform distribution implies that observed service performance differences—if any—are unlikely to stem from imbalanced incident allocation and instead point to factors such as handling efficiency, resolution capability, or external demand variation."
+  ],
+  "summary": "The analysis conclusively finds no discrepancy or imbalance in the distribution of incidents across categories or any other categorical dimension—including state, location, assigned_to, priority, and rca_category. All five categories are perfectly balanced (100 records each, 20% share), and all cross-dimensions show only trivial deviations far below thresholds for operational concern. The dataset is synthetically uniform, confirming that incident assignment itself does not introduce structural bias or resource pressure differentials. Consequently, any performance gaps, delays, or quality issues must be investigated downstream—focusing on agent-level execution, resolution workflows, or external demand drivers rather than upstream assignment fairness. Next focus should shift to time-series patterns, handling duration variance, or closure rate analysis by category to identify where real operational divergence occurs."
+}

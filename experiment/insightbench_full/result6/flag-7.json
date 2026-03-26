@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Beth Anglin carries 37.6% of all assignments (188 of 500), representing a material workload imbalance with a 2.72x higher share than the least-assigned agent.",
+    "Beth Anglin is the only agent exhibiting an increasing assignment trend, with her monthly average rising from 9.83 in the early period to 18.43 in the late period — a near-doubling growth while all other agents declined.",
+    "Beth Anglin’s assignment concentration is not attributable to specialization: her distribution across assignment_group (Network 58.5%, Database 27.1%) and category (Network 52.7%, Database 25.5%) closely mirrors the overall team distribution, ruling out domain-specific routing or skill-based allocation as drivers.",
+    "The workload surge for Beth Anglin is systemic rather than situational — her assignments grew from ~8 per month in early 2023 to 24 in January 2024, indicating sustained and accelerating pressure without corresponding relief or redistribution.",
+    "All four other agents show declining assignment volumes over time, confirming that Beth’s increasing load is not part of a broad team-wide ramp-up but reflects a growing asymmetry in workload allocation.",
+    "No evidence supports that Beth’s overload stems from structural factors like assignment_group or category alignment, implying the root cause lies in operational policies, routing logic, or manual assignment practices outside the modeled dimensions."
+  ],
+  "summary": "The analysis confirms that Beth Anglin is experiencing a material and accelerating workload overload — she handles over one-third of all assignments and is the sole agent with a sharply increasing trend (nearly doubling her monthly average), while all peers show declining volumes. This concentration is not explained by specialization in assignment groups or incident categories, indicating it arises from broader operational allocation patterns rather than domain-specific demand shifts. The imbalance poses clear risks to service sustainability, agent burnout, and incident resolution consistency. Next focus should be on auditing real-time assignment logic, reviewing escalation pathways, and validating whether Beth is being systematically prioritized for incoming work due to availability, seniority, or system defaults."
+}

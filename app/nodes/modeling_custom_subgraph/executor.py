@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
@@ -30,19 +31,26 @@ def create_executor_node():
 
         messages = [SystemMessage(content=executor_instruction)]
 
+        files_metadata = state.get("files_metadata") or []
+        merge_recommendations = state.get("merge_recommendations") or []
+        static_profiler_context = f"""profiler_static_metadata:
+files_metadata:
+{json.dumps(files_metadata, ensure_ascii=False, indent=2)}
+
+merge_recommendations:
+{json.dumps(merge_recommendations, ensure_ascii=False, indent=2)}
+"""
+        messages.append(HumanMessage(content=static_profiler_context))
+
         history = _coerce_ai_tool_history(state.get("execution_trace") or [])
         messages.extend(history)
         print_kv("current_task", preview_text(state.get("current_task", ""), max_chars=240))
+        print_kv("files_metadata_count", len(files_metadata))
+        print_kv("merge_recommendations", len(merge_recommendations))
         print_kv("history_pairs", len(history) // 2)
 
         last_error = state.get("last_error")
         if last_error:
-            ai_msg = state.get("latest_ai_message")
-            if ai_msg:
-                messages.append(ai_msg)
-                error_tool_msg = last_error.get("tool_message")
-                if error_tool_msg:
-                    messages.append(error_tool_msg)
             print_subheader("Executor / Retry Context")
             print_kv("has_last_error", True)
             print_kv(
@@ -54,10 +62,8 @@ def create_executor_node():
 
         completed_tasks = state.get("completed_tasks") or []
         confirmed_findings = state.get("confirmed_findings") or []
-        working_hypotheses = state.get("working_hypotheses") or []
         print_kv("completed_tasks", len(completed_tasks))
         print_kv("confirmed_findings", len(confirmed_findings))
-        print_kv("working_hypotheses", len(working_hypotheses))
         if completed_tasks:
             print_list(
                 "completed_task_preview",
@@ -67,7 +73,6 @@ def create_executor_node():
 
         completed_str = "\n".join([f"- {t['description']}" for t in completed_tasks]) if completed_tasks else "none"
         findings_str = "\n".join([f"- {f}" for f in confirmed_findings]) if confirmed_findings else "none"
-        hypotheses_str = "\n".join([f"- {h}" for h in working_hypotheses]) if working_hypotheses else "none"
 
         context = f"""current_task: {state['current_task']}
 
@@ -76,13 +81,27 @@ completed_tasks:
 
 confirmed_findings:
 {findings_str}
-
-working_hypotheses:
-{hypotheses_str}
 """
 
         if last_error:
-            context += "\n\nThe previous code cell failed. Rewrite code for the same current_task."
+            latest_execution = state.get("latest_execution") or {}
+            context += f"""
+
+latest_execution:
+code:
+{latest_execution.get("code", "")}
+stdout:
+{latest_execution.get("stdout", "")}
+stderr:
+{latest_execution.get("stderr", "")}
+result_text:
+{latest_execution.get("result_text", "")}
+
+last_error_tool_message:
+{getattr(last_error.get("tool_message"), "content", "")}
+
+The previous code cell failed. Rewrite code for the same current_task.
+"""
 
         messages.append(HumanMessage(content=context))
         print_kv("messages_count", len(messages))

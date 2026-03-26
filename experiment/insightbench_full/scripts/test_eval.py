@@ -320,13 +320,13 @@ def main():
     """
     # Setup paths
     project_root = Path(__file__).resolve().parents[3]
-    result_dir = project_root / "experiment/insightbench_full/result5"
+    result_dir = project_root / "experiment/insightbench_full/result6"
     gt_dir = project_root / "experiment/insightbench_full/data"
     output_dir = project_root / "experiment/insightbench_full/eval_results"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Keep placeholder behavior, while allowing env override for actual runs.
-    api_key = "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"
+    api_key = "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"
     if not api_key:
         api_key = os.getenv("OPENROUTER_API_KEY", "")
     if not api_key:

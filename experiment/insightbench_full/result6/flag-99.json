@@ -1,0 +1,9 @@
+{
+  "insights": [
+    "All five incident categories have exactly 100 assigned incidents each, reflecting a perfectly uniform distribution with no variation across categories.",
+    "The standard deviation of incident counts across categories is 0.00 and the range (max − min) is 0, confirming the absence of any statistical discrepancy or concentration.",
+    "There is no evidence of category-level imbalance in incident assignment—neither over- nor under-representation exists for any category.",
+    "The observed perfect balance contradicts the implicit assumption of uneven distribution and indicates that category-based assignment governance is operating with strict uniformity."
+  ],
+  "summary": "The analysis directly addresses the goal of identifying discrepancies or imbalances in incident distribution across categories and finds none: all five categories contain exactly 100 incidents (20.0% share each), with zero variance in counts. This perfect uniformity implies highly controlled or rule-based assignment logic, eliminating concerns about category-specific overload, underutilization, or bias in routing. As no structural imbalance exists, further investigation into category-level resource allocation, prioritization, or root cause disparities is not warranted. Next focus should shift to other dimensions—such as time, assignee, severity, or resolution outcome—where meaningful variation may exist."
+}

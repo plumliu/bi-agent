@@ -125,6 +125,82 @@ def _as_list(value: Any) -> List[str]:
     return [str(value)]
 
 
+def _pct(value: Any) -> str:
+    try:
+        return f"{float(value):.2%}"
+    except (TypeError, ValueError):
+        return "n/a"
+
+
+def _print_file_eda(metadata: Dict[str, Any]) -> None:
+    print_kv("rows", metadata.get("row_count"))
+    print_kv("columns", metadata.get("column_count", len(metadata.get("columns", []))))
+    print_kv(
+        "missing_cells",
+        f"{metadata.get('missing_cell_count', 0)} ({_pct(metadata.get('missing_cell_ratio', 0.0))})",
+    )
+    print_kv(
+        "duplicate_rows",
+        f"{metadata.get('duplicate_row_count', 0)} ({_pct(metadata.get('duplicate_row_ratio', 0.0))})",
+    )
+    print_list("column_names", metadata.get("columns", []), max_items=10)
+
+    column_profiles = metadata.get("column_profiles", [])
+    high_missing = [
+        p for p in column_profiles if float(p.get("missing_ratio", 0.0)) > 0
+    ]
+    high_missing.sort(key=lambda p: float(p.get("missing_ratio", 0.0)), reverse=True)
+    if high_missing:
+        print_list(
+            "missing_columns(top)",
+            [
+                (
+                    f"{p.get('name')}: missing={p.get('missing_count')} "
+                    f"({_pct(p.get('missing_ratio', 0.0))}), unique={p.get('unique_count')}"
+                )
+                for p in high_missing
+            ],
+            max_items=8,
+        )
+    else:
+        print_kv("missing_columns", "none")
+
+    low_card_cols = metadata.get("low_cardinality_columns", {})
+    if low_card_cols:
+        lines: List[str] = []
+        for col, detail in low_card_cols.items():
+            top_values = detail.get("top_values", [])
+            top_preview = ", ".join(
+                [f"{item.get('value')}({item.get('count')})" for item in top_values[:5]]
+            )
+            lines.append(
+                (
+                    f"{col}: unique={detail.get('unique_count')}, "
+                    f"missing={detail.get('missing_count')} ({_pct(detail.get('missing_ratio', 0.0))}), "
+                    f"top={top_preview}"
+                )
+            )
+        print_list("low_cardinality_columns", lines, max_items=8)
+    else:
+        print_kv("low_cardinality_columns", "none")
+
+    numeric_summary = metadata.get("numeric_columns_summary", {})
+    if numeric_summary:
+        print_list(
+            "numeric_summary(top)",
+            [
+                (
+                    f"{col}: mean={stats.get('mean')}, p50={stats.get('p50')}, "
+                    f"min={stats.get('min')}, max={stats.get('max')}"
+                )
+                for col, stats in numeric_summary.items()
+            ],
+            max_items=8,
+        )
+    else:
+        print_kv("numeric_summary", "none")
+
+
 def _validate_merge(
     recommendation: Dict[str, Any],
     files_metadata: List[Dict[str, Any]],
@@ -235,17 +311,15 @@ def profiler_node(state: WorkflowState) -> Dict[str, Any]:
     print_block("Profiler")
 
     raw_paths = state.get("raw_file_paths", [])
-    local_paths = state.get("local_file_paths", [])
     workspace_filenames = [os.path.basename(path) for path in raw_paths]
     print_kv("raw_file_count", len(raw_paths))
     print_list("workspace_filenames", workspace_filenames, max_items=6)
 
     files_metadata: List[Dict[str, Any]] = []
     for idx, data_path in enumerate(raw_paths):
-        local_path = local_paths[idx] if idx < len(local_paths) else data_path
         workspace_filename = os.path.basename(data_path)
         metadata = collect_file_metadata(
-            file_path=local_path,
+            file_path=data_path,
             original_filename=workspace_filename,
             file_index=idx,
             data_path=data_path,
@@ -256,11 +330,7 @@ def profiler_node(state: WorkflowState) -> Dict[str, Any]:
         print_subheader(f"Profiler / File {idx}")
         print_kv("name", workspace_filename)
         print_kv("data_path", data_path)
-        print_kv("local_path", local_path)
-        print_kv("basename", os.path.basename(local_path))
-        print_kv("rows", metadata.get("row_count"))
-        print_kv("columns", len(metadata.get("columns", [])))
-        print_list("column_names", metadata.get("columns", []), max_items=10)
+        _print_file_eda(metadata)
 
     merge_recommendations = None
     if len(raw_paths) > 1:

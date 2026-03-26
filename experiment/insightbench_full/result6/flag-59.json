@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "Incident assignments are perfectly balanced across all 5 assignees, with each receiving exactly 100 incidents—indicating no individual workload disparity or resource concentration risk.",
+    "Assignments are equally distributed across all 5 assignment groups, with each group handling exactly 100 incidents—ruling out structural imbalance in team-level capacity allocation.",
+    "The cross-tabulation of assignee and assignment group shows no meaningful specialization or coupling: all 25 combinations contain between 12 and 27 incidents, tightly clustered around the uniform expectation of 20, confirming absence of hidden concentration patterns.",
+    "No cell deviates beyond 2× (40) or 0.5× (10) the expected count of 20, eliminating evidence of systematic over- or under-assignment to specific assignee-group pairings.",
+    "The combined uniformity in both marginal and joint distributions confirms that incident assignment operates as a fully randomized, evenly distributed process—with no operational bottleneck, governance gap, or fairness concern detectable at this level of analysis."
+  ],
+  "summary": "The analysis conclusively finds no discrepancy or imbalance in incident assignments—neither across individual assignees nor assignment groups, nor in their interactions. All 5 assignees and all 5 groups handle exactly 100 incidents each, and the full cross-distribution shows only minor, statistically insignificant variation around the expected uniform value of 20 per assignee-group pair. This indicates a highly controlled, equitable assignment mechanism with no evidence of workload skew, team overload, or hidden dependency patterns. If assignment fairness or efficiency remains a business concern, attention should shift to downstream metrics—such as resolution time, reassignment rate, or closure quality—rather than distributional balance."
+}

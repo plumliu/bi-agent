@@ -1,0 +1,11 @@
+{
+  "insights": [
+    "Workload is perfectly balanced across all five agents, with each assigned exactly 100 incidents (20% share), indicating no current overload or imbalance in assignment distribution.",
+    "Howard Johnson is the only agent exhibiting a significant upward trend in assignments, increasing by +83.3% (from 6 to 11 monthly assignments) between January 2023 and January 2024, while all other agents show stable or declining trends.",
+    "Howard Johnson’s rising assignment volume is not concentrated in any single category, priority, state, or assignment group—suggesting broad-based demand growth rather than a narrow operational or process-driven anomaly.",
+    "Howard Johnson has a notably higher concentration of assignments from India (27%) compared to the cohort average (18.2%), making geographic sourcing the most distinctive characteristic differentiating his workload profile.",
+    "The absence of dominant categorical or priority drivers for Howard Johnson’s increase implies that the upward trend reflects systemic or structural factors—such as regional team expansion, client portfolio shifts, or routing logic changes—rather than isolated incident-type surges.",
+    "With zero variance in current assignment shares (0.0% share range), any future imbalance risk is likely to emerge from sustained differential growth rates—not from existing allocation flaws."
+  ],
+  "summary": "The analysis confirms no current overload exists: all five agents carry identical workloads of 100 assignments each, reflecting perfect balance. However, Howard Johnson stands out as the sole agent with a strong and sustained upward trajectory in assignments (+83.3% year-on-year), while others decline or stagnate. His growth is distributed across categories and priorities but distinguished by a significantly higher India-sourced assignment share (27% vs. 18.2% cohort average), pointing to geographic or client-portfolio dynamics as the primary driver. This signals emerging workload divergence—not yet visible in static counts—but with clear early-warning characteristics. Next focus should be on understanding the root cause of India-related assignment routing to Howard Johnson and assessing whether this trend is scalable, intentional, or indicative of an unaddressed capacity mismatch in regional support coverage."
+}

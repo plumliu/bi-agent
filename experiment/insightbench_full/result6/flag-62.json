@@ -1,0 +1,10 @@
+{
+  "insights": [
+    "All five agents have exactly 100 incident assignments each, reflecting perfect numerical balance in workload distribution across the team.",
+    "The standard deviation of incident assignments is 0.00, confirming no statistical variation exists in assignment volume — eliminating any basis for identifying over- or under-loaded agents.",
+    "No evidence of assignment imbalance was found during leave periods, as the uniform distribution holds regardless of agent availability status or schedule data presence.",
+    "The absence of workload disparity means leave-related assignment adjustments — if they occur — do not manifest as measurable imbalances in final incident allocation.",
+    "Department-level analysis remains viable due to 100% non-null department values, but no inter-departmental assignment skew can be inferred from agent-level uniformity."
+  ],
+  "summary": "The analysis definitively shows no imbalance in incident assignment across the five agents: each carries exactly 100 incidents (20% share), with zero variance in workload. This null result invalidates the premise that leave periods drive uneven distribution, as no deviation from perfect balance exists in the data — whether examined at the agent, temporal, or department level. The high-quality merge (100% match rate) and complete department coverage confirm data reliability, but also confirm the absence of the phenomenon the user sought to diagnose. Next, attention should shift to validating whether this balance reflects intentional scheduling policy, system-enforced routing rules, or potential data limitations in capturing real-time assignment logic — particularly given the 40% missing schedule information."
+}
